@@ -2,23 +2,7 @@ PACKAGE := $(shell grep '^Package:' DESCRIPTION | sed -E 's/^Package:[[:space:]]
 
 all:
 
-# include inst/rcppr6.mk
-
-attributes:
-	Rscript -e "Rcpp::compileAttributes()"
-
-document: roxygen staticdocs
-
-roxygen:
-	@mkdir -p man
-	Rscript -e "library(methods); devtools::document()"
-
-staticdocs:
-	@mkdir -p inst/staticdocs
-	Rscript -e "library(methods); staticdocs::build_site()"
-
-publish_pages:
-	cd inst && ./update-gh-pages.sh
+include rcppr6/rcppr6.mk
 
 install:
 	R CMD INSTALL .

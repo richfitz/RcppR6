@@ -9,4 +9,4 @@ License: CC0
 LazyData: true
 LinkingTo: Rcpp
 Imports:
-    Rcpp
+    Rcpp, R6
