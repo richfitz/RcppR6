@@ -3,11 +3,14 @@ Title: Code-generation Wrapping C++ Classes as R6 Classes
 Version: 0.1
 Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
 Description: Experiments!  The title is just a working title and will
-  change.
+    change.
 Depends:
     R (>= 3.1.0)
 License: BSD_2_clause + file LICENSE
 Suggests:
     testthat
 Roxygen: list(wrap = FALSE)
-SystemRequirements: cog
+Imports:
+    devtools,
+    whisker,
+    yaml

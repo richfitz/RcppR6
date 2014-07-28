@@ -1,0 +1,2 @@
+{{method}} = function({{args_r_defn}}) {
+  {{classname}}__{{method}}({{args_r_use}})}

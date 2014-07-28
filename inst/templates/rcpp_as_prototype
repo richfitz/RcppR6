@@ -1,0 +1,1 @@
+template <> {{classname_full}} as(SEXP);
