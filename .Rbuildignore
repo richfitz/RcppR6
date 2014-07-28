@@ -1,0 +1,7 @@
+## This should work, but doesn't
+inst/testpkg/src/.*\\.o
+## This will do for now
+inst/testpkg/src/dummy.o
+inst/testpkg/src/rcppr6.o
+
+inst/testpkg/src/testpkg.so
