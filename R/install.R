@@ -114,3 +114,17 @@ uninstall <- function(path=".") {
                         file.path(p$src,         "rcppr6.cpp"),
                         file.path(p$include,     "rcppr6_support.hpp"))
 }
+
+##' Wrapper around \code{devtools::create} that also creates rcppr6
+##' files.
+##' @title Create New Package, With rcppr6 Support
+##' @param path Location of the package.  See
+##' \code{\link[devtools]{create}} for more information.
+##' @param ... Additional arguments passed to
+##' \code{\link[devtools]{create}}.
+##' @author Rich FitzJohn
+##' @export
+create <- function(path, ...) {
+  devtools::create(path, ...)
+  install(path)
+}
