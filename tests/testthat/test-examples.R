@@ -6,9 +6,15 @@ test_that("examples", {
   ## Because of the devtools issue (hadley/devtools#531) we need to use
   ## a non-standard temporary file location for the tests.
   path <- "~/tmp"
+  if (!file.exists(path)) {
+    dir.create(path)
+  }
+  pkg <- file.path(path, "examples")
+  if (file.exists(pkg)) {
+    unlink(pkg, recursive=TRUE)
+  }
 
   file.copy(rcppr6_file("examples"), path, recursive=TRUE)
-  pkg <- file.path(path, "examples")
 
   rcppr6::install(pkg)
   devtools::document(pkg)
