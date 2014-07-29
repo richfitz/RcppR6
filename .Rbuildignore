@@ -1,7 +1,6 @@
-## This should work, but doesn't
-inst/testpkg/src/.*\\.o
-## This will do for now
-inst/testpkg/src/dummy.o
-inst/testpkg/src/rcppr6.o
+## Exclude files in sub-packages.  This really should work, but does
+## not.
+^.*\\.so$
+^.*\\.o$
 
-inst/testpkg/src/testpkg.so
+inst/examples/.Rbuildignore

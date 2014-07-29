@@ -14,6 +14,8 @@
 ##' always be safe, but will copy default or skeleton copyies of files
 ##' into place if they do not exist, as well as update your
 ##' DESCRIPTION file.
+##' @param attributes Should Rcpp attributes be regenerated as well?
+##' This is probably a good idea (and is the default).
 ##' @author Rich FitzJohn
 ##' @export
 update_rcppr6 <- function(path=".", verbose=TRUE,

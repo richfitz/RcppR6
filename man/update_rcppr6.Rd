@@ -22,6 +22,9 @@ always be safe, but will copy default or skeleton copyies of files
 into place if they do not exist, as well as update your
 DESCRIPTION file.}
 
+\item{attributes}{Should Rcpp attributes be regenerated as well?
+This is probably a good idea (and is the default).}
+
 \item{...}{Arguments passed to \code{update_rcppr6}}
 }
 \description{

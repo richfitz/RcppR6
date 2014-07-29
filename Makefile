@@ -11,7 +11,7 @@ clean:
 build:
 	R CMD build .
 
-check: build
+check: cleanup build
 	R CMD check --no-manual `ls -1tr ${PACKAGE}*gz | tail -n1`
 	@rm -f `ls -1tr ${PACKAGE}*gz | tail -n1`
 	@rm -rf ${PACKAGE}.Rcheck
@@ -22,5 +22,8 @@ roxygen:
 
 test:
 	make -C tests/testthat
+
+cleanup:
+	rm -f `find inst -name '*.o' -or -name '*.so'`
 
 .PHONY: all install clean build check roxygen test
