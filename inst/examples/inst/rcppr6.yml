@@ -1,0 +1,33 @@
+# Add class definitions here.  File follows YAML format, and
+# documentation will become available on the rcppr6 website.
+
+# Writing this, it's apparent that extra levels of indenting are going
+# to be likely and very difficult to troubleshoot.  Probably going to
+# need some validation tools here.  That's not that horrible to do,
+# and we can just dump that validation code into the part that reads
+# things, or run it separately.
+#
+# But stress test with things like adding extra '-' in front of (say)
+# methods, or method names.
+Uniform:
+  namespace: examples
+  constructor:
+    roxygen: |
+      Uniform distribution
+      @param min Lower bound of the distribution
+      @param max Upper bound of the distribution
+      @export
+    args: # or as 'args: [min: double, max:double]'
+      - min: double
+      - max: double
+  methods:
+    draw:
+      args: [n: int]
+      return_type: Rcpp::NumericVector
+    range:
+      return_type: double
+      method_cpp: examples::uniform_range
+      member: false
+  fields:
+    min: {type: double}
+    max: {type: double}
