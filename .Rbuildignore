@@ -4,3 +4,4 @@
 ^.*\\.o$
 
 inst/examples/.Rbuildignore
+^\.travis\.yml$

@@ -10,7 +10,6 @@ test_that("examples", {
   file.copy(rcppr6_file("examples"), path, recursive=TRUE)
   pkg <- file.path(path, "examples")
 
-  message("hello world")
   rcppr6::install(pkg)
   devtools::document(pkg)
   devtools::load_all(pkg)
