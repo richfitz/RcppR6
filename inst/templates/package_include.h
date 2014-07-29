@@ -9,13 +9,13 @@
 //   class myclass;
 //
 // Once that is done, this line is OK:
-#include <rcppr6_pre.hpp>
+#include <{{package}}/rcppr6_pre.hpp>
 
 // Anything after this point is OK to include Rcpp.h, so if your class
 // definitions *do* depend on Rcpp, this is the point to include them.
 
 // This line can safely be the last line in the file, but may go any
 // point after rcppr6_pre.hpp is included.
-#include <rcppr6_post.hpp>
+#include <{{package}}/rcppr6_post.hpp>
 
 #endif

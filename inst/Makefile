@@ -8,8 +8,11 @@ PACKAGE := $(shell grep '^Package:' DESCRIPTION | sed -E 's/^Package:[[:space:]]
 all:
 
 ## rcppr6 targets:
+install_rcppr6:
+	Rscript -e "rcppr6::install()"
+
 update_rcppr6:
-	Rscript -r "rcppr6::update_rcppr6()"
+	Rscript -e "rcppr6::update_rcppr6()"
 
 attributes:
 	Rscript -e "Rcpp::compileAttributes()"
@@ -34,3 +37,10 @@ check: build
 ## probably should be :)
 test:
 	make -C tests/testthat
+
+clean:
+	cd src && rm -f *.o *.so
+
+reset:
+	Rscript -e "rcppr6:::uninstall()"
+	make roxygen

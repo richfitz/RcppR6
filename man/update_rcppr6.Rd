@@ -4,7 +4,8 @@
 \alias{update_rcppr6}
 \title{Update Or Install rcppr6 Files}
 \usage{
-update_rcppr6(path = ".", verbose = TRUE, install = FALSE)
+update_rcppr6(path = ".", verbose = TRUE, install = FALSE,
+  attributes = TRUE)
 
 install(...)
 }

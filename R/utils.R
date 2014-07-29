@@ -42,8 +42,16 @@ indent <- function(str, n) {
         sep="", collapse="\n")
 }
 
+
+## https://github.com/viking/r-yaml/issues/5#issuecomment-16464325
 yaml_read <- function(filename) {
-  yaml::yaml.load(read_file(filename))
+  ## More restrictive true/false handling.  Only accept if it maps to
+  ## full true/false:
+  handlers <- list('bool#yes' = function(x) {
+    if (identical(toupper(x), "TRUE")) TRUE else x},
+                   'bool#no' = function(x) {
+    if (identical(toupper(x), "FALSE")) FALSE else x})
+  yaml::yaml.load(read_file(filename), handlers=handlers)
 }
 
 ## Pattern where we have a named list and we want to call function
@@ -54,7 +62,9 @@ yaml_read <- function(filename) {
 ## this can be achived via mapply, but it's not pleasant.
 lnapply <- function(X, FUN, ...) {
   nX <- names(X)
-  lapply(seq_along(X), function(i) FUN(nX[[i]], X[[i]], ...))
+  res <- lapply(seq_along(X), function(i) FUN(nX[[i]], X[[i]], ...))
+  names(res) <- nX
+  res
 }
 
 ## Basically just turn down warnings in file.remove to act more like

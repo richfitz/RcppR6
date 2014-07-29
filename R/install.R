@@ -16,17 +16,21 @@
 ##' DESCRIPTION file.
 ##' @author Rich FitzJohn
 ##' @export
-update_rcppr6 <- function(path=".", verbose=TRUE, install=FALSE) {
+update_rcppr6 <- function(path=".", verbose=TRUE,
+                          install=FALSE, attributes=TRUE) {
   package <- package_name(path)
   info <- list(package=package,
                PACKAGE=toupper(package),
                version=rcppr6_version())
+  p <- paths(path, package)
+  ## It's not clear if this is always a good thing, but it seems like
+  ## it can't really hurt.  Alternatively, we could check within the
+  ## install functions if the path is there or not.
+  for (pi in p) {
+    dir.create(pi, FALSE)
+  }
 
   if (install) {
-    p <- paths(path, package)
-    for (pi in p) {
-      dir.create(pi, FALSE)
-    }
     update_DESCRIPTION(path, verbose)
 
     if (!file.exists(file.path(p$inst, "rcppr6.yml"))) {
@@ -46,12 +50,19 @@ update_rcppr6 <- function(path=".", verbose=TRUE, install=FALSE) {
     }
   }
 
-  update_template("rcppr6_support.hpp", p$include, info, verbose)
+  update_template("rcppr6_support.hpp", p$include_pkg, info, verbose)
 
   ## Only add this one if it's not there:
 
   classes <- read_classes(path)
   classes$update(verbose)
+
+  if (attributes) {
+    if (verbose) {
+      message("Compiling Rcpp attributes")
+    }
+    Rcpp::compileAttributes(path)
+  }
 
   invisible(NULL)
 }
@@ -87,13 +98,21 @@ update_DESCRIPTION <- function(path=".", verbose=TRUE) {
   if (!file.exists(filename)) {
     stop("Did not find DESCRIPTION file to modify")
   }
-  d <- data.frame(read.dcf(filename),
-                  stringsAsFactors=FALSE)
+
+  d <- data.frame(read.dcf(filename), stringsAsFactors=FALSE)
+  d_orig <- d
   d <- add_depends_if_missing("Rcpp", "LinkingTo", d, verbose)
   d <- add_depends_if_missing("Rcpp", c("Imports", "Depends"), d, verbose)
   d <- add_depends_if_missing("R6",   c("Imports", "Depends"), d, verbose)
-  s <- paste(capture.output(write.dcf(d)), collapse="\n")
-  update_file(s, filename, verbose)
+
+  if (isTRUE(all.equal(d, d_orig))) {
+    if (verbose) {
+      message("DESCRIPTION is good to go: leaving alone")
+    }
+  } else {
+    s <- paste(capture.output(write.dcf(d)), collapse="\n")
+    update_file(s, filename, verbose)
+  }
 }
 
 paths <- function(path, package) {
@@ -106,13 +125,14 @@ paths <- function(path, package) {
 }
 
 ## Seriously, don't use this.  This is for testing only.
-uninstall <- function(path=".") {
+uninstall <- function(path=".", attributes=TRUE) {
   p <- paths(path, package_name(path))
   file_remove_if_exists(file.path(p$include_pkg, "rcppr6_pre.hpp"),
                         file.path(p$include_pkg, "rcppr6_post.hpp"),
+                        file.path(p$include_pkg, "rcppr6_support.hpp"),
                         file.path(p$R,           "rcppr6.R"),
-                        file.path(p$src,         "rcppr6.cpp"),
-                        file.path(p$include,     "rcppr6_support.hpp"))
+                        file.path(p$src,         "rcppr6.cpp"))
+  Rcpp::compileAttributes(path)
 }
 
 ##' Wrapper around \code{devtools::create} that also creates rcppr6

@@ -34,6 +34,8 @@ read_classes <- function(path=".", package=package_name(path),
                 file.path(p$include_pkg, "rcppr6_post.hpp"), verbose)
   }
 
+  info$classes <- dat
+
   info
 }
 
@@ -44,8 +46,7 @@ parse_class <- function(name, defn, package) {
 
   ## Next, define a bunch of useful types:
   info$classname_full <- sprintf("%s::%s", info$namespace, info$classname)
-  info$generator      <- sprintf(".R6_%s", info$classname)
-  info$ptr_type       <- sprintf('Rcpp::XPtr<%s>', info$classname_full)
+  info$ptr_type       <- sprintf('Rcpp::XPtr< %s >', info$classname_full)
   info$ptr_name       <- "ptr_"
   info$input_type     <- "Rcpp::RObject" # or SEXP?
   info$input_name     <- "obj_"
@@ -53,7 +54,8 @@ parse_class <- function(name, defn, package) {
 
   ## Here are the standard template parameters:
   info$template_info <- function() {
-    info[c("classname", "classname_full", "generator",
+    info[c("package", "PACKAGE", "namespace",
+           "classname", "classname_full", "generator",
            "ptr_type", "ptr_name", "input_type", "input_name",
            "r_self_name")]
   }
@@ -61,10 +63,7 @@ parse_class <- function(name, defn, package) {
   ## At this point we have everything necessary to start building
   ## constructors and methods.
   info$constructor <- parse_constructor(defn$constructor, info)
-  info$methods <- mapply(parse_method,
-                         names(defn$methods), defn$methods,
-                         MoreArgs=list(class=info),
-                         SIMPLIFY=FALSE)
+  info$methods <- lnapply(defn$methods, parse_method, class=info)
   d <- info$template_info()
 
   ## Rcpp stubs are easy to generate:
@@ -75,7 +74,7 @@ parse_class <- function(name, defn, package) {
 
   ## All the R and C++ versions of the methods:
   info$methods_r <- indent(paste(sapply(info$methods, "[[", "r"),
-                                 collapse="\n"), 16)
+                                 collapse=",\n"), 16)
   info$methods_cpp <- paste(sapply(info$methods, "[[", "cpp"),
                           collapse="\n")
   info$r6_generator <- wr_file("r6_generator", c(d, info["methods_r"]))
@@ -114,7 +113,7 @@ parse_method <- function(name, defn, class) {
   info$class       <- class
   info$method      <- name
   info$method_cpp  <- with_default(defn$method_cpp, name)
-  info$member      <- with_default(defn$default,    TRUE)
+  info$member      <- with_default(defn$member,     TRUE)
   info$args        <- parse_args(defn$args, info)
   info$return_type <- defn$return_type
   info$return_statement <-
@@ -149,9 +148,10 @@ parse_args <- function(args, method) {
   cpp_defn_name <-
     c(if (!info$constructor) info$class$input_name, info$args_name)
   cpp_use_name <-
-    c(if (!info$constructor) info$class$ptr_name, info$args_name)
+    c(if (!(info$constructor || method$member)) info$class$ptr_name,
+      info$args_name)
   r_use_name <-
-    c(if (!info$constructor) info$class$r_info_name, info$args_name)
+    c(if (!info$constructor) info$class$r_self_name, info$args_name)
 
   info$cpp_defn <- paste(cpp_defn_type, cpp_defn_name, collapse=", ")
   info$cpp_use  <- paste(cpp_use_name, collapse=", ")
@@ -170,7 +170,8 @@ parse_args <- function(args, method) {
 ## Need to add strip here.
 roxygen_prepare <- function(str) {
   if (length(str) > 0) {
-    paste(paste0("##' ", strsplit(str, "\n", fixed=TRUE)), collapse="\n")
+    paste(paste0("##' ", strsplit(str, "\n", fixed=TRUE)[[1]]),
+          collapse="\n")
   } else {
     ""
   }

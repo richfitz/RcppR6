@@ -3,7 +3,7 @@
 #define _{{PACKAGE}}_RCPPR6_POST_HPP_
 
 #include <Rcpp.h>
-#include <rcppr6_support.hpp>
+#include <{{package}}/rcppr6_support.hpp>
 namespace Rcpp {
 {{rcpp_post}}
 }

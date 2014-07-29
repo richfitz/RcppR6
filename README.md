@@ -16,6 +16,7 @@ There are many requirements here, but almost all are really the same as for usin
 
 2. `NAMESPACE`: Two requirements here:
   * Must import *something* from Rcpp.  The [Rcpp mailing list](http://permalink.gmane.org/gmane.comp.lang.r.rcpp/6744) suggests importing `evalCpp` because it's short to type.  If you use roxygen, the support for this will be done automatically.  I think this requirement is actually to satisfy `R CMD check`, and things will work so long as Rcpp is listed under `Imports:`.  But that might not be correct.
+  * Must import *something* from R6.  I suggest `R6::R6Class`.
   * Must load the package's dynamic library (of course)
 If you use roxygen these will be automatically set up for you.
 

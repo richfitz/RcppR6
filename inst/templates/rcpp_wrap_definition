@@ -1,4 +1,4 @@
 template <> inline SEXP wrap(const {{classname_full}}& x) {
-  using rcppr6::ptr_to_R6;
-  return ptr_to_R6(x, "{{classname}}", "{{generator}}", "{{package}}");
+  using {{package}}::rcppr6::ptr_to_R6;
+  return ptr_to_R6(x, "{{classname}}");
 }

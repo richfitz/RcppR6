@@ -50,7 +50,7 @@ check_DESCRIPTION <- function(path=".") {
       make_msg(package, fields)
     }
   }
-  mapply(f, names(req), req, USE.NAMES=FALSE)
+  unlist(unname(lnapply(req, f)))
 }
 
 check_NAMESPACE <- function(path=".") {
@@ -63,13 +63,17 @@ check_NAMESPACE <- function(path=".") {
     }
     FALSE
   }
-  n <- devtools::parse_ns_file(path)
-
-  if (does_import("Rcpp", n)) {
-    msg_rcpp <- character(0)
-  } else {
-    msg_rcpp <- "NAMESPACE must import something from Rcpp"
+  does_import_msg <- function(package, namespace) {
+    if (does_import(package, n)) {
+      character(0)
+    } else {
+      sprintf("NAMESPACE must import something from %s", package)
+    }
   }
+
+  n <- devtools::parse_ns_file(path)
+  msg_rcpp <- does_import_msg("Rcpp", n)
+  msg_r6   <- does_import_msg("R6", n)
 
   package <- package_name(path)
 
@@ -79,7 +83,7 @@ check_NAMESPACE <- function(path=".") {
     msg_dynlib <- sprintf("NAMESPACE must load dynamic library (%s)",
                           package)
   }
-  c(msg_rcpp, msg_dynlib)
+  c(msg_rcpp, msg_r6, msg_dynlib)
 }
 
 check_header_main <- function(path=".") {
