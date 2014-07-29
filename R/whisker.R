@@ -1,21 +1,16 @@
 ## Support functions for using whisker.
 
-## TODO: This is unfortunate, and can be fixed by updating *all*
-## templates to use '{{{...}}}' in place of '{{...}}'.  Leaving that
-## for now though.
-
-whisker_unescape <- function(x) {
-  x <- gsub("&amp;",  "&",  x)
-  x <- gsub("&lt;",   "<",  x)
-  x <- gsub("&gt;",   ">",  x)
-  x <- gsub("&quot;", "\"", x)
-  x
-}
-
 wr <- function(...) {
   res <- whisker::whisker.render(...)
-  ## For now, undoing all HTML escape sequences:
-  whisker_unescape(res)
+  ## This is overly simple but it will do for now, given that whisker
+  ## only outputs a few types:
+  ##    whisker::escape --> amp, lt, gt, quot
+  ## It obviously misses CDATA entities :)
+  re <- "&[#a-zA-Z0-9]+;"
+  if (any(grepl(re, res))) {
+    stop("HTML entities detected in translated template (use triple '{'")
+  }
+  res
 }
 
 wr_file <- function(filename, ...) {

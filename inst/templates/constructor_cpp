@@ -1,4 +1,4 @@
 // [[Rcpp::export]]
-{{classname_full}} {{classname}}__ctor({{args_cpp_defn}}) {
-  return {{classname_full}}({{args_cpp_use}});
+{{{classname_full}}} {{{classname}}}__ctor({{{args_cpp_defn}}}) {
+  return {{{classname_full}}}({{{args_cpp_use}}});
 }

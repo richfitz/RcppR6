@@ -1,4 +1,4 @@
-{{roxygen}}
-{{classname}} <- function({{args_r_defn}}) {
-  {{classname}}__ctor({{args_r_use}})
+{{{roxygen}}}
+{{{classname}}} <- function({{{args_r_defn}}}) {
+  {{{classname}}}__ctor({{{args_r_use}}})
 }

@@ -1,1 +1,1 @@
-template <> SEXP wrap(const {{classname_full}}&);
+template <> SEXP wrap(const {{{classname_full}}}&);

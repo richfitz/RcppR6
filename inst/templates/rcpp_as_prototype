@@ -1,1 +1,1 @@
-template <> {{classname_full}} as(SEXP);
+template <> {{{classname_full}}} as(SEXP);
