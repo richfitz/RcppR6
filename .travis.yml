@@ -9,7 +9,7 @@ before_install:
 
 install:
   - ./travis-tool.sh install_deps
-  - ./travis-tool.sh install_r_binary roxygen2
+  - ./travis-tool.sh install_r roxygen2
 
 script: ./travis-tool.sh run_tests
 
