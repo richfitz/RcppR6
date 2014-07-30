@@ -1,0 +1,7 @@
+// [[Rcpp::export]]
+{{{return_type}}} {{{> active_cpp_get_name}}}({{{input_type}}} {{{input_name}}}) {
+  using {{{package}}}::rcppr6::ptr_from_R6;
+  {{{ptr_type}}}
+    {{{ptr_name}}}(ptr_from_R6<{{{classname_full}}}>({{{input_name}}}, "{{{classname}}}"));
+  return {{{> active_cpp_get_body}}};
+}

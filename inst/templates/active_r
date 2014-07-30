@@ -1,0 +1,7 @@
+{{{field}}} = function({{{value_name}}}) {
+  if (missing({{{value_name}}})) {
+    {{{> active_cpp_get_name}}}({{{r_self_name}}})
+  } else {
+    {{{> active_cpp_set_name}}}({{{r_self_name}}}, {{{value_name}}})
+  }
+}

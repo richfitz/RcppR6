@@ -46,24 +46,28 @@ parse_class <- function(name, defn, package) {
 
   ## Next, define a bunch of useful types:
   info$classname_full <- sprintf("%s::%s", info$namespace, info$classname)
-  info$ptr_type       <- sprintf('Rcpp::XPtr< %s >', info$classname_full)
+  info$ptr_type       <- sprintf('Rcpp::XPtr<%s >', info$classname_full)
   info$ptr_name       <- "ptr_"
   info$input_type     <- "Rcpp::RObject" # or SEXP?
   info$input_name     <- "obj_"
   info$r_self_name    <- "self"
+  info$value_name     <- "value"
+  info$PACKAGE        <- toupper(package)
 
   ## Here are the standard template parameters:
   info$template_info <- function() {
     info[c("package", "PACKAGE", "namespace",
-           "classname", "classname_full", "generator",
+           "classname", "classname_full",
            "ptr_type", "ptr_name", "input_type", "input_name",
-           "r_self_name")]
+           "r_self_name", "value_name")]
   }
 
   ## At this point we have everything necessary to start building
   ## constructors and methods.
   info$constructor <- parse_constructor(defn$constructor, info)
   info$methods <- lnapply(defn$methods, parse_method, class=info)
+  info$active  <- lnapply(defn$active,  parse_active, class=info)
+
   d <- info$template_info()
 
   ## Rcpp stubs are easy to generate:
@@ -73,13 +77,32 @@ parse_class <- function(name, defn, package) {
   info$rcpp_as_definition   <- wr_file("rcpp_as_definition",   d)
 
   ## All the R and C++ versions of the methods:
-  info$methods_r <- indent(paste(sapply(info$methods, "[[", "r"),
-                                 collapse=",\n"), 16)
+  info$methods_r <-
+    indent(paste(sapply(info$methods, "[[", "r"),
+                 collapse=",\n"), 16)
+  if (!is.null(info$methods_r)) {
+    info$methods_r <- paste0(",\n", info$methods_r)
+  }
+
+  info$active_r <-
+    indent(paste(sapply(info$active, "[[", "r"),
+                 collapse=",\n"), 16)
+  if (!is.null(info$active_r)) {
+    info$active_r <- paste0("\n", info$active_r)
+  }
+
   info$methods_cpp <- paste(sapply(info$methods, "[[", "cpp"),
                           collapse="\n")
-  info$r6_generator <- wr_file("r6_generator", c(d, info["methods_r"]))
+  info$active_cpp <- paste(sapply(info$active, "[[", "cpp"),
+                           collapse="\n")
 
-  info$cpp <- paste(info$constructor$cpp, info$methods_cpp,  sep="\n")
+  info$r6_generator <- wr_file("r6_generator",
+                               c(d, info[c("methods_r", "active_r")]))
+
+  info$cpp <- paste(info$constructor$cpp,
+                    info$methods_cpp,
+                    info$active_cpp,
+                    sep="\n")
   info$r   <- paste(info$constructor$r,   info$r6_generator, sep="\n")
   info$rcpp_pre <- paste(info$rcpp_wrap_prototype,
                          info$rcpp_as_prototype, sep="\n")
@@ -129,6 +152,51 @@ parse_method <- function(name, defn, class) {
   d <- info$template_info()
   info$cpp <- wr_file("method_cpp", d, partials=partials)
   info$r   <- wr_file("method_r",   d)
+  info
+}
+
+parse_active <- function(name, defn, class) {
+  info <- list()
+  info$class <- class
+  info$field <- name  # name on the R side
+  info$return_type <- defn$type
+  info$access <- defn$access # check if field/free/member
+  info$method_cpp <- with_default(defn$method_cpp, name)
+  if (info$access == "field") {
+    info$method_cpp_get <- info$method_cpp_set <- info$method_cpp
+    info$readonly <- with_default(defn$readonly, FALSE)
+  } else {
+    info$readonly <- length(defn$method_cpp) == 1
+    info$method_cpp_get <- defn$method_cpp[[1]]
+    if (!info$readonly) {
+      info$method_cpp_set <- defn$method_cpp[[2]]
+    }
+  }
+
+  d <- c(class$template_info(),
+         info[c("field", "return_type",
+                "method_cpp", "method_cpp_get", "method_cpp_set")])
+
+  ## Now, let's start with templating.
+  partials <-
+    list(active_cpp_get_name=get_template("active_cpp_get_name"),
+         active_cpp_set_name=get_template("active_cpp_set_name"),
+         active_cpp_get_body=
+         get_template(paste0("active_cpp_get_body_", info$access)),
+         active_cpp_set_body=
+         get_template(paste0("active_cpp_set_body_", info$access)))
+
+  f_r <- paste0("active_r", if (info$readonly) "_readonly")
+  info$r   <- wr_file(f_r, d, partials)
+
+  info$cpp_get <- wr_file("active_cpp_get", d, partials)
+  if (info$readonly) {
+    info$cpp <- info$cpp_get
+  } else {
+    info$cpp_set <- wr_file("active_cpp_set", d, partials)
+    info$cpp <- paste(info$cpp_get, info$cpp_set, sep="\n")
+  }
+
   info
 }
 

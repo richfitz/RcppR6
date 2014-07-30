@@ -28,6 +28,24 @@ Uniform:
       return_type: double
       method_cpp: examples::uniform_range
       member: false
-  fields:
-    min: {type: double}
-    max: {type: double}
+  active:
+    # the methods_cpp here will actually be required.  If it's a
+    # single element then this is read-only.  If it's a two element
+    # list, then the second is the 'set' method.
+    the_min:
+      type: double
+      method_cpp: [get_min, set_min]
+      access: member
+    the_max:
+      type: double
+      method_cpp: ["examples::uniform_get_max", "examples::uniform_set_max"]
+      access: free
+    u:
+      type: Rcpp::NumericVector
+      method_cpp: examples::draw1
+      access: free
+    min: {type: double, access: field}
+    max: {type: double, access: field}
+
+## TODO: all method_cpp becomes name_cpp, I think.
+## TODO: member: t/f -> access, with default = member.
