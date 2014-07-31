@@ -18,6 +18,8 @@
 // them earlier up.
 #include <examples/definitions.hpp>
 
+#include <examples/simple.hpp>
+
 // This line can safely be the last line in the file, but may go any
 // point after rcppr6_pre.hpp is included.
 #include <examples/rcppr6_post.hpp>

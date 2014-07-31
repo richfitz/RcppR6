@@ -73,3 +73,6 @@ stack:
     size: {type: size_t, access: member}
     top: {type: int, access: function,
       name_cpp: "examples::stack_internals::top"}
+
+simple_empty:
+  name_cpp: "examples::simple::empty"

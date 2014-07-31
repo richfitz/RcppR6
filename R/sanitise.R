@@ -35,7 +35,7 @@ sanitise_class <- function(name, defn) {
                                      c("class", "struct", ""))
 
   ret$namespace   <- with_default(defn$namespace,
-                                  guess_namespace(defn$name_cpp))
+                                  guess_namespace(ret$name_cpp))
   assert_scalar_character(ret$namespace)
   if (ret$namespace != "") {
     ret$namespace <- sub("^::", "", ret$namespace)
@@ -46,7 +46,7 @@ sanitise_class <- function(name, defn) {
 
   ## Descend into complicated daughter elements:
   ret$constructor <- sanitise_constructor(defn$constructor,
-                                          defn$name_cpp, name)
+                                          ret$name_cpp, name)
   ret$methods     <- sanitise_methods_list(defn$methods, name)
   ret$active      <- sanitise_active_list(defn$active,   name)
 

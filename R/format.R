@@ -41,7 +41,7 @@ format_class <- function(class, package, rcppr6, templates) {
   ret$rcpp_prototypes  <- wr(templates$rcpp_prototypes,  data, templates)
   ret$rcpp_definitions <- wr(templates$rcpp_definitions, data, templates)
 
-  if (!is.null(class$methods)) {
+  if (length(class$methods) > 0) {
     methods_r <-
       lapply(class$methods, function(x)
              wr(templates$method_r, c(data, list(method=x)), templates))
@@ -56,7 +56,7 @@ format_class <- function(class, package, rcppr6, templates) {
     ret$methods_cpp <- drop_blank(methods_cpp)
   }
 
-  if (!is.null(class$active)) {
+  if (length(class$active) > 0) {
     active_r <-
       lapply(class$active, function(x)
              wr(templates$active_r, c(data, list(active=x)), templates))
