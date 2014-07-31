@@ -19,12 +19,26 @@ sanitise_class_list <- function(yaml) {
 sanitise_class <- function(name, defn) {
   assert_scalar_character(name)
   warn_unknown(paste("class", name), defn,
-               c("name_cpp", "constructor", "methods", "active"))
+               c("name_cpp", "namespace", "is_struct",
+                 "constructor", "methods", "active"))
   ret <- list()
   ret$name        <- name
   ret$name_r      <- name
   ret$name_cpp    <- with_default(defn$name_cpp, name)
   assert_scalar_character(ret$name_cpp)
+
+  ret$namespace   <- with_default(defn$namespace,
+                                  guess_namespace(defn$name_cpp))
+  assert_scalar_character(ret$namespace)
+  if (ret$namespace != "") {
+    ret$namespace <- sub("^::", "", ret$namespace)
+    if (!grepl(sprintf("^(::)?%s::", ret$namespace), defn$name_cpp)) {
+      stop("Provided namespace does not look valid")
+    }
+  }
+
+  ret$is_struct   <- with_default(defn$is_struct, FALSE)
+  assert_scalar_logical(ret$is_struct)
 
   ## Descend into complicated daughter elements:
   ret$constructor <- sanitise_constructor(defn$constructor,
@@ -175,4 +189,13 @@ sanitise_args <- function(args, parent) {
 has_roxygen <- function(info) {
   assert_inherits(info, "rcppr6_class")
   any(sapply(info, function(x) !is.null(x$constructor$roxygen)))
+}
+
+guess_namespace <- function(name) {
+  re <- '^(::)?([[:alnum:]_:]+)::(.+)$'
+  if (grepl(re, name)) {
+    sub(re, "\\2", name)
+  } else {
+    ""
+  }
 }

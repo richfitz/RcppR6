@@ -3,11 +3,11 @@ format_class_list <- function(classes, package) {
   templates <- rcppr6_templates()
   info <- lapply(classes, format_class, package, rcppr6, templates)
   data <- list(rcppr6=rcppr6, package=package)
-  collect <- function(x, v) {
-    list(paste(sapply(x, "[[", v), collapse="\n\n"))
+  collect <- function(v, x) {
+    paste(sapply(x, "[[", v), collapse="\n\n")
   }
   render <- function(template, v) {
-    wr(template, c(data, structure(list(collect(info, v)), names=v)))
+    wr(template, c(data, structure(lapply(v, collect, info), names=v)))
   }
 
   ## At this point, the contents of these strings are complete files,
@@ -16,8 +16,11 @@ format_class_list <- function(classes, package) {
   ret <- list()
   ret$r           <- render(templates$rcppr6.R, "r")
   ret$cpp         <- render(templates$rcppr6.cpp, "cpp")
-  ret$rcppr6_pre  <- render(templates$rcppr6_pre.hpp,   "rcppr6_pre")
-  ret$rcppr6_post <- render(templates$rcppr6_post.hpp, "rcppr6_post")
+  ret$rcppr6_pre  <- render(templates$rcppr6_pre.hpp,
+                            c("forward_declaration", "rcpp_prototypes"))
+  ret$rcppr6_post <- render(templates$rcppr6_post.hpp,
+                            "rcpp_definitions")
+
   ret$support     <- wr(templates$rcppr6_support.hpp, data)
   ret
 }
@@ -34,8 +37,9 @@ format_class <- function(class, package, rcppr6, templates) {
                           c(data, class["constructor"]), templates)
 
   ## We always have rcpp stubs:
-  ret$rcppr6_pre  <- wr(templates$rcpp_prototypes,  data, templates)
-  ret$rcppr6_post <- wr(templates$rcpp_definitions, data, templates)
+  ret$forward_declaration <- data$class$forward_declaration
+  ret$rcpp_prototypes  <- wr(templates$rcpp_prototypes,  data, templates)
+  ret$rcpp_definitions <- wr(templates$rcpp_definitions, data, templates)
 
   if (!is.null(class$methods)) {
     methods_r <-

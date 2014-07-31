@@ -39,6 +39,7 @@ template_info_class <- function(x) {
   ret$constructor <- template_info_constructor(x$constructor)
   ret$methods     <- lapply(x$methods, template_info_method)
   ret$active      <- lapply(x$active,  template_info_active)
+  ret$forward_declaration <- template_info_forward_declaration(x)
   ret
 }
 
@@ -98,6 +99,16 @@ template_info_roxygen <- function(str) {
   } else {
     ""
   }
+}
+
+template_info_forward_declaration <- function(x) {
+  ns <- strsplit(x$namespace, "::", fixed=TRUE)[[1]]
+  ## NOTE: This is the same regexp as sanitise_class
+  name_cpp <- sub(sprintf("^(::)?%s::", x$namespace), "", x$name_cpp)
+  paste0(paste(sprintf("namespace %s { ", ns), collapse=""),
+         sprintf("%s %s;",
+                 if (x$is_struct) "struct" else "class", name_cpp),
+         paste(rep(" }", length(ns)), collapse=""))
 }
 
 ## Read all templates.  This makes things slightly simpler later.

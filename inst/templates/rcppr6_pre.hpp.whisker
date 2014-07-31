@@ -3,8 +3,11 @@
 #define _{{{package.NAME}}}_RCPPR6_PRE_HPP_
 
 #include <RcppCommon.h>
+
+{{{forward_declaration}}}
+
 namespace Rcpp {
-{{{rcppr6_pre}}}
+{{{rcpp_prototypes}}}
 }
 
 #endif
