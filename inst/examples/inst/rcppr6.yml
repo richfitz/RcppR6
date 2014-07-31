@@ -27,7 +27,7 @@ uniform:
     range:
       return_type: double
       name_cpp: examples::uniform_range
-      member: false
+      access: function
   active:
     the_min:
       name_cpp: [get_min, set_min]

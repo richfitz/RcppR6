@@ -55,8 +55,8 @@ template_info_method <- function(x) {
   assert_inherits(x, "rcppr6_method")
   ret <- x[c("name_r", "name_cpp", "return_type")]
   ret$return_statement <- if (x$return_type == "void") "" else "return "
-  ret$is_member   <- x$member
-  ret$is_function <- !ret$is_member
+  ret$is_member   <- x$access == "member"
+  ret$is_function <- x$access == "function"
   ret$args <- template_info_args(x$args, FALSE, ret$is_member)
   ret
 }

@@ -111,7 +111,7 @@ sanitise_active_list <- function(active, parent) {
 sanitise_method <- function(name, defn, parent) {
   assert_scalar_character(name)
   warn_unknown(sprintf("::%s", parent), defn,
-               c("name_cpp", "return_type", "member", "args"))
+               c("name_cpp", "return_type", "access", "args"))
   ret <- list()
   ret$name     <- name
   ret$name_r   <- name
@@ -121,8 +121,8 @@ sanitise_method <- function(name, defn, parent) {
   ret$return_type <- defn$return_type
   assert_scalar_character(ret$return_type)
 
-  ret$member <- with_default(defn$member, TRUE)
-  assert_scalar_logical(ret$member)
+  ret$access <- match_value(with_default(defn$access, "member"),
+                            c("member", "function"))
 
   ret$args <- sanitise_args(defn$args, parent)
 
