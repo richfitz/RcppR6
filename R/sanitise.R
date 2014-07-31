@@ -19,13 +19,20 @@ sanitise_class_list <- function(yaml) {
 sanitise_class <- function(name, defn) {
   assert_scalar_character(name)
   warn_unknown(paste("class", name), defn,
-               c("name_cpp", "namespace", "is_struct",
+               c("name_cpp", "forward_declare", "namespace",
                  "constructor", "methods", "active"))
   ret <- list()
   ret$name        <- name
   ret$name_r      <- name
   ret$name_cpp    <- with_default(defn$name_cpp, name)
   assert_scalar_character(ret$name_cpp)
+
+  ret$forward_declare   <- with_default(defn$forward_declare, "class")
+  if (identical(ret$forward_declare, FALSE)) {
+    ret$forward_declare <- ""
+  }
+  ret$forward_declare <- match_value(ret$forward_declare,
+                                     c("class", "struct", ""))
 
   ret$namespace   <- with_default(defn$namespace,
                                   guess_namespace(defn$name_cpp))
@@ -36,9 +43,6 @@ sanitise_class <- function(name, defn) {
       stop("Provided namespace does not look valid")
     }
   }
-
-  ret$is_struct   <- with_default(defn$is_struct, FALSE)
-  assert_scalar_logical(ret$is_struct)
 
   ## Descend into complicated daughter elements:
   ret$constructor <- sanitise_constructor(defn$constructor,

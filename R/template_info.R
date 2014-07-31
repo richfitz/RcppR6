@@ -102,13 +102,16 @@ template_info_roxygen <- function(str) {
 }
 
 template_info_forward_declaration <- function(x) {
-  ns <- strsplit(x$namespace, "::", fixed=TRUE)[[1]]
-  ## NOTE: This is the same regexp as sanitise_class
-  name_cpp <- sub(sprintf("^(::)?%s::", x$namespace), "", x$name_cpp)
-  paste0(paste(sprintf("namespace %s { ", ns), collapse=""),
-         sprintf("%s %s;",
-                 if (x$is_struct) "struct" else "class", name_cpp),
-         paste(rep(" }", length(ns)), collapse=""))
+  if (x$forward_declare == "") {
+    character(0)
+  } else {
+    ns <- strsplit(x$namespace, "::", fixed=TRUE)[[1]]
+    ## NOTE: This is the same regexp as sanitise_class
+    name_cpp <- sub(sprintf("^(::)?%s::", x$namespace), "", x$name_cpp)
+    paste0(paste(sprintf("namespace %s { ", ns), collapse=""),
+           sprintf("%s %s;", x$forward_declare, name_cpp),
+           paste(rep(" }", length(ns)), collapse=""))
+  }
 }
 
 ## Read all templates.  This makes things slightly simpler later.

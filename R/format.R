@@ -4,7 +4,7 @@ format_class_list <- function(classes, package) {
   info <- lapply(classes, format_class, package, rcppr6, templates)
   data <- list(rcppr6=rcppr6, package=package)
   collect <- function(v, x) {
-    paste(sapply(x, "[[", v), collapse="\n\n")
+    paste(unlist(sapply(x, "[[", v), use.names=FALSE), collapse="\n\n")
   }
   render <- function(template, v) {
     wr(template, c(data, structure(lapply(v, collect, info), names=v)))
