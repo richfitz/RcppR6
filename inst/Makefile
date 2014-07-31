@@ -8,11 +8,11 @@ PACKAGE := $(shell grep '^Package:' DESCRIPTION | sed -E 's/^Package:[[:space:]]
 all:
 
 ## rcppr6 targets:
-install_rcppr6:
+rcppr6_install:
 	Rscript -e "rcppr6::install()"
 
-update_rcppr6:
-	Rscript -e "rcppr6::update_rcppr6()"
+rcppr6_update:
+	Rscript -e "rcppr6::rcppr6()"
 
 attributes:
 	Rscript -e "Rcpp::compileAttributes()"

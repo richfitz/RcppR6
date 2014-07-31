@@ -40,4 +40,4 @@ We look after a bunch of files.  This is not really ideal, but does avoid the lo
 * `src/rcppr6.cpp`
 * `R/rcppr6.R`
 
-These files are entirely rcppr6's - don't add anything to them.  Upgrades might totally alter these files at any point.  There is a little warning at the top that indicates this!  The contents of these files will morph and change, and running `install()` / `update_rcppr6()` will *always* update these files.
+These files are entirely rcppr6's - don't add anything to them.  Upgrades might totally alter these files at any point.  There is a little warning at the top that indicates this!  The contents of these files will morph and change, and running `install()` / `rcppr6()` will *always* update these files.

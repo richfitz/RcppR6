@@ -1,3 +1,0 @@
-{{{field}}} = function() {
-  {{{> active_cpp_get_name}}}({{{r_self_name}}})
-}

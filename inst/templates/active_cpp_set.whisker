@@ -1,0 +1,13 @@
+// [[Rcpp::export]]
+void {{> active_set_name}}({{{rcppr6.input_type}}} {{{rcppr6.input_name}}}, {{{active.return_type}}} {{{rcppr6.r_value_name}}}) {
+{{> input_to_ptr}}
+{{{#active.is_field}}}
+  {{{rcppr6.ptr_name}}}->{{{active.name_cpp}}} = {{{rcppr6.r_value_name}}};
+{{{/active.is_field}}}
+{{{#active.is_member}}}
+  {{{rcppr6.ptr_name}}}->{{{active.name_cpp_set}}}({{{rcppr6.r_value_name}}});
+{{{/active.is_member}}}
+{{{#active.is_function}}}
+  {{{active.name_cpp_set}}}(*{{{rcppr6.ptr_name}}}, {{{rcppr6.r_value_name}}});
+{{{/active.is_function}}}
+}

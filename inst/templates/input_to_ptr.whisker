@@ -1,0 +1,3 @@
+  using {{{package.name}}}::rcppr6::ptr_from_R6;
+  Rcpp::XPtr<{{{class.name_cpp}}} >
+    {{{rcppr6.ptr_name}}}(ptr_from_R6<{{{class.name_cpp}}} >({{{rcppr6.input_name}}}, "{{{class.name_r}}}"));

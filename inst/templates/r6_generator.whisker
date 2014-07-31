@@ -1,7 +1,8 @@
-.R6_{{{classname}}} <-
-  R6::R6Class("{{{classname}}}",
+.R6_{{{class.name_r}}} <-
+  R6::R6Class("{{{class.name_r}}}",
               public=list(
                 initialize = function(ptr) {
-                  ptr <<- ptr}{{{methods_r}}}),
+                  ptr <<- ptr
+                }{{{methods_r}}}),
               active=list({{{active_r}}}),
               private=list(ptr=NULL))

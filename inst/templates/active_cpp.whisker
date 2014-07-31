@@ -1,0 +1,4 @@
+{{> active_cpp_get}}
+{{^active.is_readonly}}
+{{> active_cpp_set}}
+{{/active.is_readonly}}

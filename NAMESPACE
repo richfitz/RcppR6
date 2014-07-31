@@ -3,4 +3,4 @@
 export(check)
 export(create)
 export(install)
-export(update_rcppr6)
+export(rcppr6)

@@ -1,0 +1,12 @@
+{{{active.name_r}}} = function({{{rcppr6.r_value_name}}}) {
+  if (missing({{{rcppr6.r_value_name}}})) {
+    {{> active_get_name}}({{{rcppr6.r_self_name}}})
+  } else {
+{{#active.is_readonly}}
+    stop("{{{class.name_r}}}::{{{active.name_r}}} is read-only")
+{{/active.is_readonly}}
+{{^active.is_readonly}}
+    {{> active_set_name}}({{{rcppr6.r_self_name}}}, {{{rcppr6.r_value_name}}})
+{{/active.is_readonly}}
+  }
+}

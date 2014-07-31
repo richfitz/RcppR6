@@ -1,4 +1,0 @@
-template <> inline {{{classname_full}}} as(SEXP x) {
-  using {{{package}}}::rcppr6::ptr_from_R6;
-  return *ptr_from_R6<{{{classname_full}}}>(x, "{{{classname}}}");
-}

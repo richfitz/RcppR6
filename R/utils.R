@@ -44,14 +44,18 @@ indent <- function(str, n) {
 
 
 ## https://github.com/viking/r-yaml/issues/5#issuecomment-16464325
-yaml_read <- function(filename) {
+yaml_load <- function(string) {
   ## More restrictive true/false handling.  Only accept if it maps to
   ## full true/false:
   handlers <- list('bool#yes' = function(x) {
     if (identical(toupper(x), "TRUE")) TRUE else x},
                    'bool#no' = function(x) {
     if (identical(toupper(x), "FALSE")) FALSE else x})
-  yaml::yaml.load(read_file(filename), handlers=handlers)
+  yaml::yaml.load(string, handlers=handlers)
+}
+
+yaml_read <- function(filename) {
+  yaml_load(read_file(filename))
 }
 
 ## Pattern where we have a named list and we want to call function
@@ -67,18 +71,6 @@ lnapply <- function(X, FUN, ...) {
   res
 }
 
-## Basically just turn down warnings in file.remove to act more like
-## shell's 'rm -f'
-file_remove_if_exists <- function(...) {
-  files <- c(...)
-  for (f in files) {
-    if (file.exists(f)) {
-      file.remove(f)
-    }
-  }
-  invisible(NULL)
-}
-
 ## Determine if a package is depended on in, in any number of a set of
 ## fields parsed out of a DESCRIPTION file.
 depends <- function(package, field, data) {
@@ -90,4 +82,20 @@ depends <- function(package, field, data) {
     }
   }
   any(sapply(field, depend1))
+}
+
+## Drop blank lines from a string.  Used to work around some
+## whisker/mustache inconsistencies.
+drop_blank <- function(x) {
+  gsub("\n[[:space:]]*\n", "\n", x)
+}
+
+## Warn if keys are found in an object that are not in a known set.
+warn_unknown <- function(name, defn, known) {
+  unknown <- setdiff(names(defn), known)
+  if (length(unknown) > 0) {
+    warning(sprintf("Unknown fields in %s: %s",
+                    name, collapse(unknown)),
+            immediate.=TRUE)
+  }
 }

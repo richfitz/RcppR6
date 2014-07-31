@@ -1,0 +1,2 @@
+template <> SEXP wrap(const {{{class.name_cpp}}}&);
+template <> {{{class.name_cpp}}} as(SEXP);

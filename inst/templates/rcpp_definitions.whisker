@@ -1,0 +1,7 @@
+template <> inline SEXP wrap(const {{{class.name_cpp}}}& x) {
+  return {{{package.name}}}::rcppr6::ptr_to_R6(x, "{{{class.name_r}}}");
+}
+template <> inline {{{class.name_cpp}}} as(SEXP {{{rcppr6.input_name}}}) {
+{{> input_to_ptr}}
+  return *{{{rcppr6.ptr_name}}};
+}

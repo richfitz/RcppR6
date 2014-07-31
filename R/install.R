@@ -1,7 +1,7 @@
 ##' Update or install rcppr6 files.  This will copy required files
 ##' around, parse your \code{inst/classes.yml} file, and generate
 ##' required files.  Using \code{rcppr6::install()} is equivalent to
-##' passing \code{install=TRUE} to \code{rcppr6::update_rcppr6}.
+##' passing \code{install=TRUE} to \code{rcppr6::rcppr6}.
 ##'
 ##' More details coming later!
 ##' @title Update Or Install rcppr6 Files
@@ -16,70 +16,92 @@
 ##' DESCRIPTION file.
 ##' @param attributes Should Rcpp attributes be regenerated as well?
 ##' This is probably a good idea (and is the default).
+##' @param roxygen Should \code{devtools::document} be run to rebuild
+##' the NAMESPACE and documentation files?  This is generally a good
+##' idea, but will force a rebuild of the source code in the package.
+##' That might not always be desirable as you can end up in unloadable
+##' states.
 ##' @author Rich FitzJohn
 ##' @export
-update_rcppr6 <- function(path=".", verbose=TRUE,
-                          install=FALSE, attributes=TRUE) {
-  package <- package_name(path)
-  info <- list(package=package,
-               PACKAGE=toupper(package),
-               version=rcppr6_version())
-  p <- paths(path, package)
-  ## It's not clear if this is always a good thing, but it seems like
-  ## it can't really hurt.  Alternatively, we could check within the
-  ## install functions if the path is there or not.
-  for (pi in p) {
-    dir.create(pi, FALSE)
-  }
+rcppr6 <- function(path=".", verbose=TRUE,
+                   install=FALSE, attributes=TRUE, roxygen=FALSE) {
+  package <- template_info_package(package_name(path), path)
 
   if (install) {
-    update_DESCRIPTION(path, verbose)
-
-    if (!file.exists(file.path(p$inst, "rcppr6.yml"))) {
-      install_file("rcppr6.yml", p$inst)
-    }
-
-    if (!file.exists(file.path(p$src, "Makevars"))) {
-      install_file("Makevars", p$src, verbose)
-    }
-    package_include <- file.path(p$include, sprintf("%s.h", package))
-    if (!file.exists(package_include)) {
-      update_template("package_include.h", package_include, info,
-                      verbose, dest_is_directory=FALSE)
-      if (verbose) {
-        message("\t...you'll need to edit this file a bunch")
-      }
-    }
+    rcppr6_install_files(package)
+  } else {
+    rcppr6_create_directories(package)
   }
 
-  update_template("rcppr6_support.hpp", p$include_pkg, info, verbose)
+  ## This bit actually does the hard work:
+  ## Load the data:
+  classes <- load_rcppr6_yml(package$files$yml)
+  ## Build template lists:
+  template_info <- template_info_class_list(classes)
+  ## Process the templates into final strings:
+  processed <- format_class_list(template_info, package)
+  ## Write these out in the correct file:
+  for (type in c("r", "cpp", "rcppr6_pre", "rcppr6_post", "support")) {
+    update_file(processed[[type]], package$files[[type]], verbose)
+  }
 
-  ## Only add this one if it's not there:
-
-  classes <- read_classes(path)
-  classes$update(verbose)
-
+  ## Update generated code that depends on our generated code:
   if (attributes) {
-    if (verbose) {
-      message("Compiling Rcpp attributes")
-    }
-    Rcpp::compileAttributes(path)
+    rcppr6_run_attributes(package, verbose)
   }
-
+  if (roxygen && has_roxygen(classes)) {
+    rcppr6_run_roxygen(package, verbose)
+  }
   invisible(NULL)
 }
 
 ##' @export
-##' @rdname update_rcppr6
-##' @param ... Arguments passed to \code{update_rcppr6}
+##' @rdname rcppr6
+##' @param ... Arguments passed to \code{rcppr6()}
 install <- function(...) {
-  update_rcppr6(..., install=TRUE)
+  rcppr6(..., install=TRUE)
 }
 
+##' Wrapper around \code{devtools::create} that also creates rcppr6
+##' files.
+##' @title Create New Package, With rcppr6 Support
+##' @param path Location of the package.  See
+##' \code{\link[devtools]{create}} for more information.
+##' @param ... Additional arguments passed to
+##' \code{\link[devtools]{create}}.
+##' @author Rich FitzJohn
+##' @export
+create <- function(path, ...) {
+  devtools::create(path, ...)
+  install(path)
+}
+
+## Below here -- no exported functions that do all the work.
+
+rcppr6_create_directories <- function(info) {
+  for (pi in info$paths) {
+    dir.create(pi, FALSE)
+  }
+}
+
+rcppr6_install_files <- function(info, verbose=TRUE) {
+  rcppr6_create_directories(info)
+  update_DESCRIPTION(info, verbose)
+  install_file("rcppr6.yml", info$paths$yml, verbose)
+  install_file("Makevars",   info$paths$src, verbose)
+  if (!file.exists(info$files$package_include)) {
+    template <-
+      read_file(rcppr6_file("templates/package_include.h.whisker"))
+    update_file(wr(template, list(package=info)),
+                info$files$package_include, verbose)
+    if (verbose) {
+      message("\t...you'll need to edit this file a bunch")
+    }
+  }
+}
 
 ## NOTE: This duplicates some of the effort in check_DESCRIPTION
-## NOTE: We'll not usually do this one.
-update_DESCRIPTION <- function(path=".", verbose=TRUE) {
+update_DESCRIPTION <- function(info, verbose=TRUE) {
   add_depends_if_missing <- function(package, field, data, verbose) {
     if (!depends(package, field, data)) {
       field <- field[[1]]
@@ -96,7 +118,7 @@ update_DESCRIPTION <- function(path=".", verbose=TRUE) {
     data
   }
 
-  filename <- file.path(path, "DESCRIPTION")
+  filename <- file.path(info$paths$root, "DESCRIPTION")
   if (!file.exists(filename)) {
     stop("Did not find DESCRIPTION file to modify")
   }
@@ -109,7 +131,7 @@ update_DESCRIPTION <- function(path=".", verbose=TRUE) {
 
   if (isTRUE(all.equal(d, d_orig))) {
     if (verbose) {
-      message("DESCRIPTION is good to go: leaving alone")
+      message("DESCRIPTION looks good: leaving alone")
     }
   } else {
     s <- paste(capture.output(write.dcf(d)), collapse="\n")
@@ -117,36 +139,34 @@ update_DESCRIPTION <- function(path=".", verbose=TRUE) {
   }
 }
 
-paths <- function(path, package) {
-  list(root        = path,
-       inst        = file.path(path, "inst"),
-       include     = file.path(path, "inst/include"),
-       include_pkg = file.path(path, "inst/include", package),
-       R           = file.path(path, "R"),
-       src         = file.path(path, "src"))
+rcppr6_run_attributes <- function(package_info, verbose) {
+  if (verbose) {
+    message("Compiling Rcpp attributes")
+  }
+  Rcpp::compileAttributes(package_info$paths$root)
+}
+
+rcppr6_run_roxygen <- function(package_info, verbose) {
+  if (verbose) {
+    message("Running devtools::document")
+  }
+  devtools::document(package_info$paths$root)
 }
 
 ## Seriously, don't use this.  This is for testing only.
-uninstall <- function(path=".", attributes=TRUE) {
-  p <- paths(path, package_name(path))
+uninstall <- function(path=".", attributes=TRUE, verbose=TRUE) {
+  info <- template_info_package(package_name(path), path)
+  p <- info$paths
   file_remove_if_exists(file.path(p$include_pkg, "rcppr6_pre.hpp"),
                         file.path(p$include_pkg, "rcppr6_post.hpp"),
                         file.path(p$include_pkg, "rcppr6_support.hpp"),
                         file.path(p$R,           "rcppr6.R"),
-                        file.path(p$src,         "rcppr6.cpp"))
+                        file.path(p$src,         "rcppr6.cpp"),
+                        verbose=verbose)
+  ## We leave alone the package include file, Makevars, DESCRIPTION
+  if (attributes) {
+    rcppr6_run_attributes(info, verbose)
+  }
   Rcpp::compileAttributes(path)
-}
-
-##' Wrapper around \code{devtools::create} that also creates rcppr6
-##' files.
-##' @title Create New Package, With rcppr6 Support
-##' @param path Location of the package.  See
-##' \code{\link[devtools]{create}} for more information.
-##' @param ... Additional arguments passed to
-##' \code{\link[devtools]{create}}.
-##' @author Rich FitzJohn
-##' @export
-create <- function(path, ...) {
-  devtools::create(path, ...)
-  install(path)
+  dir_remove_if_empty(info$paths)
 }
