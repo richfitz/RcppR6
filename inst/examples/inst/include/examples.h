@@ -2,6 +2,10 @@
 #ifndef _EXAMPLES_H_
 #define _EXAMPLES_H_
 
+// This one I'm including early because it uses a typedef that can't
+// be forward declared.
+#include <examples/stack.hpp>
+
 // Include this early on.  It can be either after classes have been
 // define (but before Rcpp has been loaded) or first.  This file will
 // attempt to provide declarations for the classes and namespaces that
