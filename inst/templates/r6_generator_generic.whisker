@@ -1,0 +1,7 @@
+.R6_{{{class.name_r}}} <- R6::R6Class("{{{class.name_r}}}")
+
+{{{constructor.roxygen}}}
+{{{class.name_r}}} <- function({{{constructor.args.defn_r}}}, {{{rcppr6.type_name}}}=NULL) {
+  pos <- {{{constructor.list_r_repr}}}
+  get_constructor({{{rcppr6.type_name}}}, pos)({{{constructor.args.use_r}}})
+}

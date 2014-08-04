@@ -20,14 +20,24 @@ sanitise_class <- function(name, defn) {
   assert_scalar_character(name)
   warn_unknown(paste("class", name), defn,
                c("name_cpp", "forward_declare", "namespace",
-                 "constructor", "methods", "active"))
+                 "constructor", "methods", "active",
+                 "templates", "inherits"))
+
   ret <- list()
   ret$name        <- name
   ret$name_r      <- name
+  ## TODO: This default will fail if templates are present.  Might
+  ## want to check if they are present and if so substitute the
+  ## template parameters in here.
   ret$name_cpp    <- with_default(defn$name_cpp, name)
   assert_scalar_character(ret$name_cpp)
 
-  ret$forward_declare   <- with_default(defn$forward_declare, "class")
+  ret$templates <- sanitise_templates(defn$templates, ret, ret$name_r)
+
+  forward_declare_default <-
+    if (ret$templates$is_templated) FALSE else "class"
+  ret$forward_declare   <- with_default(defn$forward_declare,
+                                        forward_declare_default)
   if (identical(ret$forward_declare, FALSE)) {
     ret$forward_declare <- ""
   }
@@ -53,6 +63,63 @@ sanitise_class <- function(name, defn) {
   class(ret) <- "rcppr6_class"
 
   ret
+}
+
+sanitise_templates <- function(defn, class, parent) {
+  if (is.null(defn)) {
+    list(is_templated=FALSE)
+  } else {
+    warn_unknown(sprintf("%s::templates", parent), defn,
+                 c("parameters", "concrete"))
+    ret <- list(is_templated=TRUE) # name_template=parent)
+
+    ## For now, just allow single parameters!  Later allow multiple
+    ## parameters, but we never allow single parameters?  Or perhaps if
+    ## a single parameter is given we'll bail out with
+    ## is_templated=FALSE.  Decisions can wait.
+    ret$parameters <- defn$parameters
+    assert_scalar_character(ret$parameters)
+
+    ## Attempt to detect if the template has been specified properly.
+    ## We need this to match or the later substitutions will likely
+    ## fail.
+    ##
+    ## TODO: In the case where there is no template information we
+    ## could fill this in and set it back in the parent.
+    re <- sprintf("[[:space:]]*<%s>",
+                  paste(sprintf("[[:space:]]*%s[[:space:]]*",
+                                ret$parameters), collapse=","))
+    if (!grepl(re, class$name_cpp)) {
+      stop("Template must be given with full parameters")
+    }
+    ret$name_cpp <- class$name_cpp
+
+    ## Then build a list of concrete versions of the templates.
+
+    ## This is almost the same requirements as args.
+    if (is.null(defn$concrete) || length(defn$concrete) == 0) {
+      stop("Must provide at least one concrete template version")
+    }
+    assert_named(defn$concrete)
+    ok <- function(x) {
+      is.character(x) && length(x) == length(ret$parameters)
+    }
+    if (!all(sapply(defn$concrete, ok))) {
+      stop(sprintf("All versions must be %d element character vectors",
+                   length(ret$parameters)))
+    }
+
+    f <- function(name, x, parameters) {
+      ret <- list()
+      ret$name <- ret$name_r <- mangle_template_type(parent, name)
+      ret$parameters <- structure(x, names=parameters)
+      ret$name_cpp <- cpp_template_rewrite_types(class$name_cpp, ret)
+      ret
+    }
+    ret$concrete <- lnapply(defn$concrete, f, ret$parameters)
+
+    ret
+  }
 }
 
 sanitise_constructor <- function(defn, class_cpp, parent) {

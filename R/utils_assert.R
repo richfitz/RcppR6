@@ -120,10 +120,6 @@ assert_named <- function(x,
   }
 }
 
-collapse <- function(x, sep=", ") {
-  paste(x, collapse=sep)
-}
-
 ## Like match.arg(), but does not allow for abbreviation.
 match_value <- function(arg, choices, msg=NULL) {
   assert_scalar_character(arg)

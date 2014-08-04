@@ -3,12 +3,16 @@ format_class_list <- function(classes, package) {
   templates <- rcppr6_templates()
   info <- lapply(classes, format_class, package, rcppr6, templates)
   data <- list(rcppr6=rcppr6, package=package)
-  collect <- function(v, x) {
-    paste(unlist(sapply(x, "[[", v), use.names=FALSE), collapse="\n\n")
+  ## TODO: There is a package version of this to use instead now.
+  collect_2nl <- function(v, x) {
+    collapse(unlist(collect(v, x)), "\n\n")
   }
   render <- function(template, v) {
-    wr(template, c(data, structure(lapply(v, collect, info), names=v)))
+    wr(template, c(data, structure(lapply(v, collect_2nl, info), names=v)))
   }
+
+  collect_2nl("forward_declaration", info)
+  collect("forward_declaration", info)
 
   ## At this point, the contents of these strings are complete files,
   ## ready to write.  So we return nothing but the strings
@@ -21,7 +25,12 @@ format_class_list <- function(classes, package) {
   ret$rcppr6_post <- render(templates$rcppr6_post.hpp,
                             "rcpp_definitions")
 
-  ret$support     <- wr(templates$rcppr6_support.hpp, data)
+  if (any(collect("is_generic", classes))) {
+    ret$r <- paste(ret$r, wr(templates$rcppr6_support.R, data),
+                   sep="\n\n")
+  }
+
+  ret$support <- wr(templates$rcppr6_support.hpp, data)
   ret
 }
 
@@ -29,66 +38,88 @@ format_class <- function(class, package, rcppr6, templates) {
   data <- list(rcppr6=rcppr6, package=package, class=class)
 
   ret <- list()
-
-  ## We always have a constructor:
-  ret$constructor_r <- wr(templates$constructor_r,
-                          c(data, class["constructor"]), templates)
-  ret$constructor_cpp <- wr(templates$constructor_cpp,
-                          c(data, class["constructor"]), templates)
-
-  ## We always have rcpp stubs:
   ret$forward_declaration <- data$class$forward_declaration
-  ret$rcpp_prototypes  <- wr(templates$rcpp_prototypes,  data, templates)
-  ret$rcpp_definitions <- wr(templates$rcpp_definitions, data, templates)
 
-  if (length(class$methods) > 0) {
-    methods_r <-
-      lapply(class$methods, function(x)
-             wr(templates$method_r, c(data, list(method=x)), templates))
-    methods_cpp <-
-      lapply(class$methods, function(m)
-             wr(templates$method_cpp, c(data, list(method=m)), templates))
-    methods_r   <- paste0(",\n",
-                          indent(paste(methods_r, collapse=",\n"), 16))
-    methods_cpp <- paste(methods_cpp, collapse="\n")
-    ## More formatting tweaks: whisker leaves incorrect blank lines:
-    ret$methods_r   <- drop_blank(methods_r)
-    ret$methods_cpp <- drop_blank(methods_cpp)
+  if (class$is_generic) {
+    generator_r <- wr(templates$r6_generator_generic,
+                      c(data, class["constructor"]), templates)
+    subtypes <- lapply(class$templates, format_class,
+                       package, rcppr6, templates)
+    collect_nl <- function(...) {
+      collapse(collect(..., collapse, "\n"), "\n")
+    }
+    ret$r <- paste(generator_r, collect_nl("r", subtypes), sep="\n")
+    ret$cpp <- collect_nl("cpp", subtypes)
+    ret$rcpp_prototypes <- collect_nl("rcpp_prototypes", subtypes)
+    ret$rcpp_definitions <- collect_nl("rcpp_definitions", subtypes)
+  } else {
+    ret$r <- format_class_r(class, data, templates)
+    ret$cpp <- format_class_cpp(class, data, templates)
+    ret$rcpp_prototypes  <- wr(templates$rcpp_prototypes,  data, templates)
+    ret$rcpp_definitions <- wr(templates$rcpp_definitions, data, templates)
   }
-
-  if (length(class$active) > 0) {
-    active_r <-
-      lapply(class$active, function(x)
-             wr(templates$active_r, c(data, list(active=x)), templates))
-    active_cpp <-
-      lapply(class$active, function(m)
-             wr(templates$active_cpp, c(data, list(active=m)), templates))
-    active_r   <- paste0("\n",
-                         indent(paste(active_r, collapse=",\n"), 16))
-    active_cpp <- paste(active_cpp, collapse="\n")
-    ## More formatting tweakss: whisker leaves incorrect blank lines:
-    ret$active_r   <- drop_blank(active_r)
-    ret$active_cpp <- drop_blank(active_cpp)
-  }
-
-  ## Add these to the constructor:
-  ret$generator_r <- wr(templates$r6_generator, c(data, ret))
-  ret$r <- paste(c(ret$constructor_r, ret$generator_r),
-                 collapse="\n")
-  ret$cpp <- paste(c(ret$constructor_cpp, ret$methods_cpp, ret$active_cpp),
-                   collapse="\n")
   ret
 }
 
-## Wrapper function to help with whisker
-wr <- function(...) {
-  res <- whisker::whisker.render(...)
-  ## This is overly simple but it will do for now, given that whisker
-  ## only outputs a few types:
-  ##    whisker::escape --> amp, lt, gt, quot
-  ## It obviously misses CDATA entities :)
-  if (any(grepl("&[#a-zA-Z0-9]+;", res))) {
-    stop("HTML entities detected in translated template (use triple '{'")
+format_class_r <- function(class, data, templates) {
+  constructor_r <- wr(templates$constructor_r,
+                      c(data, class["constructor"]), templates)
+  data$methods_r   <- format_methods_r(class$methods, data, templates)
+  data$active_r    <- format_active_r(class$active, data, templates)
+  generator_r <- wr(templates$r6_generator, data)
+  paste(c(constructor_r, generator_r), collapse="\n")
+}
+
+format_class_cpp <- function(class, data, templates) {
+  constructor_cpp <- wr(templates$constructor_cpp,
+                        c(data, class["constructor"]), templates)
+  methods_cpp <- format_methods_cpp(class$methods, data, templates)
+  active_cpp  <- format_active_cpp(class$active, data, templates)
+  paste(c(constructor_cpp, methods_cpp, active_cpp), collapse="\n")
+}
+
+format_methods_r <- function(methods, data, templates) {
+  if (length(methods) == 0) {
+    NULL
+  } else {
+    methods_r <-
+      lapply(methods, function(x)
+             wr(templates$method_r, c(data, list(method=x)), templates))
+    methods_r <- indent(paste(methods_r, collapse=",\n"), 16)
+    paste(",\n", drop_blank(methods_r))
   }
-  res
+}
+
+format_active_r <- function(active, data, templates) {
+  if (length(active) == 0) {
+    NULL
+  } else {
+    active_r <-
+      lapply(active, function(x)
+             wr(templates$active_r, c(data, list(active=x)), templates))
+    active_r <- indent(paste(active_r, collapse=",\n"), 16)
+    paste0("\n", drop_blank(active_r))
+  }
+}
+
+format_methods_cpp <- function(methods, data, templates) {
+  if (length(methods) == 0) {
+    NULL
+  } else {
+    methods_cpp <-
+      lapply(methods, function(x)
+             wr(templates$method_cpp, c(data, list(method=x)), templates))
+    drop_blank(paste(methods_cpp, collapse="\n"))
+  }
+}
+
+format_active_cpp <- function(active, data, templates) {
+  if (length(active) == 0) {
+    NULL
+  } else {
+    active_cpp <-
+      lapply(active, function(x)
+             wr(templates$active_cpp, c(data, list(active=x)), templates))
+    drop_blank(paste(active_cpp, collapse="\n"))
+  }
 }

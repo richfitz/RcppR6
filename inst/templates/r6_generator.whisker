@@ -1,5 +1,6 @@
 .R6_{{{class.name_r}}} <-
   R6::R6Class("{{{class.name_r}}}",
+              inherit={{class.inherits}},
               public=list(
                 initialize = function(ptr) {
                   ptr <<- ptr

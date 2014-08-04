@@ -99,3 +99,38 @@ warn_unknown <- function(name, defn, known) {
             immediate.=TRUE)
   }
 }
+
+collect <- function(key, data, FUN=identity, ...) {
+  sapply(data, function(x) FUN(x[[key]]))
+}
+
+collapse <- function(x, sep=", ") {
+  paste(x, collapse=sep)
+}
+
+## Wrapper function to help with whisker
+wr <- function(...) {
+  res <- whisker::whisker.render(...)
+  ## This is overly simple but it will do for now, given that whisker
+  ## only outputs a few types:
+  ##    whisker::escape --> amp, lt, gt, quot
+  ## It obviously misses CDATA entities :)
+  if (any(grepl("&[#a-zA-Z0-9]+;", res))) {
+    stop("HTML entities detected in translated template (use triple '{'")
+  }
+  res
+}
+
+## Because of the devtools issue (hadley/devtools#531) we need to use
+## a non-standard temporary file location for the tests.
+prepare_temporary <- function(pkg, path="~/tmp") {
+  if (!file.exists(path)) {
+    dir.create(path)
+  }
+  pkg_dest <- file.path(path, basename(pkg))
+  if (file.exists(pkg_dest)) {
+    unlink(pkg_dest, recursive=TRUE)
+  }
+  file.copy(pkg, path, recursive=TRUE)
+  invisible(pkg_dest)
+}

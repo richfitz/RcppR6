@@ -1,0 +1,17 @@
+## This section of code is only included where templated classes are
+## included.  Don't rely on the approach taken here, as it may change
+## soon.
+
+## This code is only used at the moment when there is a templated class.
+get_constructor <- function(type, list) {
+  list[[check_type(type, names(list))]]
+}
+
+## Check that a type is in the list
+check_type <- function(type, valid) {
+  if (!(length(type) == 1 && type %in% valid)) {
+    stop(sprintf("Invalid type %s; expected one of: %s",
+                 type, paste(valid, collapse=", ")))
+  }
+  type
+}

@@ -3,6 +3,7 @@ template_info_rcppr6 <- function() {
   list(input_type="Rcpp::RObject",
        input_name="obj_",
        ptr_name="ptr_",
+       type_name="type",
        ## These should be constant, but would vary if using RC backend
        r_self_name="self",
        r_value_name="value",
@@ -36,10 +37,52 @@ template_info_class_list <- function(x) {
 template_info_class <- function(x) {
   assert_inherits(x, "rcppr6_class")
   ret <- x[c("name_r", "name_cpp")]
-  ret$constructor <- template_info_constructor(x$constructor)
-  ret$methods     <- lapply(x$methods, template_info_method)
-  ret$active      <- lapply(x$active,  template_info_active)
+  ## TODO: Only used in generic functions, and incorrectly named from
+  ## a OOP POV.  Could be useful for objects that implement a common
+  ## interface though.
+  ret$inherits <- if (is.null(x$inherits))
+    "NULL" else paste0(".R6_", x$inherits)
   ret$forward_declaration <- template_info_forward_declaration(x)
+  ret$is_generic <- x$templates$is_templated
+  if (ret$is_generic) {
+    ret$is_generic <- TRUE
+    ret$constructor <-
+      template_info_constructor_generic(x$constructor, x$templates)
+    ret$templates <-
+      lapply(x$templates$concrete, function(t)
+             template_info_class(cpp_template_rewrite_class(x, t)))
+  } else {
+    ret$constructor <- template_info_constructor(x$constructor)
+    ret$methods     <- lapply(x$methods, template_info_method)
+    ret$active      <- lapply(x$active,  template_info_active)
+  }
+  ret
+}
+
+template_info_constructor_generic <- function(x, templates) {
+  assert_inherits(x, "rcppr6_constructor")
+  ret <- list()
+
+  ## TODO: consider mangling or use templates/constructor_name.whisker
+  ret$list <- sprintf("%s__ctor",
+                      sapply(templates$concrete, "[[", "name_r"))
+  names(ret$list) <- names(templates$concrete)
+  ret$list_r_repr <-
+    sprintf("c(%s)",
+            paste(sprintf('"%s"=%s', names(ret$list), ret$list),
+                  collapse=", "))
+
+  ret$roxygen <- template_info_roxygen(x$roxygen)
+  if (!is.null(ret$roxygen)) {
+    ## TODO: This won't work well if there are examples, I think.
+    ## TODO: Ideally put after the last @param argument or right
+    ## before @export.  Before @export has a lot of appeal because
+    ## that will only modify exported documentation.
+    ## ret$roxygen <- paste(ret$roxygen,
+    ##                      "@param type generic type information")
+  }
+
+  ret$args <- template_info_args(x$args, TRUE, FALSE)
   ret
 }
 
