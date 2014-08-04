@@ -77,7 +77,7 @@ SEXP ptr_to_R6(T x, std::string classname) {
   Rcpp::Environment base("package:base");
   Rcpp::Function getNamespace = base["getNamespace"];
   Rcpp::Environment pkg = getNamespace("{{{package.name}}}");
-  Rcpp::List Generator = pkg[".R6_" + classname];
+  Rcpp::List Generator = pkg["{{{rcppr6.r6_generator_prefix}}}" + classname];
   Rcpp::Function Generator_new = Generator["new"];
   // TODO: Not sure about embedding package/classname this way.
   // NOTE: This is never checked anywhere, nor need it be I think

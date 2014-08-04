@@ -7,6 +7,7 @@ template_info_rcppr6 <- function() {
        ## These should be constant, but would vary if using RC backend
        r_self_name="self",
        r_value_name="value",
+       r6_generator_prefix=mangle_r6_generator(""),
        version=rcppr6_version())
 }
 
@@ -37,11 +38,16 @@ template_info_class_list <- function(x) {
 template_info_class <- function(x) {
   assert_inherits(x, "rcppr6_class")
   ret <- x[c("name_r", "name_cpp")]
+  ret$r6_generator <- mangle_r6_generator(ret$name_r)
   ## TODO: Only used in generic functions, and incorrectly named from
   ## a OOP POV.  Could be useful for objects that implement a common
   ## interface though.
+  ##
+  ## NOTE: The peculiar "NULL" as a string here is so that the
+  ## template ends up with a 'proper' NULL after substitution (see
+  ## r6_generator.whisker)
   ret$inherits <- if (is.null(x$inherits))
-    "NULL" else paste0(".R6_", x$inherits)
+    "NULL" else mangle_r6_generator(x$inherits)
   ret$forward_declaration <- template_info_forward_declaration(x)
   ret$is_generic <- x$templates$is_templated
   if (ret$is_generic) {

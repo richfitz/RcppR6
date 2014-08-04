@@ -9,3 +9,7 @@
 mangle_template_type <- function(class_r, template_type) {
   sprintf("%s___%s", class_r, template_type)
 }
+
+mangle_r6_generator <- function(class_r) {
+  sprintf(".R6_%s", class_r)
+}
