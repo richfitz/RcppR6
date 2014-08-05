@@ -1,5 +1,5 @@
 // [[Rcpp::export]]
-void {{> active_set_name}}({{{rcppr6.input_type}}} {{{rcppr6.input_name}}}, {{{active.return_type}}} {{{rcppr6.r_value_name}}}) {
+void {{{active.set_name}}}({{{rcppr6.input_type}}} {{{rcppr6.input_name}}}, {{{active.return_type}}} {{{rcppr6.r_value_name}}}) {
 {{> input_to_ptr}}
 {{{#active.is_field}}}
   {{{rcppr6.ptr_name}}}->{{{active.name_cpp}}} = {{{rcppr6.r_value_name}}};

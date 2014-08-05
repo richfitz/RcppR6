@@ -58,9 +58,9 @@ template_info_class <- function(x) {
       lapply(x$templates$concrete, function(t)
              template_info_class(cpp_template_rewrite_class(x, t)))
   } else {
-    ret$constructor <- template_info_constructor(x$constructor)
-    ret$methods     <- lapply(x$methods, template_info_method)
-    ret$active      <- lapply(x$active,  template_info_active)
+    ret$constructor <- template_info_constructor(x$constructor, x)
+    ret$methods     <- lapply(x$methods, template_info_method, x)
+    ret$active      <- lapply(x$active,  template_info_active, x)
   }
   ret
 }
@@ -92,17 +92,19 @@ template_info_constructor_generic <- function(x, templates) {
   ret
 }
 
-template_info_constructor <- function(x) {
+template_info_constructor <- function(x, class_info) {
   assert_inherits(x, "rcppr6_constructor")
   ret <- x["name_cpp"]
+  ret$name <- mangle_constructor(class_info$name_r)
   ret$roxygen <- template_info_roxygen(x$roxygen)
   ret$args <- template_info_args(x$args, TRUE, FALSE)
   ret
 }
 
-template_info_method <- function(x) {
+template_info_method <- function(x, class_info) {
   assert_inherits(x, "rcppr6_method")
   ret <- x[c("name_r", "name_cpp", "return_type")]
+  ret$name <- mangle_method(class_info$name_r, ret$name_r)
   ret$return_statement <- if (x$return_type == "void") "" else "return "
   ret$is_member   <- x$access == "member"
   ret$is_function <- x$access == "function"
@@ -110,9 +112,12 @@ template_info_method <- function(x) {
   ret
 }
 
-template_info_active <- function(x) {
+template_info_active <- function(x, class_info) {
   assert_inherits(x, "rcppr6_active")
   ret <- x[c("name_r", "name_cpp")]
+  ## These two might change names.
+  ret$get_name     <- mangle_active(class_info$name_r, ret$name_r, "get")
+  ret$set_name     <- mangle_active(class_info$name_r, ret$name_r, "set")
   ret$name_cpp_get <- x$name_cpp_get
   ret$name_cpp_set <- x$name_cpp_set
   ret$return_type  <- x$type

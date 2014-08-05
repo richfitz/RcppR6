@@ -6,10 +6,23 @@
 ## definitions should be easy enough and avoid issues.  Needs
 ## documenting and the restrictions on names needs checking
 ## throughout.
-mangle_template_type <- function(class_r, template_type) {
-  sprintf("%s___%s", class_r, template_type)
+mangle_template_type <- function(class, template_type) {
+  sprintf("%s___%s", class, template_type)
 }
 
-mangle_r6_generator <- function(class_r) {
-  sprintf(".R6_%s", class_r)
+mangle_r6_generator <- function(class) {
+  sprintf(".R6_%s", class)
+}
+
+mangle_active <- function(class, name, direction) {
+  direction <- match_value(direction, c("get", "set"))
+  sprintf("%s__%s__%s", class, name, direction)
+}
+
+mangle_method <- function(class, name) {
+  sprintf("%s__%s", class, name)
+}
+
+mangle_constructor <- function(class) {
+  sprintf("%s__ctor", class)
 }
