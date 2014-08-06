@@ -1,10 +1,43 @@
+load_rcppr6_yml <- function(path=".", verbose=TRUE) {
+  filename <- file.path(path, "inst/rcppr6.yml")
+  if (file.exists(filename)) {
+    dat <- yaml_read(filename)
+  } else {
+    if (verbose) {
+      message("No configuration found - using default")
+    }
+    dat <- config_default()
+  }
+  info <- sanitise_rcppr6(dat)
+  filename_classes <- file.path(path, info$classes)
+  classes <- join_lists(lapply(filename_classes, load_rcppr6_classes, verbose))
+  list(classes=classes)
+}
+
+config_default <- function() {
+  list(classes="inst/rcppr6_classes.yml")
+}
+
+load_rcppr6_classes <- function(filename, verbose) {
+  if (verbose) {
+    message("Reading classes from ", filename)
+  }
+  sanitise_class_list(yaml_read(filename))
+}
+
+sanitise_rcppr6 <- function(dat) {
+  warn_unknown("rcppr6", dat, "classes")
+  assert_character(dat$classes)
+  if (length(dat$classes) == 0) {
+    stop("Need at least one set of classes")
+  }
+  dat
+}
+
 ## In the absence of a proper schema, this does a first round of
 ## cleaning.  Keys and contents are checked, default values are added,
 ## etc.  If this loads, then all the template information should flow
 ## fairly easily.
-load_rcppr6_yml <- function(filename) {
-  sanitise_class_list(yaml_read(filename))
-}
 
 sanitise_class_list <- function(yaml) {
   if (is.null(yaml) || length(yaml) == 0) {

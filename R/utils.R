@@ -134,3 +134,7 @@ prepare_temporary <- function(pkg, path="~/tmp") {
   file.copy(pkg, path, recursive=TRUE)
   invisible(pkg_dest)
 }
+
+join_lists <- function(x) {
+  unlist(unname(x), FALSE, TRUE)
+}

@@ -35,7 +35,7 @@ rcppr6 <- function(path=".", verbose=TRUE,
 
   ## This bit actually does the hard work:
   ## Load the data:
-  classes <- load_rcppr6_yml(package$files$yml)
+  classes <- load_rcppr6_yml(path, verbose)$classes
   ## Build template lists:
   template_info <- template_info_class_list(classes)
   ## Process the templates into final strings:
@@ -87,7 +87,7 @@ rcppr6_create_directories <- function(info) {
 rcppr6_install_files <- function(info, verbose=TRUE) {
   rcppr6_create_directories(info)
   update_DESCRIPTION(info, verbose)
-  install_file("rcppr6.yml", info$paths$yml, verbose)
+  install_file("rcppr6_classes.yml", info$paths$yml_classes, verbose)
   install_file("Makevars",   info$paths$src, verbose)
   if (!file.exists(info$files$package_include)) {
     template <-

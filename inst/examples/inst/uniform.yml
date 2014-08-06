@@ -1,0 +1,42 @@
+# Writing this, it's apparent that extra levels of indenting are going
+# to be likely and very difficult to troubleshoot.  Probably going to
+# need some validation tools here.  That's not that horrible to do,
+# and we can just dump that validation code into the part that reads
+# things, or run it separately.
+#
+# But stress test with things like adding extra '-' in front of (say)
+# methods, or method names.
+uniform:
+  name_cpp: examples::Uniform
+  constructor:
+    roxygen: |
+      Uniform distribution
+      @param min Lower bound of the distribution
+      @param max Upper bound of the distribution
+      @export
+    args: # equiv --> 'args: [min: double, max:double]'
+      - min: double
+      - max: double
+  methods:
+    draw:
+      args: [n: int]
+      return_type: Rcpp::NumericVector
+    range:
+      return_type: double
+      name_cpp: examples::uniform_range
+      access: function
+  active:
+    the_min:
+      name_cpp: [get_min, set_min]
+      type: double
+      access: member
+    the_max:
+      name_cpp: ["examples::uniform_get_max", "examples::uniform_set_max"]
+      type: double
+      access: function
+    u:
+      name_cpp: examples::draw1 # read-only: only 1 element...
+      type: Rcpp::NumericVector
+      access: function
+    min: {type: double, access: field}
+    max: {type: double, access: field}

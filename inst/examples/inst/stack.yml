@@ -1,0 +1,29 @@
+stack:
+  name_cpp: examples::stack
+  forward_declare: false
+  constructor:
+    roxygen: |
+      @export
+  methods:
+    pop:
+      return_type: void
+      access: function
+      name_cpp: "examples::stack_internals::pop"
+    push:
+      args: [x: "int"]
+      return_type: void
+    equals:
+      args: [other: "examples::stack"]
+      name_cpp: examples::stack_eq
+      access: function
+      return_type: bool
+    differs:
+      args: [other: "examples::stack"]
+      name_cpp: "operator!="
+      access: function
+      return_type: bool
+  active:
+    empty: {type: bool, access: member}
+    size: {type: size_t, access: member}
+    top: {type: int, access: function,
+      name_cpp: "examples::stack_internals::top"}
