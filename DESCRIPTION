@@ -8,7 +8,8 @@ Depends:
     R (>= 3.1.0)
 License: BSD_2_clause + file LICENSE
 Suggests:
-    testthat
+    testthat,
+    roxygen2 (>= 4.0.0)
 Roxygen: list(wrap = FALSE)
 Imports:
     Rcpp,
