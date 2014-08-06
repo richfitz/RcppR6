@@ -87,8 +87,7 @@ rcppr6_create_directories <- function(info) {
 rcppr6_install_files <- function(info, verbose=TRUE) {
   rcppr6_create_directories(info)
   update_DESCRIPTION(info, verbose)
-  install_file("rcppr6_classes.yml", info$paths$yml_classes, verbose)
-  install_file("Makevars",   info$paths$src, verbose)
+  install_file("Makevars", info$paths$src, verbose)
   if (!file.exists(info$files$package_include)) {
     template <-
       read_file(rcppr6_file("templates/package_include.h.whisker"))
@@ -97,6 +96,13 @@ rcppr6_install_files <- function(info, verbose=TRUE) {
     if (verbose) {
       message("\t...you'll need to edit this file a bunch")
     }
+  }
+  namespace <- file.path(info$paths$root, "NAMESPACE")
+  if (!file.exists(namespace)) {
+    if (verbose) {
+      message("Writing empty NAMESPACE")
+    }
+    writeLines(character(0), namespace)
   }
 }
 
@@ -154,7 +160,7 @@ rcppr6_run_roxygen <- function(package_info, verbose) {
 }
 
 ## Seriously, don't use this.  This is for testing only.
-uninstall <- function(path=".", attributes=TRUE, verbose=TRUE) {
+uninstall <- function(path=".", verbose=TRUE, attributes=TRUE) {
   info <- template_info_package(package_name(path), path)
   p <- info$paths
   file_remove_if_exists(file.path(p$include_pkg, "rcppr6_pre.hpp"),
@@ -167,6 +173,5 @@ uninstall <- function(path=".", attributes=TRUE, verbose=TRUE) {
   if (attributes) {
     rcppr6_run_attributes(info, verbose)
   }
-  Rcpp::compileAttributes(path)
   dir_remove_if_empty(info$paths)
 }

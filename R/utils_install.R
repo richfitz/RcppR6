@@ -31,11 +31,11 @@ install_file <- function(filename, dest_dir, verbose=TRUE,
   file_exists <- file.exists(dest)
   do_copy <- overwrite || !file_exists
   if (verbose) {
-    if (file.exists(dest) && overwrite) {
+    if (file_exists && overwrite) {
       message(sprintf("Installing file %s (overwriting)", dest))
+    } else if (!file_exists) {
+      message(sprintf("Installing file %s (new file)", dest))
     }
-  } else if (!file_exists) {
-    message(sprintf("Installing file %s (new file)", dest))
   }
   if (do_copy) {
     file.copy(rcppr6_file(filename), dest, overwrite=TRUE)

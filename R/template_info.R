@@ -17,11 +17,9 @@ template_info_package <- function(package, path=".") {
          inst        = file.path(path, "inst"),
          include     = file.path(path, "inst/include"),
          include_pkg = file.path(path, "inst/include", package),
-         yml_classes = file.path(path, "inst"),
          r           = file.path(path, "R"),
          src         = file.path(path, "src"))
   files <- list(
-    yml_classes     = file.path(paths$yml_classes, "rcppr6_classes.yml"),
     r               = file.path(paths$r,           "rcppr6.R"),
     cpp             = file.path(paths$src,         "rcppr6.cpp"),
     rcppr6_pre      = file.path(paths$include_pkg, "rcppr6_pre.hpp"),

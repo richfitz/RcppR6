@@ -21,7 +21,7 @@ roxygen:
 	Rscript -e "library(methods); devtools::document()"
 
 test:
-	make -C tests/testthat
+	Rscript -e 'library(methods); devtools::test()'
 
 cleanup:
 	rm -f `find inst -name '*.o' -or -name '*.so'`
