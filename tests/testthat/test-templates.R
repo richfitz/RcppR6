@@ -3,7 +3,7 @@ source("helper-rcppr6.R")
 context("pair")
 
 test_that("pair", {
-  pkg <- rcppr6:::prepare_temporary(rcppr6:::rcppr6_file("pair"))
+  pkg <- rcppr6:::prepare_temporary("testTemplates")
   rcppr6::install(pkg)
   devtools::document(pkg)
   devtools::load_all(pkg)

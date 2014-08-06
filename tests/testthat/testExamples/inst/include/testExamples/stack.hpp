@@ -1,5 +1,5 @@
-#ifndef _EXAMPLES_STACK_HPP_
-#define _EXAMPLES_STACK_HPP_
+#ifndef _TESTEXAMPLES_STACK_HPP_
+#define _TESTEXAMPLES_STACK_HPP_
 
 #include <stack>
 #include <R.h> // NA_INTEGER

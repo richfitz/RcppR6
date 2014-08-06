@@ -1,5 +1,5 @@
-#ifndef _PAIR_PAIR1_HPP_
-#define _PAIR_PAIR1_HPP_
+#ifndef _TESTTEMPLATES_PAIR1_HPP_
+#define _TESTTEMPLATES_PAIR1_HPP_
 
 #include <utility>
 

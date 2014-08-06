@@ -1,5 +1,5 @@
-Package: pair
-Title: What the package does (short line)
+Package: testTemplates
+Title: Template code, probably headed into testExamples soon
 Version: 0.1
 Authors.R: "First Last <first.last@example.com> [aut, cre]"
 Description: What the package does (paragraph)

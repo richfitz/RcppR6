@@ -13,7 +13,7 @@ test_that("Creation", {
   ## Some internal details:
   expect_that(u$private$ptr, is_a("externalptr"))
   expect_that(attr(u$private$ptr, "type"),
-              is_identical_to("examples__uniform"))
+              is_identical_to("testExamples__uniform"))
 })
 
 test_that("Methods", {

@@ -10,7 +10,7 @@ test_that("Creation", {
   ## Some internal details:
   expect_that(s$private$ptr, is_a("externalptr"))
   expect_that(attr(s$private$ptr, "type"),
-              is_identical_to("examples__stack"))
+              is_identical_to("testExamples__stack"))
 })
 
 test_that("Empty stack", {

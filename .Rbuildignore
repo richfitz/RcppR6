@@ -3,5 +3,5 @@
 ^.*\\.so$
 ^.*\\.o$
 
-inst/examples/.Rbuildignore
+tests/testthat/testExamples/.Rbuildignore
 ^\.travis\.yml$

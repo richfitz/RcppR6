@@ -1,5 +1,5 @@
-#ifndef _EXAMPLES_SIMPLE_HPP_
-#define _EXAMPLES_SIMPLE_HPP_
+#ifndef _TESTEXAMPLES_SIMPLE_HPP_
+#define _TESTEXAMPLES_SIMPLE_HPP_
 
 // Some very simple classes
 
