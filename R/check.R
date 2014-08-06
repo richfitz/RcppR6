@@ -15,9 +15,9 @@
 check <- function(path=".", error=TRUE, quiet=FALSE) {
   checks <- list(DESCRIPTION=check_DESCRIPTION(path),
                  NAMESPACE=check_NAMESPACE(path),
-                 "Main package header"=check_header_main(),
-                 "src/Makevars"=check_Makevars(),
-                 "rcppr6.yml"=check_yml())
+                 "Main package header"=check_header_main(path),
+                 "src/Makevars"=check_Makevars(path),
+                 "yml"=check_yml(path))
   failed <- checks[sapply(checks, length) > 0]
   if (length(failed) > 0) {
     title <- paste0(names(failed), ":")
@@ -99,7 +99,7 @@ check_header_main <- function(path=".") {
     ## moment that's tremendously worthwhile.
     character(0)
   } else {
-    c("The file %s does not exist", header_full)
+    sprintf("The file %s does not exist", header_full)
   }
 }
 
@@ -114,19 +114,23 @@ check_Makevars <- function(path=".") {
     if (any(grepl(expected, d, fixed=TRUE))) {
       character(0)
     } else {
-      sprintf("src/Makevars must contain 'PKG_CPPFLAGS += %s'", expected)
+      sprintf("%s must contain 'PKG_CPPFLAGS += %s'",
+              filename, expected)
     }
   } else {
-    sprintf("src/Makevars must exist and contain 'PKG_CPPFLAGS += %s'",
-            expected)
+    sprintf("%s must exist and contain 'PKG_CPPFLAGS += %s'",
+            filename, expected)
   }
 }
 
 check_yml <- function(path=".") {
-  filename <- file.path(path, "inst", "rcppr6.yml")
-  if (file.exists(filename)) {
-    character(0)
+  res <- suppressWarnings(try(load_rcppr6_yml(path, verbose=FALSE),
+                              silent=TRUE))
+  if (inherits(res, "try-error")) {
+    sprintf("Error loading yml:\n\t%s\n\t", res)
+  } else if (length(res) == 0) {
+    sprintf("No classes found in package yml")
   } else {
-    sprintf("inst/rcppr6.yml must exist")
+    character(0)
   }
 }
