@@ -11,9 +11,6 @@ format_class_list <- function(classes, package) {
     wr(template, c(data, structure(lapply(v, collect_2nl, info), names=v)))
   }
 
-  collect_2nl("forward_declaration", info)
-  collect("forward_declaration", info)
-
   ## At this point, the contents of these strings are complete files,
   ## ready to write.  So we return nothing but the strings
   ## themselves.
@@ -23,7 +20,7 @@ format_class_list <- function(classes, package) {
   ret$rcppr6_pre  <- render(templates$rcppr6_pre.hpp,
                             c("forward_declaration", "rcpp_prototypes"))
   ret$rcppr6_post <- render(templates$rcppr6_post.hpp,
-                            "rcpp_definitions")
+                            c("rcppr6_traits", "rcpp_definitions"))
 
   if (any(collect("is_generic", classes))) {
     ret$r <- paste(ret$r, wr(templates$rcppr6_support.R, data),
@@ -51,11 +48,13 @@ format_class <- function(class, package, rcppr6, templates) {
     ret$cpp <- collect_nl("cpp", subtypes)
     ret$rcpp_prototypes <- collect_nl("rcpp_prototypes", subtypes)
     ret$rcpp_definitions <- collect_nl("rcpp_definitions", subtypes)
+    ret$rcppr6_traits <- collect_nl("rcppr6_traits", subtypes)
   } else {
     ret$r <- format_class_r(class, data, templates)
     ret$cpp <- format_class_cpp(class, data, templates)
     ret$rcpp_prototypes  <- wr(templates$rcpp_prototypes,  data, templates)
     ret$rcpp_definitions <- wr(templates$rcpp_definitions, data, templates)
+    ret$rcppr6_traits    <- wr(templates$rcppr6_traits,    data, templates)
   }
   ret
 }

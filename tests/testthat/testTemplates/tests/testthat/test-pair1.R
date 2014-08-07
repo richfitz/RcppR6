@@ -1,5 +1,3 @@
-source("helper-pair.R")
-
 context("pair1")
 
 test_that("construction", {

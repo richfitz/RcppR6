@@ -1,8 +1,6 @@
 ## Package (relatively global) level information:
 template_info_rcppr6 <- function() {
-  list(input_type="Rcpp::RObject",
-       input_name="obj_",
-       ptr_name="ptr_",
+  list(input_name="obj_",
        type_name="type",
        ## These should be constant, but would vary if using RC backend
        r_self_name="self",
@@ -29,13 +27,16 @@ template_info_package <- function(package, path=".") {
   list(name=package, NAME=toupper(package), paths=paths, files=files)
 }
 
-template_info_class_list <- function(x) {
-  lapply(x, template_info_class)
+template_info_class_list <- function(x, package) {
+  lapply(x, template_info_class, package)
 }
 
-template_info_class <- function(x) {
+template_info_class <- function(x, package) {
   assert_inherits(x, "rcppr6_class")
   ret <- x[c("name_r", "name_cpp")]
+  ret$input_type <- sprintf("%s::rcppr6::RcppR6%s",
+                            package$name,
+                            cpp_template_parameters(ret$name_cpp))
   ret$r6_generator <- mangle_r6_generator(ret$name_r)
   ## TODO: Only used in generic functions, and incorrectly named from
   ## a OOP POV.  Could be useful for objects that implement a common
@@ -51,19 +52,20 @@ template_info_class <- function(x) {
   if (ret$is_generic) {
     ret$is_generic <- TRUE
     ret$constructor <-
-      template_info_constructor_generic(x$constructor, x$templates)
+      template_info_constructor_generic(x$constructor, ret, x$templates)
     ret$templates <-
       lapply(x$templates$concrete, function(t)
-             template_info_class(cpp_template_rewrite_class(x, t)))
+             template_info_class(cpp_template_rewrite_class(x, t),
+                                 package))
   } else {
-    ret$constructor <- template_info_constructor(x$constructor, x)
-    ret$methods     <- lapply(x$methods, template_info_method, x)
-    ret$active      <- lapply(x$active,  template_info_active, x)
+    ret$constructor <- template_info_constructor(x$constructor, ret)
+    ret$methods     <- lapply(x$methods, template_info_method, ret)
+    ret$active      <- lapply(x$active,  template_info_active, ret)
   }
   ret
 }
 
-template_info_constructor_generic <- function(x, templates) {
+template_info_constructor_generic <- function(x, class_info, templates) {
   assert_inherits(x, "rcppr6_constructor")
   ret <- list()
 
@@ -86,7 +88,7 @@ template_info_constructor_generic <- function(x, templates) {
     ##                      "@param type generic type information")
   }
 
-  ret$args <- template_info_args(x$args, TRUE, FALSE)
+  ret$args <- template_info_args(x$args, TRUE, FALSE, class_info)
   ret
 }
 
@@ -95,7 +97,7 @@ template_info_constructor <- function(x, class_info) {
   ret <- x["name_cpp"]
   ret$name <- mangle_constructor(class_info$name_r)
   ret$roxygen <- template_info_roxygen(x$roxygen)
-  ret$args <- template_info_args(x$args, TRUE, FALSE)
+  ret$args <- template_info_args(x$args, TRUE, FALSE, class_info)
   ret
 }
 
@@ -106,7 +108,7 @@ template_info_method <- function(x, class_info) {
   ret$return_statement <- if (x$return_type == "void") "" else "return "
   ret$is_member   <- x$access == "member"
   ret$is_function <- x$access == "function"
-  ret$args <- template_info_args(x$args, FALSE, ret$is_member)
+  ret$args <- template_info_args(x$args, FALSE, ret$is_member, class_info)
   ret
 }
 
@@ -126,17 +128,17 @@ template_info_active <- function(x, class_info) {
   ret
 }
 
-template_info_args <- function(x, constructor, member) {
+template_info_args <- function(x, constructor, member, class_info) {
   assert_inherits(x, "rcppr6_args")
   rcppr6 <- template_info_rcppr6()
   defn_cpp_type <-
-    c(if (!constructor) rcppr6$input_type, x$type)
+    c(if (!constructor) class_info$input_type, x$type)
   defn_cpp_name <-
     c(if (!constructor) rcppr6$input_name, x$name)
 
   ret <- list()
   ret$defn_cpp <- paste(defn_cpp_type, defn_cpp_name, collapse=", ")
-  use_cpp_prefix <- if (!constructor && !member) paste0("*", rcppr6$ptr_name)
+  use_cpp_prefix <- if (!constructor && !member) paste0("*", rcppr6$input_name)
   ret$use_cpp  <-  collapse(c(use_cpp_prefix, x$name))
   ret$defn_r   <- collapse(x$name)
   ret$use_r    <- collapse(c(if (!constructor) rcppr6$r_self_name,

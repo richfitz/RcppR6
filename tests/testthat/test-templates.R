@@ -1,5 +1,3 @@
-source("helper-rcppr6.R")
-
 context("pair")
 
 test_that("pair", {

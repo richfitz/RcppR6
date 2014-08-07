@@ -1,5 +1,3 @@
-source("helper-examples.R")
-
 context("Simple Classes")
 
 test_that("empty", {

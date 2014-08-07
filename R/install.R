@@ -37,7 +37,7 @@ rcppr6 <- function(path=".", verbose=TRUE,
   ## Load the data:
   classes <- load_rcppr6_yml(path, verbose)$classes
   ## Build template lists:
-  template_info <- template_info_class_list(classes)
+  template_info <- template_info_class_list(classes, package)
   ## Process the templates into final strings:
   processed <- format_class_list(template_info, package)
   ## Write these out in the correct file:

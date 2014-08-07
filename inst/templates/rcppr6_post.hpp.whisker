@@ -4,7 +4,32 @@
 
 #include <Rcpp.h>
 #include <{{{package.name}}}/rcppr6_support.hpp>
+
+namespace {{{package.name}}} {
+namespace rcppr6 {
+namespace traits {
+{{{rcppr6_traits}}}
+}
+}
+}
+
 namespace Rcpp {
+template <typename T>
+SEXP wrap(const {{{package.name}}}::rcppr6::RcppR6<T>& x) {
+  return x.to_R6();
+}
+
+namespace traits {
+template <typename T>
+class Exporter<{{{package.name}}}::rcppr6::RcppR6<T> > {
+public:
+  Exporter(SEXP x) : obj({{{package.name}}}::rcppr6::RcppR6<T>(x)) {}
+  inline {{{package.name}}}::rcppr6::RcppR6<T> get() { return obj; }
+private:
+  {{{package.name}}}::rcppr6::RcppR6<T> obj;
+};
+}
+
 {{{rcpp_definitions}}}
 }
 

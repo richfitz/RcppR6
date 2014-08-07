@@ -1,5 +1,3 @@
-source("helper-examples.R")
-
 context("stack")
 
 test_that("Creation", {
@@ -9,8 +7,6 @@ test_that("Creation", {
 
   ## Some internal details:
   expect_that(s$private$ptr, is_a("externalptr"))
-  expect_that(attr(s$private$ptr, "type"),
-              is_identical_to("testExamples__stack"))
 })
 
 test_that("Empty stack", {

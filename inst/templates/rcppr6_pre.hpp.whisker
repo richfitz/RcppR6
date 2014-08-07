@@ -4,9 +4,21 @@
 
 #include <RcppCommon.h>
 
+
+namespace {{{package.name}}} {
+namespace rcppr6 {
+template <typename T> class RcppR6;
+}
+}
+
 {{{forward_declaration}}}
 
 namespace Rcpp {
+template <typename T> SEXP wrap(const {{{package.name}}}::rcppr6::RcppR6<T>&);
+namespace traits {
+template <typename T> class Exporter<{{{package.name}}}::rcppr6::RcppR6<T> >;
+}
+
 {{{rcpp_prototypes}}}
 }
 

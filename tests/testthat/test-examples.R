@@ -1,5 +1,3 @@
-source("helper-rcppr6.R")
-
 context("examples")
 
 test_that("examples", {
