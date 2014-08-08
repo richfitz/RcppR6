@@ -5,6 +5,7 @@ template_info_rcppr6 <- function() {
        ## These should be constant, but would vary if using RC backend
        r_self_name="self",
        r_value_name="value",
+       r6_ptr_name=".ptr",
        r6_generator_prefix=mangle_r6_generator(""),
        version=rcppr6_version())
 }

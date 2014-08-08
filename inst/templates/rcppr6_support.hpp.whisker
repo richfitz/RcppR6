@@ -94,8 +94,7 @@ public:
     const std::string classname = traits::class_name<T>();
     if (get_class(x) == classname) {
       Rcpp::Environment xe = Rcpp::as<Rcpp::Environment>(x);
-      // TODO: Will go all the way up to global environment!
-      Rcpp::XPtr<T> ptr = Rcpp::as<Rcpp::XPtr<T> >(xe.find("ptr"));
+      Rcpp::XPtr<T> ptr = Rcpp::as<Rcpp::XPtr<T> >(xe["{{{rcppr6.r6_ptr_name}}}"]);
       check_ptr_valid<T>(ptr);
       return ptr;
     } else {

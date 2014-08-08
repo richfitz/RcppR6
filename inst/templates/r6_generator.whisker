@@ -4,10 +4,11 @@
 }
 {{{class.r6_generator}}} <-
   R6::R6Class("{{{class.name_r}}}",
+              portable=TRUE,
               inherit={{class.inherits}},
               public=list(
+                {{{rcppr6.r6_ptr_name}}}=NULL,
                 initialize = function(ptr) {
-                  {{{rcppr6.r_self_name}}}$ptr <<- ptr
+                  {{{rcppr6.r_self_name}}}${{{rcppr6.r6_ptr_name}}} <- ptr
                 }{{{methods_r}}}),
-              active=list({{{active_r}}}),
-              private=list(ptr=NULL))
+              active=list({{{active_r}}}))

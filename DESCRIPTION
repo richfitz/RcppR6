@@ -10,7 +10,7 @@ License: BSD_2_clause + file LICENSE
 Suggests:
     testthat,
     roxygen2 (>= 4.0.0),
-    R6
+    R6 (>= 1.0.1.9001)
 Roxygen: list(wrap = FALSE)
 Imports:
     Rcpp,

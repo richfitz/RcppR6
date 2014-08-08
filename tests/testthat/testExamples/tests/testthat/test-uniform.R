@@ -9,7 +9,7 @@ test_that("Creation", {
   expect_that(u, is_a("R6"))
 
   ## Some internal details:
-  expect_that(u$private$ptr, is_a("externalptr"))
+  expect_that(u$.ptr, is_a("externalptr"))
 })
 
 test_that("Methods", {

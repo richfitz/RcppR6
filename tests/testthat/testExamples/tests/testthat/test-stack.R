@@ -6,7 +6,7 @@ test_that("Creation", {
   expect_that(s, is_a("R6"))
 
   ## Some internal details:
-  expect_that(s$private$ptr, is_a("externalptr"))
+  expect_that(s$.ptr, is_a("externalptr"))
 })
 
 test_that("Empty stack", {
