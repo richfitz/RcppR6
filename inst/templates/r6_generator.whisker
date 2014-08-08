@@ -7,7 +7,7 @@
               inherit={{class.inherits}},
               public=list(
                 initialize = function(ptr) {
-                  ptr <<- ptr
+                  {{{rcppr6.r_self_name}}}$ptr <<- ptr
                 }{{{methods_r}}}),
               active=list({{{active_r}}}),
               private=list(ptr=NULL))
