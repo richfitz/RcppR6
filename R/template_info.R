@@ -34,11 +34,11 @@ template_info_class_list <- function(x, package) {
 
 template_info_class <- function(x, package) {
   assert_inherits(x, "rcppr6_class")
-  ret <- x[c("name_r", "name_cpp")]
+  ret <- x[c("name_safe", "name_cpp")]
   ret$input_type <- sprintf("%s::rcppr6::RcppR6%s",
                             package$name,
                             cpp_template_parameters(ret$name_cpp))
-  ret$r6_generator <- mangle_r6_generator(ret$name_r)
+  ret$r6_generator <- mangle_r6_generator(ret$name_safe)
   ## TODO: Only used in generic functions, and incorrectly named from
   ## a OOP POV.  Could be useful for objects that implement a common
   ## interface though.
@@ -70,10 +70,8 @@ template_info_constructor_generic <- function(x, class_info, templates) {
   assert_inherits(x, "rcppr6_constructor")
   ret <- list()
 
-  ## TODO: consider mangling or use templates/constructor_name.whisker
-  ret$list <- sprintf("%s__ctor",
-                      sapply(templates$concrete, "[[", "name_r"))
-  names(ret$list) <- names(templates$concrete)
+  ret$list <- sapply(templates$concrete, function(x)
+                     mangle_constructor(x$name_safe))
   ret$list_r_repr <-
     sprintf("c(%s)",
             paste(sprintf('"%s"=%s', names(ret$list), ret$list),
@@ -81,10 +79,14 @@ template_info_constructor_generic <- function(x, class_info, templates) {
 
   ret$roxygen <- template_info_roxygen(x$roxygen)
   if (!is.null(ret$roxygen)) {
+    ## TODO: Need to add the 'type' element to the roxygen
+    ## documentation if it is there at all, because we can't really
+    ## rely on this done by the user.
     ## TODO: This won't work well if there are examples, I think.
     ## TODO: Ideally put after the last @param argument or right
     ## before @export.  Before @export has a lot of appeal because
-    ## that will only modify exported documentation.
+    ## that will only modify exported documentation.  (or look at
+    ## ess's roxygen support).
     ## ret$roxygen <- paste(ret$roxygen,
     ##                      "@param type generic type information")
   }
@@ -96,7 +98,7 @@ template_info_constructor_generic <- function(x, class_info, templates) {
 template_info_constructor <- function(x, class_info) {
   assert_inherits(x, "rcppr6_constructor")
   ret <- x["name_cpp"]
-  ret$name <- mangle_constructor(class_info$name_r)
+  ret$name_safe <- mangle_constructor(class_info$name_safe)
   ret$roxygen <- template_info_roxygen(x$roxygen)
   ret$args <- template_info_args(x$args, TRUE, FALSE, class_info)
   ret
@@ -104,8 +106,12 @@ template_info_constructor <- function(x, class_info) {
 
 template_info_method <- function(x, class_info) {
   assert_inherits(x, "rcppr6_method")
-  ret <- x[c("name_r", "name_cpp", "return_type")]
-  ret$name <- mangle_method(class_info$name_r, ret$name_r)
+  ret <- list()
+  ## TODO: If we have a different R-facing name, use it here.
+  ret$name_r <- x$name_safe
+  ret$name_safe <- mangle_method(class_info$name_safe, x$name_safe)
+  ret$name_cpp <- x$name_cpp
+  ret$return_type <- x$return_type
   ret$return_statement <- if (x$return_type == "void") "" else "return "
   ret$is_member   <- x$access == "member"
   ret$is_function <- x$access == "function"
@@ -115,10 +121,14 @@ template_info_method <- function(x, class_info) {
 
 template_info_active <- function(x, class_info) {
   assert_inherits(x, "rcppr6_active")
-  ret <- x[c("name_r", "name_cpp")]
+  ## TODO: If we have a different R-facing name, use it here.  That
+  ## will get set up during sanitisation.
+  ret <- list()
+  ret$name_r <- x$name_safe
+  ret$name_cpp <- x$name_cpp
   ## These two might change names.
-  ret$get_name     <- mangle_active(class_info$name_r, ret$name_r, "get")
-  ret$set_name     <- mangle_active(class_info$name_r, ret$name_r, "set")
+  ret$get_name     <- mangle_active(class_info$name_safe, x$name_safe, "get")
+  ret$set_name     <- mangle_active(class_info$name_safe, x$name_safe, "set")
   ret$name_cpp_get <- x$name_cpp_get
   ret$name_cpp_set <- x$name_cpp_set
   ret$return_type  <- x$type

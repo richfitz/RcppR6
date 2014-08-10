@@ -76,9 +76,9 @@ cpp_template_rewrite_active <- function(x, template) {
 cpp_template_rewrite_class <- function(x, template) {
   ## Turn off templating and rewrite names:
   x$templates <- list(is_templated=FALSE)
-  x$inherits  <- x$name_r
+  x$inherits  <- x$name_safe
   x$name      <- template$name
-  x$name_r    <- template$name_r
+  x$name_safe <- template$name_safe
   x$name_cpp  <- template$name_cpp
   x$constructor <-
     cpp_template_rewrite_constructor(x$constructor, template)

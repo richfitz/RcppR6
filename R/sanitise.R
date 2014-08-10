@@ -57,14 +57,14 @@ sanitise_class <- function(name, defn) {
                  "templates", "inherits"))
 
   ret <- list()
-  ret$name_r      <- name
+  ret$name_safe <- name
   ## TODO: This default will fail if templates are present.  Might
   ## want to check if they are present and if so substitute the
   ## template parameters in here.
   ret$name_cpp    <- with_default(defn$name_cpp, name)
   assert_scalar_character(ret$name_cpp)
 
-  ret$templates <- sanitise_templates(defn$templates, ret, ret$name_r)
+  ret$templates <- sanitise_templates(defn$templates, ret, ret$name_safe)
 
   forward_declare_default <-
     if (ret$templates$is_templated) FALSE else "class"
@@ -143,7 +143,7 @@ sanitise_templates <- function(defn, class, parent) {
 
     f <- function(name, x, parameters) {
       ret <- list()
-      ret$name_r <- mangle_template_type(parent, name)
+      ret$name_safe <- mangle_template_type(parent, name)
       ret$parameters <- structure(x, names=parameters)
       ret$name_cpp <- cpp_template_rewrite_types(class$name_cpp, ret)
       ret
@@ -212,8 +212,8 @@ sanitise_method <- function(name, defn, parent) {
   warn_unknown(sprintf("::%s", parent), defn,
                c("name_cpp", "return_type", "access", "args"))
   ret <- list()
-  ret$name_r   <- name
-  ret$name_cpp <- with_default(defn$name_cpp, name)
+  ret$name_safe <- name
+  ret$name_cpp  <- with_default(defn$name_cpp, ret$name_safe)
   assert_scalar_character(ret$name_cpp)
 
   ret$return_type <- defn$return_type
@@ -234,8 +234,8 @@ sanitise_active <- function(name, defn, parent) {
                c("name_cpp", "type", "access", "readonly"))
 
   ret <- list()
-  ret$name_r   <- name
-  ret$name_cpp <- with_default(defn$name_cpp, name)
+  ret$name_safe <- name
+  ret$name_cpp  <- with_default(defn$name_cpp, ret$name_safe)
   assert_character(ret$name_cpp)
 
   ret$type <- defn$type

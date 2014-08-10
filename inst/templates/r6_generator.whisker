@@ -1,9 +1,9 @@
 {{{constructor.roxygen}}}
-{{{class.name_r}}} <- function({{{constructor.args.defn_r}}}) {
-  {{{constructor.name}}}({{{constructor.args.use_r}}})
+{{{class.name_safe}}} <- function({{{constructor.args.defn_r}}}) {
+  {{{constructor.name_safe}}}({{{constructor.args.use_r}}})
 }
 {{{class.r6_generator}}} <-
-  R6::R6Class("{{{class.name_r}}}",
+  R6::R6Class("{{{class.name_safe}}}",
               portable=TRUE,
               inherit={{class.inherits}},
               public=list(

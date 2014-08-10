@@ -1,2 +1,2 @@
-template <> inline std::string   class_name<{{{class.name_cpp}}} >() {return "{{{class.name_r}}}";}
+template <> inline std::string   class_name<{{{class.name_cpp}}} >() {return "{{{class.name_safe}}}";}
 template <> inline std::string package_name<{{{class.name_cpp}}} >() {return "{{{package.name}}}";}

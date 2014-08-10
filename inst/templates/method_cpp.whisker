@@ -1,5 +1,5 @@
 // [[Rcpp::export]]
-{{{method.return_type}}} {{{method.name}}}({{{method.args.defn_cpp}}}) {
+{{{method.return_type}}} {{{method.name_safe}}}({{{method.args.defn_cpp}}}) {
 {{{#method.is_member}}}
   {{{method.return_statement}}}{{{rcppr6.input_name}}}->{{{method.name_cpp}}}({{{method.args.use_cpp}}});
 {{{/method.is_member}}}
