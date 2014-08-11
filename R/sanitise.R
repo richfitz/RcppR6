@@ -57,11 +57,14 @@ sanitise_class <- function(name, defn) {
                  "templates", "inherits"))
 
   ret <- list()
-  ret$name_safe <- name
-  ## TODO: This default will fail if templates are present.  Might
-  ## want to check if they are present and if so substitute the
-  ## template parameters in here.
-  ret$name_cpp    <- with_default(defn$name_cpp, name)
+  ## NOTE: this pattern is used in a few places: however, if
+  ## sanitise_name() changes name, then we never want to draw the
+  ## default for name_cpp -- this will certainly be a syntax error.
+  ## It's possible though that for some templated class names this
+  ## won't be the case, though it could lead to odd names.
+  ret$name_r    <- name
+  ret$name_safe <- sanitise_name(name)
+  ret$name_cpp  <- with_default(defn$name_cpp, name)
   assert_scalar_character(ret$name_cpp)
 
   ret$templates <- sanitise_templates(defn$templates, ret, ret$name_safe)
@@ -103,7 +106,7 @@ sanitise_templates <- function(defn, class, parent) {
   } else {
     warn_unknown(sprintf("%s::templates", parent), defn,
                  c("parameters", "concrete"))
-    ret <- list(is_templated=TRUE) # name_template=parent)
+    ret <- list(is_templated=TRUE)
 
     ## For now, just allow single parameters!  Later allow multiple
     ## parameters, but we never allow single parameters?  Or perhaps if
@@ -143,6 +146,7 @@ sanitise_templates <- function(defn, class, parent) {
 
     f <- function(name, x, parameters) {
       ret <- list()
+      ret$name_r <- mangle_template_type_r(parent, name)
       ret$name_safe <- mangle_template_type(parent, name)
       ret$parameters <- structure(x, names=parameters)
       ret$name_cpp <- cpp_template_rewrite_types(class$name_cpp, ret)
@@ -212,8 +216,9 @@ sanitise_method <- function(name, defn, parent) {
   warn_unknown(sprintf("::%s", parent), defn,
                c("name_cpp", "return_type", "access", "args"))
   ret <- list()
-  ret$name_safe <- name
-  ret$name_cpp  <- with_default(defn$name_cpp, ret$name_safe)
+  ret$name_r    <- name
+  ret$name_safe <- sanitise_name(name)
+  ret$name_cpp  <- with_default(defn$name_cpp, name)
   assert_scalar_character(ret$name_cpp)
 
   ret$return_type <- defn$return_type
@@ -234,8 +239,9 @@ sanitise_active <- function(name, defn, parent) {
                c("name_cpp", "type", "access", "readonly"))
 
   ret <- list()
-  ret$name_safe <- name
-  ret$name_cpp  <- with_default(defn$name_cpp, ret$name_safe)
+  ret$name_r    <- name
+  ret$name_safe <- sanitise_name(name)
+  ret$name_cpp  <- with_default(defn$name_cpp, name)
   assert_character(ret$name_cpp)
 
   ret$type <- defn$type
@@ -285,6 +291,25 @@ sanitise_args <- function(args, parent) {
   }
   class(ret) <- "rcppr6_args"
   ret
+}
+
+## Really simple name sanitisation: convert dots to underscores :)
+sanitise_name <- function(x) {
+  x <- gsub(".", "_", x, fixed=TRUE)
+  check_name(x)
+  x
+}
+
+## This might change to check on both R and C sides.
+## Not checked:
+##   Can't start with a number
+##   If it starts with a period, second character must be a letter
+##   Can't be a reserved word (in either language)
+## http://stackoverflow.com/questions/15285787/can-you-start-a-class-name-with-a-numeric-digit
+check_name <- function(x) {
+  if (grepl("[^[:alnum:]_]", x)) {
+    stop("Name ", dQuote(x), " does not look valid in R & C")
+  }
 }
 
 has_roxygen <- function(info) {

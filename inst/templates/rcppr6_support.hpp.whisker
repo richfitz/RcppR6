@@ -15,7 +15,7 @@ namespace rcppr6 {
 // Not quite traits, but should be close enough.  This is non-API!
 namespace traits {
 template <typename T>
-std::string class_name() {
+std::string class_name_r() {
   Rcpp::stop("Unknown class");
   return ""; // never get here.
 }
@@ -24,14 +24,23 @@ std::string package_name() {
   Rcpp::stop("Unknown class");
   return ""; // never get here.
 }
+template <typename T>
+std::string generator_name() {
+  Rcpp::stop("Unknown class");
+  return ""; // never get here.
+}
 
 template <typename T>
-std::string class_name(const T&) {
-  return class_name<T>();
+std::string class_name_r(const T&) {
+  return class_name_r<T>();
 }
 template <typename T>
 std::string package_name(const T&) {
   return package_name<T>();
+}
+template <typename T>
+std::string generator_name(const T&) {
+  return generator_name<T>();
 }
 }
 
@@ -91,26 +100,26 @@ public:
   Rcpp::XPtr<T> ptr;
   // Convert from an R6 object from R:
   static Rcpp::XPtr<T> ptr_from_R6(Rcpp::RObject x) {
-    const std::string classname = traits::class_name<T>();
-    if (get_class(x) == classname) {
+    const std::string classname_r = traits::class_name_r<T>();
+    if (get_class(x) == classname_r) {
       Rcpp::Environment xe = Rcpp::as<Rcpp::Environment>(x);
       Rcpp::XPtr<T> ptr = Rcpp::as<Rcpp::XPtr<T> >(xe["{{{rcppr6.r6_ptr_name}}}"]);
       check_ptr_valid<T>(ptr);
       return ptr;
     } else {
-      Rcpp::stop("Expected an object of type R6 / " + classname);
+      Rcpp::stop("Expected an object of type R6 / " + classname_r);
       return Rcpp::as<Rcpp::XPtr<T> >(x); // Won't get here
     }
   }
   SEXP to_R6() const {
-    const std::string classname(traits::class_name<T>());
     const std::string packagename(traits::package_name<T>());
+    const std::string generatorname(traits::generator_name<T>());
     Rcpp::Environment base("package:base");
     Rcpp::Function getNamespace = base["getNamespace"];
     Rcpp::Environment pkg = getNamespace(packagename);
-    // TODO: should Generator also be environment?
-    // TODO: need to deal with failure here (i.e. R_NilValue)
-    Rcpp::List Generator = pkg["{{{rcppr6.r6_generator_prefix}}}" + classname];
+    // TODO: need to deal with failure here (i.e. R_NilValue), or we
+    // get a really hard to diagnose error message.
+    Rcpp::Environment Generator = pkg[generatorname];
     Rcpp::Function Generator_new = Generator["new"];
     return Generator_new(ptr);
   }

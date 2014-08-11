@@ -10,6 +10,20 @@ mangle_template_type <- function(class, template_type) {
   sprintf("%s___%s", class, template_type)
 }
 
+## There are a few different options for nice mangling of templated
+## names in R:
+##   Container.Contents   # Not-quite-S3 style
+##   Container<Contents>  # C++ style
+##   Container(Contents)  # New constructor style
+##   Container___Contents # Safe mangling style
+## The middle two will work the best for display and for dealing with
+## multiple parameters.  However, it's not syntactically valid, so
+## needs to go into backticks.  That's not actually that bad as it
+## will encourage using the generic type.
+mangle_template_type_r <- function(class, template_type) {
+  sprintf("%s<%s>", class, template_type)
+}
+
 mangle_r6_generator <- function(class) {
   sprintf(".R6_%s", class)
 }

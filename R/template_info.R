@@ -34,7 +34,7 @@ template_info_class_list <- function(x, package) {
 
 template_info_class <- function(x, package) {
   assert_inherits(x, "rcppr6_class")
-  ret <- x[c("name_safe", "name_cpp")]
+  ret <- x[c("name_r", "name_safe", "name_cpp")]
   ret$input_type <- sprintf("%s::rcppr6::RcppR6%s",
                             package$name,
                             cpp_template_parameters(ret$name_cpp))
@@ -107,8 +107,7 @@ template_info_constructor <- function(x, class_info) {
 template_info_method <- function(x, class_info) {
   assert_inherits(x, "rcppr6_method")
   ret <- list()
-  ## TODO: If we have a different R-facing name, use it here.
-  ret$name_r <- x$name_safe
+  ret$name_r <- x$name_r
   ret$name_safe <- mangle_method(class_info$name_safe, x$name_safe)
   ret$name_cpp <- x$name_cpp
   ret$return_type <- x$return_type
@@ -121,10 +120,8 @@ template_info_method <- function(x, class_info) {
 
 template_info_active <- function(x, class_info) {
   assert_inherits(x, "rcppr6_active")
-  ## TODO: If we have a different R-facing name, use it here.  That
-  ## will get set up during sanitisation.
   ret <- list()
-  ret$name_r <- x$name_safe
+  ret$name_r <- x$name_r
   ret$name_cpp <- x$name_cpp
   ## These two might change names.
   ret$get_name     <- mangle_active(class_info$name_safe, x$name_safe, "get")

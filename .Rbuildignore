@@ -7,3 +7,4 @@ tests/testthat/testExamples/.Rbuildignore
 ^\.travis\.yml$
 
 Makefile
+ignore/
