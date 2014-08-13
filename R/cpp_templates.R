@@ -2,7 +2,7 @@
 ## substitutions.  It's all a bit unfortunate, really.
 ## Construct full C++ template names:
 cpp_template_name <- function(template, pars) {
-  paste0(template, cpp_template_parameters(pars))
+  sprintf("%s<%s>", template, cpp_template_parameters(pars))
 }
 
 cpp_template_parameters <- function(pars) {
@@ -10,12 +10,12 @@ cpp_template_parameters <- function(pars) {
   if (grepl(">$", pars)) {
     pars <- paste0(pars, " ")
   }
-  sprintf("<%s>", pars)
+  pars
 }
 
 cpp_template_rewrite_types <- function(x, template) {
-  from <- names(template$parameters)
-  to <- unname(template$parameters)
+  from <- names(template$parameters_cpp)
+  to <- unname(template$parameters_cpp)
 
   ## First do any literals:
   i <- match(x, from)
@@ -27,24 +27,23 @@ cpp_template_rewrite_types <- function(x, template) {
   ##
   if (any(k <- !j & grepl("<", x, fixed=TRUE))) {
     if (any(k)) {
-      if (length(from) != 1) {
-        stop("Only working for single types at the moment")
+      ## For single parameters we can replace like this:
+      ##   re <- sprintf("<[[:space:]]*%s[[:space:]]*>", from)
+      ##   x[k] <- sub(re, sprintf("<%s>", cpp_template_parameters(to)), x[k])
+      ## but we want to allow multiple template types at once.  This
+      ## version is very simple but I think will work.  It will do badly
+      ## within things like:
+      ##   T::Bar<T>
+      ## as it will replace *both* T's here.  Writing C++ parsers is
+      ## hard.  And I'm not really trying.  It's possible that code like
+      ## T::Bar<T> is not really allowed anyway.
+      xk <- x[k]
+      for (i in seq_along(from)) {
+        xk <- gsub(sprintf("\\b%s\\b", from[i]),
+                   cpp_template_parameters(to[i]), xk)
       }
-      re <- sprintf("<[[:space:]]*%s[[:space:]]*>", from)
-      x[k] <- sub(re, cpp_template_parameters(to), x[k])
+      x[k] <- xk
     }
-
-    ## It's possible that I'm overthinking this and we can just
-    ## subtsitute directly for things that are on word boundaries.
-    ##   sub("\\bT\\b", "U", "MyType<T>")
-    ## which allows easy substitution of all types.  I.e.:
-    ##
-    ## xk <- x[k]
-    ## for (i in seq_along(from)) {
-    ##   xk <- gsub(sprintf("\\b%s\\b", from[i]),
-    ##              cpp_template_parameters(to[i]), xk)
-    ## }
-    ## x[k] <- xk
   }
   x
 }

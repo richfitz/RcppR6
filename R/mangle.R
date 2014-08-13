@@ -6,8 +6,11 @@
 ## definitions should be easy enough and avoid issues.  Needs
 ## documenting and the restrictions on names needs checking
 ## throughout.
+##
+## TODO: The template type mangling is currently assumed within the
+## support function check_type.
 mangle_template_type <- function(class, template_type) {
-  sprintf("%s___%s", class, template_type)
+  sprintf("%s___%s", class, paste(template_type, collapse="__"))
 }
 
 ## There are a few different options for nice mangling of templated
@@ -21,7 +24,7 @@ mangle_template_type <- function(class, template_type) {
 ## needs to go into backticks.  That's not actually that bad as it
 ## will encourage using the generic type.
 mangle_template_type_r <- function(class, template_type) {
-  sprintf("%s<%s>", class, template_type)
+  sprintf("%s<%s>", class, paste(template_type, collapse=","))
 }
 
 mangle_r6_generator <- function(class) {

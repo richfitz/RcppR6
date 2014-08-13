@@ -35,7 +35,7 @@ template_info_class_list <- function(x, package) {
 template_info_class <- function(x, package) {
   assert_inherits(x, "rcppr6_class")
   ret <- x[c("name_r", "name_safe", "name_cpp")]
-  ret$input_type <- sprintf("%s::rcppr6::RcppR6%s",
+  ret$input_type <- sprintf("%s::rcppr6::RcppR6<%s>",
                             package$name,
                             cpp_template_parameters(ret$name_cpp))
   ret$r6_generator <- mangle_r6_generator(ret$name_safe)
@@ -70,12 +70,29 @@ template_info_constructor_generic <- function(x, class_info, templates) {
   assert_inherits(x, "rcppr6_constructor")
   ret <- list()
 
-  ret$list <- sapply(templates$concrete, function(x)
-                     mangle_constructor(x$name_safe))
-  ret$list_r_repr <-
-    sprintf("c(%s)",
-            paste(sprintf('"%s"=%s', names(ret$list), ret$list),
-                  collapse=", "))
+  ## This is going to need a little more work to behave properly for
+  ## two types: we need to know how the different types are going to
+  ## come in.  For now we'll just manually mangle, but eventually,
+  ## we'll want to replace this with the underlying parameter names I
+  ## think, and then allow an R version of those templated names, so
+  ## that the generic constructor looks like
+  ##   generic(FirstType, SecondType)(...)
+  ##   pair1(T)(a, b)
+  ##   pair1(T1, T2)(a, b)
+  ret$types <- collapse(templates$parameters)
+
+  valid <- sapply(templates$concrete, function(x)
+                  dput_to_character(unname(x$parameters_r)))
+  names(valid) <- collect("name_r", templates$concrete)
+  ret$valid_r_repr <-
+    sprintf("list(%s)", collapse(sprintf('"%s"=%s', names(valid), valid)))
+
+  ## Don't use the strings here: we want the actual functions:
+  ctors <- sapply(templates$concrete, function(x)
+                         mangle_constructor(x$name_safe))
+  names(ctors) <- names(valid)
+  ret$constructors_r_repr <-
+    sprintf("list(%s)", collapse(sprintf('"%s"=%s', names(ctors), ctors)))
 
   ret$roxygen <- template_info_roxygen(x$roxygen)
   if (!is.null(ret$roxygen)) {
@@ -92,6 +109,7 @@ template_info_constructor_generic <- function(x, class_info, templates) {
   }
 
   ret$args <- template_info_args(x$args, TRUE, FALSE, class_info)
+
   ret
 }
 

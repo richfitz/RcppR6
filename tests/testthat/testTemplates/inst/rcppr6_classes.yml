@@ -2,9 +2,9 @@ pair1:
   templates:
     parameters: T
     concrete:
-      int: int
-      double: double
-      string: std::string
+      - int
+      - double
+      - [string: "std::string"]
   name_cpp: "pair::pair1<T>"
   forward_declare: false # should be default for templated classes
   constructor:
@@ -14,3 +14,19 @@ pair1:
   active:
     first: {type: T, access: field}
     second: {type: T, access: field}
+
+pair2:
+  templates:
+    parameters: [T1, T2]
+    concrete:
+      - [int, double]
+      - [string: "std::string", double]
+  name_cpp: "std::pair<T1,T2>"
+  forward_declare: false
+  constructor:
+    args: [a: T1, b: T2]
+    roxygen: |
+      @export
+  active:
+    first: {type: T1, access: field}
+    second: {type: T2, access: field}

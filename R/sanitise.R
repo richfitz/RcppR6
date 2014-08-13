@@ -113,7 +113,17 @@ sanitise_templates <- function(defn, class, parent) {
     ## a single parameter is given we'll bail out with
     ## is_templated=FALSE.  Decisions can wait.
     ret$parameters <- defn$parameters
-    assert_scalar_character(ret$parameters)
+    ## This will miss when parameters are given as
+    ##   parameters: T1, T2
+    ## rather than
+    ##   parameters: [T1, T2]
+    if (length(ret$parameters) == 1 && grepl(",", ret$parameters)) {
+      stop("Parameters need to be given as a yaml list")
+      ## Alternatively, be polite and do this outselves:
+      ## yaml_load(sprintf("[%s]", ret$parameters))
+    }
+    assert_character(ret$parameters)
+    assert_nonempty(ret$parameters)
 
     ## Attempt to detect if the template has been specified properly.
     ## We need this to match or the later substitutions will likely
@@ -130,30 +140,33 @@ sanitise_templates <- function(defn, class, parent) {
     ret$name_cpp <- class$name_cpp
 
     ## Then build a list of concrete versions of the templates.
+    assert_nonempty(defn$concrete)
+    concrete <- lapply(defn$concrete, yaml_seq_map, name=FALSE)
+    concrete <- lapply(concrete, unlist)
 
-    ## This is almost the same requirements as args.
-    if (is.null(defn$concrete) || length(defn$concrete) == 0) {
-      stop("Must provide at least one concrete template version")
-    }
-    assert_named(defn$concrete)
-    ok <- function(x) {
-      is.character(x) && length(x) == length(ret$parameters)
-    }
-    if (!all(sapply(defn$concrete, ok))) {
-      stop(sprintf("All versions must be %d element character vectors",
-                   length(ret$parameters)))
-    }
-
-    f <- function(name, x, parameters) {
+    f <- function(x, parameters) {
+      ok <- (is.character(x) &&
+             length(x) == length(parameters) &&
+             !is.null(names(x)))
+      if (!ok) {
+        stop(sprintf("All versions must be %d element named character vectors",
+                     length(parameters)))
+      }
+      parameters_r    <- names(x)
+      parameters_cpp  <- unname(x)
+      parameters_safe <- sanitise_name(parameters_r)
       ret <- list()
-      ret$name_r <- mangle_template_type_r(parent, name)
-      ret$name_safe <- mangle_template_type(parent, name)
-      ret$parameters <- structure(x, names=parameters)
-      ret$name_cpp <- cpp_template_rewrite_types(class$name_cpp, ret)
+      ret$name_r         <- mangle_template_type_r(parent, parameters_r)
+      ret$name_safe      <- mangle_template_type(parent, parameters_safe)
+      ret$parameters_r   <- structure(parameters_r, names=parameters)
+      ret$parameters_cpp <- structure(parameters_cpp, names=parameters)
+      ret$name_cpp       <- cpp_template_rewrite_types(class$name_cpp, ret)
       ret
     }
-    ret$concrete <- lnapply(defn$concrete, f, ret$parameters)
 
+    ## TODO: check no duplicate entries.
+
+    ret$concrete <- lapply(concrete, f, ret$parameters)
     ret
   }
 }
@@ -307,8 +320,8 @@ sanitise_name <- function(x) {
 ##   Can't be a reserved word (in either language)
 ## http://stackoverflow.com/questions/15285787/can-you-start-a-class-name-with-a-numeric-digit
 check_name <- function(x) {
-  if (grepl("[^[:alnum:]_]", x)) {
-    stop("Name ", dQuote(x), " does not look valid in R & C")
+  if (any(i <- grepl("[^[:alnum:]_]", x))) {
+    stop("Name ", collapse(dQuote(x[i])), " does not look valid in R & C")
   }
 }
 

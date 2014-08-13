@@ -77,6 +77,12 @@ assert_scalar <- function(x, name=deparse(substitute(x))) {
   }
 }
 
+assert_nonempty <- function(x, name=deparse(substitute(x))) {
+  if (length(x) == 0) {
+    stop(sprintf("%s must not be empty", name), call.=FALSE)
+  }
+}
+
 assert_scalar_numeric <- function(x, name=deparse(substitute(x))) {
   assert_scalar(x, name)
   assert_numeric(x, name)

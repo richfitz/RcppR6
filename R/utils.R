@@ -58,6 +58,31 @@ yaml_read <- function(filename) {
   yaml_load(read_file(filename))
 }
 
+## This is for processing data in the form
+##     [key1: val1, key2: val2]
+## which is how args are passed in and how concrete template
+## parameters are passed in.  Things might not be named and that might
+## be OK.
+yaml_seq_map <- function(dat, named=TRUE) {
+  ## First, check that everything is length 1:
+  if (!all(sapply(dat, length) == 1)) {
+    stop("Expected every element to be length 1")
+  }
+  dat_contents <- lapply(dat, function(x) x[[1]])
+  dat_names <- lapply(dat, names)
+  dat_unnamed <- sapply(dat_names, is.null)
+  if (named) {
+    if (any(dat_unnamed)) {
+      stop("All elements must be named")
+    }
+  } else {
+    dat_names[dat_unnamed] <- dat_contents[dat_unnamed]
+  }
+  dat_names <- vapply(dat_names, identity, character(1))
+  names(dat_contents) <- dat_names
+  dat_contents
+}
+
 ## Pattern where we have a named list and we want to call function
 ## 'FUN' with rather than just
 ##    {FUN(X[[1]], ...), ..., FUN(X[[n]], ...)}
@@ -101,7 +126,7 @@ warn_unknown <- function(name, defn, known) {
 }
 
 collect <- function(key, data, FUN=identity, ...) {
-  sapply(data, function(x) FUN(x[[key]]))
+  sapply(data, function(x) FUN(x[[key]], ...))
 }
 
 collapse <- function(x, sep=", ") {
@@ -137,4 +162,8 @@ prepare_temporary <- function(pkg, path="~/tmp") {
 
 join_lists <- function(x) {
   unlist(unname(x), FALSE, TRUE)
+}
+
+dput_to_character <- function(x) {
+  capture.output(dput(x))
 }

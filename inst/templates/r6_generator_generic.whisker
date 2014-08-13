@@ -1,6 +1,8 @@
 {{{constructor.roxygen}}}
-{{{class.name_safe}}} <- function({{{rcppr6.type_name}}}) {
-  pos <- {{{constructor.list_r_repr}}}
-  get_constructor({{{rcppr6.type_name}}}, pos)
+{{{class.name_safe}}} <- function({{{constructor.types}}}) {
+  type <- c({{{constructor.types}}})
+  valid <- {{{constructor.valid_r_repr}}}
+  constructors <- {{{constructor.constructors_r_repr}}}
+  constructors[[check_type(type, valid)]]
 }
 {{{class.r6_generator}}} <- R6::R6Class("{{{class.name_safe}}}")
