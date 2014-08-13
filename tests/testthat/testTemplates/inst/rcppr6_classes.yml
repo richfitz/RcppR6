@@ -5,7 +5,7 @@ pair1:
       - int
       - double
       - [string: "std::string"]
-  name_cpp: "pair::pair1<T>"
+  name_cpp: "pair::pair1"
   forward_declare: false # should be default for templated classes
   constructor:
     args: [a: T, b: T]
@@ -21,7 +21,7 @@ pair2:
     concrete:
       - [int, double]
       - [string: "std::string", double]
-  name_cpp: "std::pair<T1,T2>"
+  name_cpp: "std::pair"
   forward_declare: false
   constructor:
     args: [a: T1, b: T2]

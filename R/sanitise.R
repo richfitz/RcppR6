@@ -68,6 +68,11 @@ sanitise_class <- function(name, defn) {
   assert_scalar_character(ret$name_cpp)
 
   ret$templates <- sanitise_templates(defn$templates, ret, ret$name_safe)
+  ## This is unfortunate, but if the class is templated, we might want
+  ## to update the name of the C++ class:
+  if (ret$templates$is_templated) {
+    ret$name_cpp <- ret$templates$name_cpp
+  }
 
   forward_declare_default <-
     if (ret$templates$is_templated) FALSE else "class"
@@ -128,14 +133,19 @@ sanitise_templates <- function(defn, class, parent) {
     ## Attempt to detect if the template has been specified properly.
     ## We need this to match or the later substitutions will likely
     ## fail.
-    ##
-    ## TODO: In the case where there is no template information we
-    ## could fill this in and set it back in the parent.
     re <- sprintf("[[:space:]]*<%s>",
                   paste(sprintf("[[:space:]]*%s[[:space:]]*",
                                 ret$parameters), collapse=","))
     if (!grepl(re, class$name_cpp)) {
-      stop("Template must be given with full parameters")
+      if (grepl("<", class$name_cpp)) {
+        ## This could be triggered by giving conflicting names for the
+        ## template parameters (T, U vs T1, T2 for instance).  Because
+        ## it would be ideal to name things only once, I'm in favour
+        ## of not listing template parameters in the yml name at all.
+        stop("I'm confused about your templated class: add the parameters")
+      }
+      class$name_cpp <- sprintf("%s<%s>", class$name_cpp,
+                                cpp_template_parameters(ret$parameters))
     }
     ret$name_cpp <- class$name_cpp
 
