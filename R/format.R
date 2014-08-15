@@ -1,8 +1,8 @@
 format_class_list <- function(classes, package) {
-  rcppr6    <- template_info_rcppr6()
-  templates <- rcppr6_templates()
-  info <- lapply(classes, format_class, package, rcppr6, templates)
-  data <- list(rcppr6=rcppr6, package=package)
+  RcppR6    <- template_info_RcppR6()
+  templates <- RcppR6_templates()
+  info <- lapply(classes, format_class, package, RcppR6, templates)
+  data <- list(RcppR6=RcppR6, package=package)
   ## TODO: There is a package version of this to use instead now.
   collect_2nl <- function(v, x) {
     collapse(unlist(collect(v, x)), "\n\n")
@@ -15,31 +15,31 @@ format_class_list <- function(classes, package) {
   ## ready to write.  So we return nothing but the strings
   ## themselves.
   ret <- list()
-  ret$r           <- render(templates$rcppr6.R, "r")
-  ret$cpp         <- render(templates$rcppr6.cpp, "cpp")
-  ret$rcppr6_pre  <- render(templates$rcppr6_pre.hpp,
+  ret$r           <- render(templates$RcppR6.R, "r")
+  ret$cpp         <- render(templates$RcppR6.cpp, "cpp")
+  ret$RcppR6_pre  <- render(templates$RcppR6_pre.hpp,
                             c("forward_declaration", "rcpp_prototypes"))
-  ret$rcppr6_post <- render(templates$rcppr6_post.hpp,
-                            c("rcppr6_traits", "rcpp_definitions"))
+  ret$RcppR6_post <- render(templates$RcppR6_post.hpp,
+                            c("RcppR6_traits", "rcpp_definitions"))
 
   if (any(collect("is_generic", classes))) {
-    ret$r <- paste(ret$r, wr(templates$rcppr6_support.R, data),
+    ret$r <- paste(ret$r, wr(templates$RcppR6_support.R, data),
                    sep="\n\n")
   }
 
-  ret$support <- wr(templates$rcppr6_support.hpp, data)
+  ret$support <- wr(templates$RcppR6_support.hpp, data)
   ret
 }
 
-format_class <- function(class, package, rcppr6, templates) {
-  data <- list(rcppr6=rcppr6, package=package, class=class)
+format_class <- function(class, package, RcppR6, templates) {
+  data <- list(RcppR6=RcppR6, package=package, class=class)
 
   ret <- list()
   ret$forward_declaration <- data$class$forward_declaration
 
   if (class$is_generic) {
     subtypes <- lapply(class$templates, format_class,
-                       package, rcppr6, templates)
+                       package, RcppR6, templates)
     collect_nl <- function(...) {
       collapse(collect(..., collapse, "\n"), "\n")
     }
@@ -48,13 +48,13 @@ format_class <- function(class, package, rcppr6, templates) {
     ret$cpp <- collect_nl("cpp", subtypes)
     ret$rcpp_prototypes <- collect_nl("rcpp_prototypes", subtypes)
     ret$rcpp_definitions <- collect_nl("rcpp_definitions", subtypes)
-    ret$rcppr6_traits <- collect_nl("rcppr6_traits", subtypes)
+    ret$RcppR6_traits <- collect_nl("RcppR6_traits", subtypes)
   } else {
     ret$r <- format_class_r(class, data, templates)
     ret$cpp <- format_class_cpp(class, data, templates)
     ret$rcpp_prototypes  <- wr(templates$rcpp_prototypes,  data, templates)
     ret$rcpp_definitions <- wr(templates$rcpp_definitions, data, templates)
-    ret$rcppr6_traits    <- wr(templates$rcppr6_traits,    data, templates)
+    ret$RcppR6_traits    <- wr(templates$RcppR6_traits,    data, templates)
   }
   ret
 }
@@ -62,12 +62,12 @@ format_class <- function(class, package, rcppr6, templates) {
 format_class_r <- function(class, data, templates) {
   data$methods_r   <- format_methods_r(class$methods, data, templates)
   data$active_r    <- format_active_r(class$active, data, templates)
-  wr(templates$r6_generator,
+  wr(templates$R6_generator,
      c(data, class["constructor"]), templates)
 }
 
 format_class_r_generic <- function(class, data, templates) {
-  wr(templates$r6_generator_generic,
+  wr(templates$R6_generator_generic,
      c(data, class["constructor"]), templates)
 }
 

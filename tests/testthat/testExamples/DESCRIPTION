@@ -1,12 +1,12 @@
 Package: testExamples
-Title: rcppr6 examples
+Title: RcppR6 examples
 Version: 0.1
 Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
-Description: Examples putting rcppr6 through its paces.  This package
-    is basically ready to work with rcppr6, though it has none of the
+Description: Examples putting RcppR6 through its paces.  This package
+    is basically ready to work with RcppR6, though it has none of the
     required files except that the main package include
     (inst/include/testExamples.h) has been set up ready to work, and there
-    is a valid inst/rcppr6.yml file ready to go.
+    is a valid inst/RcppR6.yml file ready to go.
 Depends:
     R (>= 3.1.0)
 License: CC0

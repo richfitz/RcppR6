@@ -1,10 +1,10 @@
 context("pair")
 
 test_that("pair", {
-  pkg <- rcppr6:::prepare_temporary("testTemplates")
-  rcppr6::install(pkg)
+  pkg <- RcppR6:::prepare_temporary("testTemplates")
+  RcppR6::install(pkg)
   devtools::document(pkg)
-  expect_that(rcppr6::check(pkg), not(throws_error()))
+  expect_that(RcppR6::check(pkg), not(throws_error()))
   devtools::load_all(pkg)
   ## fresh=TRUE here would be nice, but can't happen.
   devtools::test(pkg)

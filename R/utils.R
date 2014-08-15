@@ -4,7 +4,7 @@
 ##' @return Nothing -- called for the side effect of printing the path
 ##' name to the console.
 path <- function() {
-  writeLines(system.file(package="rcppr6"))
+  writeLines(system.file(package="RcppR6"))
 }
 
 ##' Determine name of a package
@@ -15,17 +15,17 @@ package_name <- function(path=".") {
   read.dcf(file.path(path, "DESCRIPTION"), "Package")[[1]]
 }
 
-##' Extract a file from the rcppr6 (this!) package.  Just sets some
+##' Extract a file from the RcppR6 (this!) package.  Just sets some
 ##' defaults to \code{\link{system.file}}
 ##'
-##' @title Get RCPPR6 File
+##' @title Get RcppR6 File
 ##' @param ... Passed to \code{\link{system.file}}
-rcppr6_file <- function(...) {
-  system.file(..., package="rcppr6", mustWork=TRUE)
+RcppR6_file <- function(...) {
+  system.file(..., package="RcppR6", mustWork=TRUE)
 }
 
-rcppr6_version <- function() {
-  as.character(packageVersion("rcppr6"))
+RcppR6_version <- function() {
+  as.character(packageVersion("RcppR6"))
 }
 
 read_file <- function(...) {
@@ -152,6 +152,7 @@ prepare_temporary <- function(pkg, path="~/tmp") {
   if (!file.exists(path)) {
     dir.create(path)
   }
+  pkg <- normalizePath(pkg)
   pkg_dest <- file.path(path, basename(pkg))
   if (file.exists(pkg_dest)) {
     unlink(pkg_dest, recursive=TRUE)

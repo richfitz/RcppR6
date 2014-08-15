@@ -27,7 +27,7 @@ mangle_template_type_r <- function(class, template_type) {
   sprintf("%s<%s>", class, paste(template_type, collapse=","))
 }
 
-mangle_r6_generator <- function(class) {
+mangle_R6_generator <- function(class) {
   sprintf(".R6_%s", class)
 }
 

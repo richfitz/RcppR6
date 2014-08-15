@@ -2,13 +2,13 @@
 `{{{class.name_r}}}` <- function({{{constructor.args.defn_r}}}) {
   {{{constructor.name_safe}}}({{{constructor.args.use_r}}})
 }
-{{{class.r6_generator}}} <-
+{{{class.R6_generator}}} <-
   R6::R6Class("{{{class.name_r}}}",
               portable=TRUE,
               inherit={{class.inherits}},
               public=list(
-                {{{rcppr6.r6_ptr_name}}}=NULL,
+                {{{RcppR6.R6_ptr_name}}}=NULL,
                 initialize = function(ptr) {
-                  {{{rcppr6.r_self_name}}}${{{rcppr6.r6_ptr_name}}} <- ptr
+                  {{{RcppR6.r_self_name}}}${{{RcppR6.R6_ptr_name}}} <- ptr
                 }{{{methods_r}}}),
               active=list({{{active_r}}}))

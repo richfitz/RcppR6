@@ -1,9 +1,9 @@
-##' Check that a package is ready for use with rcppr6.  This just
+##' Check that a package is ready for use with RcppR6.  This just
 ##' checks for our requirements and prints diagnostics.  It is
 ##' probably unsufficient, but hopefully provides enough information.
-##' @title Check Package is Ready to Use RCPPR6
+##' @title Check Package is Ready to Use
 ##' @return An invisible logical value indicating if the package looks
-##' ready for use with rcppr6.  However, if the package is not ready
+##' ready for use with RcppR6.  However, if the package is not ready
 ##' and \code{error} is \code{TRUE}, then nothing is returned as the
 ##' function will throw an error.
 ##' @author Rich FitzJohn
@@ -25,7 +25,7 @@ check <- function(path=".", error=TRUE, quiet=FALSE) {
                    paste(paste0("\t", x, collapse="\n")))
     msg <- paste(c(rbind(title, body, deparse.level=0)),
                  collapse="\n")
-    msg <- paste0("rcppr6 problems found in your package:\n", msg)
+    msg <- paste0("RcppR6 problems found in your package:\n", msg)
     if (error) {
       stop(msg, call.=FALSE)
     } else if (!quiet) {
@@ -73,7 +73,7 @@ check_NAMESPACE <- function(path=".") {
 
   n <- devtools::parse_ns_file(path)
   msg_rcpp <- does_import_msg("Rcpp", n)
-  msg_r6   <- does_import_msg("R6", n)
+  msg_R6   <- does_import_msg("R6", n)
 
   package <- package_name(path)
 
@@ -83,7 +83,7 @@ check_NAMESPACE <- function(path=".") {
     msg_dynlib <- sprintf("NAMESPACE must load dynamic library (%s)",
                           package)
   }
-  c(msg_rcpp, msg_r6, msg_dynlib)
+  c(msg_rcpp, msg_R6, msg_dynlib)
 }
 
 check_header_main <- function(path=".") {
@@ -95,7 +95,7 @@ check_header_main <- function(path=".") {
     ## appropriate includes.  However, that might be organised
     ## differently, so I don't want to depend too strongly on it.
     ## Once we get libclang integration we could check for the
-    ## inclusion of the rcppr6 headers, but I don't think at the
+    ## inclusion of the RcppR6 headers, but I don't think at the
     ## moment that's tremendously worthwhile.
     character(0)
   } else {
@@ -124,7 +124,7 @@ check_Makevars <- function(path=".") {
 }
 
 check_yml <- function(path=".") {
-  res <- suppressWarnings(try(load_rcppr6_yml(path, verbose=FALSE),
+  res <- suppressWarnings(try(load_RcppR6_yml(path, verbose=FALSE),
                               silent=TRUE))
   if (inherits(res, "try-error")) {
     sprintf("Error loading yml:\n\t%s\n\t", res)

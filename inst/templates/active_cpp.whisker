@@ -1,26 +1,26 @@
 // [[Rcpp::export]]
-{{{active.return_type}}} {{{active.get_name}}}({{{class.input_type}}} {{{rcppr6.input_name}}}) {
+{{{active.return_type}}} {{{active.get_name}}}({{{class.input_type}}} {{{RcppR6.input_name}}}) {
   {{{#active.is_field}}}
-  return {{{rcppr6.input_name}}}->{{{active.name_cpp}}};
+  return {{{RcppR6.input_name}}}->{{{active.name_cpp}}};
   {{{/active.is_field}}}
   {{{#active.is_member}}}
-  return {{{rcppr6.input_name}}}->{{{active.name_cpp_get}}}();
+  return {{{RcppR6.input_name}}}->{{{active.name_cpp_get}}}();
   {{{/active.is_member}}}
   {{{#active.is_function}}}
-  return {{{active.name_cpp_get}}}(*{{{rcppr6.input_name}}});
+  return {{{active.name_cpp_get}}}(*{{{RcppR6.input_name}}});
   {{{/active.is_function}}}
 }
 {{^active.is_readonly}}
 // [[Rcpp::export]]
-void {{{active.set_name}}}({{{class.input_type}}} {{{rcppr6.input_name}}}, {{{active.return_type}}} {{{rcppr6.r_value_name}}}) {
+void {{{active.set_name}}}({{{class.input_type}}} {{{RcppR6.input_name}}}, {{{active.return_type}}} {{{RcppR6.r_value_name}}}) {
 {{{#active.is_field}}}
-  {{{rcppr6.input_name}}}->{{{active.name_cpp}}} = {{{rcppr6.r_value_name}}};
+  {{{RcppR6.input_name}}}->{{{active.name_cpp}}} = {{{RcppR6.r_value_name}}};
 {{{/active.is_field}}}
 {{{#active.is_member}}}
-  {{{rcppr6.input_name}}}->{{{active.name_cpp_set}}}({{{rcppr6.r_value_name}}});
+  {{{RcppR6.input_name}}}->{{{active.name_cpp_set}}}({{{RcppR6.r_value_name}}});
 {{{/active.is_member}}}
 {{{#active.is_function}}}
-  {{{active.name_cpp_set}}}(*{{{rcppr6.input_name}}}, {{{rcppr6.r_value_name}}});
+  {{{active.name_cpp_set}}}(*{{{RcppR6.input_name}}}, {{{RcppR6.r_value_name}}});
 {{{/active.is_function}}}
 }
 {{/active.is_readonly}}

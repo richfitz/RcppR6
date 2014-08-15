@@ -1,13 +1,13 @@
 ## Package (relatively global) level information:
-template_info_rcppr6 <- function() {
+template_info_RcppR6 <- function() {
   list(input_name="obj_",
        type_name="type",
        ## These should be constant, but would vary if using RC backend
        r_self_name="self",
        r_value_name="value",
-       r6_ptr_name=".ptr",
-       r6_generator_prefix=mangle_r6_generator(""),
-       version=rcppr6_version())
+       R6_ptr_name=".ptr",
+       R6_generator_prefix=mangle_R6_generator(""),
+       version=RcppR6_version())
 }
 
 template_info_package <- function(package, path=".") {
@@ -19,11 +19,11 @@ template_info_package <- function(package, path=".") {
          r           = file.path(path, "R"),
          src         = file.path(path, "src"))
   files <- list(
-    r               = file.path(paths$r,           "rcppr6.R"),
-    cpp             = file.path(paths$src,         "rcppr6.cpp"),
-    rcppr6_pre      = file.path(paths$include_pkg, "rcppr6_pre.hpp"),
-    rcppr6_post     = file.path(paths$include_pkg, "rcppr6_post.hpp"),
-    support         = file.path(paths$include_pkg, "rcppr6_support.hpp"),
+    r               = file.path(paths$r,           "RcppR6.R"),
+    cpp             = file.path(paths$src,         "RcppR6.cpp"),
+    RcppR6_pre      = file.path(paths$include_pkg, "RcppR6_pre.hpp"),
+    RcppR6_post     = file.path(paths$include_pkg, "RcppR6_post.hpp"),
+    support         = file.path(paths$include_pkg, "RcppR6_support.hpp"),
     package_include = file.path(paths$include, sprintf("%s.h", package)))
   list(name=package, NAME=toupper(package), paths=paths, files=files)
 }
@@ -33,21 +33,21 @@ template_info_class_list <- function(x, package) {
 }
 
 template_info_class <- function(x, package) {
-  assert_inherits(x, "rcppr6_class")
+  assert_inherits(x, "RcppR6_class")
   ret <- x[c("name_r", "name_safe", "name_cpp")]
-  ret$input_type <- sprintf("%s::rcppr6::RcppR6<%s>",
+  ret$input_type <- sprintf("%s::RcppR6::RcppR6<%s>",
                             package$name,
                             cpp_template_parameters(ret$name_cpp))
-  ret$r6_generator <- mangle_r6_generator(ret$name_safe)
+  ret$R6_generator <- mangle_R6_generator(ret$name_safe)
   ## TODO: Only used in generic functions, and incorrectly named from
   ## a OOP POV.  Could be useful for objects that implement a common
   ## interface though.
   ##
   ## NOTE: The peculiar "NULL" as a string here is so that the
   ## template ends up with a 'proper' NULL after substitution (see
-  ## r6_generator.whisker)
+  ## R6_generator.whisker)
   ret$inherits <- if (is.null(x$inherits))
-    "NULL" else mangle_r6_generator(x$inherits)
+    "NULL" else mangle_R6_generator(x$inherits)
   ret$forward_declaration <- template_info_forward_declaration(x)
   ret$is_generic <- x$templates$is_templated
   if (ret$is_generic) {
@@ -67,7 +67,7 @@ template_info_class <- function(x, package) {
 }
 
 template_info_constructor_generic <- function(x, class_info, templates) {
-  assert_inherits(x, "rcppr6_constructor")
+  assert_inherits(x, "RcppR6_constructor")
   ret <- list()
 
   ## This is going to need a little more work to behave properly for
@@ -114,7 +114,7 @@ template_info_constructor_generic <- function(x, class_info, templates) {
 }
 
 template_info_constructor <- function(x, class_info) {
-  assert_inherits(x, "rcppr6_constructor")
+  assert_inherits(x, "RcppR6_constructor")
   ret <- x["name_cpp"]
   ret$name_safe <- mangle_constructor(class_info$name_safe)
   ret$roxygen <- template_info_roxygen(x$roxygen)
@@ -123,7 +123,7 @@ template_info_constructor <- function(x, class_info) {
 }
 
 template_info_method <- function(x, class_info) {
-  assert_inherits(x, "rcppr6_method")
+  assert_inherits(x, "RcppR6_method")
   ret <- list()
   ret$name_r <- x$name_r
   ret$name_safe <- mangle_method(class_info$name_safe, x$name_safe)
@@ -137,7 +137,7 @@ template_info_method <- function(x, class_info) {
 }
 
 template_info_active <- function(x, class_info) {
-  assert_inherits(x, "rcppr6_active")
+  assert_inherits(x, "RcppR6_active")
   ret <- list()
   ret$name_r <- x$name_r
   ret$name_cpp <- x$name_cpp
@@ -155,19 +155,19 @@ template_info_active <- function(x, class_info) {
 }
 
 template_info_args <- function(x, constructor, member, class_info) {
-  assert_inherits(x, "rcppr6_args")
-  rcppr6 <- template_info_rcppr6()
+  assert_inherits(x, "RcppR6_args")
+  RcppR6 <- template_info_RcppR6()
   defn_cpp_type <-
     c(if (!constructor) class_info$input_type, x$type)
   defn_cpp_name <-
-    c(if (!constructor) rcppr6$input_name, x$name)
+    c(if (!constructor) RcppR6$input_name, x$name)
 
   ret <- list()
   ret$defn_cpp <- paste(defn_cpp_type, defn_cpp_name, collapse=", ")
-  use_cpp_prefix <- if (!constructor && !member) paste0("*", rcppr6$input_name)
+  use_cpp_prefix <- if (!constructor && !member) paste0("*", RcppR6$input_name)
   ret$use_cpp  <-  collapse(c(use_cpp_prefix, x$name))
   ret$defn_r   <- collapse(x$name)
-  ret$use_r    <- collapse(c(if (!constructor) rcppr6$r_self_name,
+  ret$use_r    <- collapse(c(if (!constructor) RcppR6$r_self_name,
                              x$name))
   ret
 }
@@ -195,8 +195,8 @@ template_info_forward_declaration <- function(x) {
 }
 
 ## Read all templates.  This makes things slightly simpler later.
-rcppr6_templates <- function() {
-  path <- rcppr6_file("templates")
+RcppR6_templates <- function() {
+  path <- RcppR6_file("templates")
   files <- dir(path, pattern=glob2rx("*.whisker"))
   dat <- lapply(file.path(path, files), read_file)
   names(dat) <- sub("\\.whisker$", "", files)

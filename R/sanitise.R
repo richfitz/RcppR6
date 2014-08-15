@@ -1,5 +1,5 @@
-load_rcppr6_yml <- function(path=".", verbose=TRUE) {
-  filename <- file.path(path, "inst/rcppr6.yml")
+load_RcppR6_yml <- function(path=".", verbose=TRUE) {
+  filename <- file.path(path, "inst/RcppR6.yml")
   if (file.exists(filename)) {
     dat <- yaml_read(filename)
   } else {
@@ -8,25 +8,25 @@ load_rcppr6_yml <- function(path=".", verbose=TRUE) {
     }
     dat <- config_default()
   }
-  info <- sanitise_rcppr6(dat)
+  info <- sanitise_RcppR6(dat)
   filename_classes <- file.path(path, info$classes)
-  classes <- join_lists(lapply(filename_classes, load_rcppr6_classes, verbose))
+  classes <- join_lists(lapply(filename_classes, load_RcppR6_classes, verbose))
   list(classes=classes)
 }
 
 config_default <- function() {
-  list(classes="inst/rcppr6_classes.yml")
+  list(classes="inst/RcppR6_classes.yml")
 }
 
-load_rcppr6_classes <- function(filename, verbose) {
+load_RcppR6_classes <- function(filename, verbose) {
   if (verbose) {
     message("Reading classes from ", filename)
   }
   sanitise_class_list(yaml_read(filename))
 }
 
-sanitise_rcppr6 <- function(dat) {
-  warn_unknown("rcppr6", dat, "classes")
+sanitise_RcppR6 <- function(dat) {
+  warn_unknown("RcppR6", dat, "classes")
   assert_character(dat$classes)
   if (length(dat$classes) == 0) {
     stop("Need at least one set of classes")
@@ -100,7 +100,7 @@ sanitise_class <- function(name, defn) {
   ret$methods     <- sanitise_methods_list(defn$methods, name)
   ret$active      <- sanitise_active_list(defn$active,   name)
 
-  class(ret) <- "rcppr6_class"
+  class(ret) <- "RcppR6_class"
 
   ret
 }
@@ -208,7 +208,7 @@ sanitise_constructor <- function(defn, class_cpp, parent) {
     assert_scalar_character(ret$roxygen)
   }
 
-  class(ret) <- "rcppr6_constructor"
+  class(ret) <- "RcppR6_constructor"
 
   ret
 }
@@ -252,7 +252,7 @@ sanitise_method <- function(name, defn, parent) {
 
   ret$args <- sanitise_args(defn$args, parent)
 
-  class(ret) <- "rcppr6_method"
+  class(ret) <- "RcppR6_method"
   ret
 }
 
@@ -291,7 +291,7 @@ sanitise_active <- function(name, defn, parent) {
       ret$name_cpp_set <- ret$name_cpp[[2]]
     }
   }
-  class(ret) <- "rcppr6_active"
+  class(ret) <- "RcppR6_active"
   ret
 }
 
@@ -312,7 +312,7 @@ sanitise_args <- function(args, parent) {
     ret <- list(name=vapply(args, function(x) names(x), character(1)),
                 type=vapply(args, function(x) x[[1]], character(1)))
   }
-  class(ret) <- "rcppr6_args"
+  class(ret) <- "RcppR6_args"
   ret
 }
 
@@ -336,7 +336,7 @@ check_name <- function(x) {
 }
 
 has_roxygen <- function(info) {
-  assert_inherits(info, "rcppr6_class")
+  assert_inherits(info, "RcppR6_class")
   any(sapply(info, function(x) !is.null(x$constructor$roxygen)))
 }
 

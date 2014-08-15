@@ -1,5 +1,5 @@
 ## This is my personal project makefile, tweaked for use with
-## rcppr6-using projects.
+## RcppR6-using projects.
 
 ## Detect package name -- used within 'check'.  Very simple minded,
 ## may fail in odd ways.
@@ -7,12 +7,12 @@ PACKAGE := $(shell grep '^Package:' DESCRIPTION | sed -E 's/^Package:[[:space:]]
 
 all:
 
-## rcppr6 targets:
-rcppr6_install:
-	Rscript -e "rcppr6::install()"
+## RcppR6 targets:
+RcppR6_install:
+	Rscript -e "RcppR6::install()"
 
-rcppr6_update:
-	Rscript -e "rcppr6::rcppr6()"
+RcppR6:
+	Rscript -e "RcppR6::RcppR6()"
 
 attributes:
 	Rscript -e "Rcpp::compileAttributes()"
@@ -42,5 +42,5 @@ clean:
 	cd src && rm -f *.o *.so
 
 reset:
-	Rscript -e "rcppr6:::uninstall()"
+	Rscript -e "RcppR6:::uninstall()"
 	make roxygen

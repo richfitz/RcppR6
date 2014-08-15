@@ -1,4 +1,4 @@
 library(testthat)
-library(rcppr6)
+library(RcppR6)
 
-test_check("rcppr6")
+test_check("RcppR6")

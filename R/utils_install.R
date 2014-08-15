@@ -38,7 +38,7 @@ install_file <- function(filename, dest_dir, verbose=TRUE,
     }
   }
   if (do_copy) {
-    file.copy(rcppr6_file(filename), dest, overwrite=TRUE)
+    file.copy(RcppR6_file(filename), dest, overwrite=TRUE)
   }
   invisible(do_copy)
 }

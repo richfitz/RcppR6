@@ -1,3 +1,3 @@
 template <> inline std::string   class_name_r<{{{class.name_cpp}}} >() {return "{{{class.name_r}}}";}
 template <> inline std::string   package_name<{{{class.name_cpp}}} >() {return "{{{package.name}}}";}
-template <> inline std::string generator_name<{{{class.name_cpp}}} >() {return "{{{class.r6_generator}}}";}
+template <> inline std::string generator_name<{{{class.name_cpp}}} >() {return "{{{class.R6_generator}}}";}

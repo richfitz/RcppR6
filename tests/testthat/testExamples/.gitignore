@@ -1,10 +1,10 @@
 ## Normally these would not be ignored of course!
 R/RcppExports.R
-R/rcppr6.R
-inst/include/examples/rcppr6_post.hpp
-inst/include/examples/rcppr6_pre.hpp
-inst/include/examples/rcppr6_support.hpp
+R/RcppR6.R
+inst/include/examples/RcppR6_post.hpp
+inst/include/examples/RcppR6_pre.hpp
+inst/include/examples/RcppR6_support.hpp
 src/Makevars
 src/RcppExports.cpp
-src/rcppr6.cpp
+src/RcppR6.cpp
 man
