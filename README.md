@@ -16,10 +16,10 @@ public:
   double radius;
   circle(double r) : radius(r) {}
   double area() const {
-    return M_PI * r * r;
+    return M_PI * radius * radius;
   }
   double circumference() const {
-    return M_PI * 2 * r;
+    return M_PI * 2 * radius;
   }
   void set_circumference(double c) {
     if (c < 0) {
