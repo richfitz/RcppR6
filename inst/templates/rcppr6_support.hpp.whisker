@@ -44,23 +44,25 @@ std::string generator_name(const T&) {
 }
 }
 
-// Get the top level class attribute from an object.  Returns the
-// empty string if it's not there, or if it's the zero length
-// character vector.  Could be modified to return the i'th class
-// element easily enough, but at that point we might as well return
-// the whole bloody thing.  This might get replaced with "inherits" at
-// some point, where we loop over the class vector.
-inline std::string get_class(Rcpp::RObject x) {
-  if (x.hasAttribute("class")) {
-    Rcpp::CharacterVector cx(x.attr("class"));
-    if (cx.size() > 0) {
-      return Rcpp::as<std::string>(cx[0]); // Always the first element.
-    } else {
-      return "";
-    }
-  } else {
-    return "";
-  }
+// In parallel/contrast with Rcpp::is :)
+//
+// This will throw a *compile time* error if T is not a type known to
+// rcppr6.  It will return false at runtime if x is not the required
+// type.
+//
+// Note that this does not actually check that we inherit from R6.
+// Strictly we should look for the classname, then from that position
+// check that we hit R6.  But omelettes and eggs and all that.
+//
+// It would be nice to roll this into Rcpp::is, but I don't really see
+// how to do that -- Rcpp::is mostly seems to use things in
+// Rcpp::internal and I don't see any examples of extending things.
+//
+// Use this by doing:
+//    {{{package.name}}}::rcppr6::is<mytype>(x)
+template <typename T>
+bool is(Rcpp::RObject x) {
+  return x.inherits(traits::class_name_r<T>().c_str());
 }
 
 template <typename T>
@@ -100,14 +102,14 @@ public:
   Rcpp::XPtr<T> ptr;
   // Convert from an R6 object from R:
   static Rcpp::XPtr<T> ptr_from_R6(Rcpp::RObject x) {
-    const std::string classname_r = traits::class_name_r<T>();
-    if (get_class(x) == classname_r) {
+    if (is<T>(x)) {
       Rcpp::Environment xe = Rcpp::as<Rcpp::Environment>(x);
       Rcpp::XPtr<T> ptr = Rcpp::as<Rcpp::XPtr<T> >(xe["{{{rcppr6.r6_ptr_name}}}"]);
       check_ptr_valid<T>(ptr);
       return ptr;
     } else {
-      Rcpp::stop("Expected an object of type R6 / " + classname_r);
+      Rcpp::stop("Expected an object of type R6 / " +
+                 traits::class_name_r<T>());
       return Rcpp::as<Rcpp::XPtr<T> >(x); // Won't get here
     }
   }
