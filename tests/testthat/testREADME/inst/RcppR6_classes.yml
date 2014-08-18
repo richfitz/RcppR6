@@ -1,0 +1,13 @@
+circle:
+  constructor:
+    args: [radius: double]
+  methods:
+    area:
+      return_type: double
+  active:
+    circumference:
+      name_cpp: circumference
+      name_cpp_set: set_circumference
+      access: member
+      type: double
+    radius: {access: field, type: double}

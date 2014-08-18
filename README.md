@@ -39,10 +39,12 @@ circle:
   constructor:
     args: [radius: double]
   methods:
-    area: [return_type: double]
+    area:
+      return_type: double
   active:
     circumference:
-      name_cpp: [circumference, get_circumference]
+      name_cpp: circumference
+      name_cpp_set: set_circumference
       access: member
       type: double
     radius: {access: field, type: double}
@@ -73,6 +75,8 @@ A couple of notes here:
       access: field
       type: double
 ```
+
+A full working version of this is available [here](tree/master/tests/testthat/testREADME); see in particular the [class definition](tree/master/tests/testthat/testREADME/inst/include/testREADME.h) and the [yaml](tree/master/tests/testthat/testREADME/inst/RcppR6_classes.yml).
 
 # How is this run?
 
