@@ -1,3 +1,4 @@
+
 # Writing this, it's apparent that extra levels of indenting are going
 # to be likely and very difficult to troubleshoot.  Probably going to
 # need some validation tools here.  That's not that horrible to do,
@@ -8,6 +9,7 @@
 # methods, or method names.
 uniform:
   name_cpp: examples::Uniform
+  forward_declare: true
   constructor:
     roxygen: |
       Uniform distribution
@@ -27,11 +29,13 @@ uniform:
       access: function
   active:
     the_min:
-      name_cpp: [get_min, set_min]
+      name_cpp: get_min
+      name_cpp_set: set_min
       type: double
       access: member
     the_max:
-      name_cpp: ["examples::uniform_get_max", "examples::uniform_set_max"]
+      name_cpp: examples::uniform_get_max
+      name_cpp_set: examples::uniform_set_max
       type: double
       access: function
     u:

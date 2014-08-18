@@ -17,3 +17,15 @@ Imports:
     devtools,
     whisker,
     yaml
+Collate:
+    'RcppR6_template_info.R'
+    'RcppR6_cleanup.R'
+    'RcppR6.R'
+    'RcppR6_other.R'
+    'check.R'
+    'cpp_templates.R'
+    'install.R'
+    'mangle.R'
+    'utils.R'
+    'utils_assert.R'
+    'utils_install.R'

@@ -124,11 +124,11 @@ check_Makevars <- function(path=".") {
 }
 
 check_yml <- function(path=".") {
-  res <- suppressWarnings(try(load_RcppR6_yml(path, verbose=FALSE),
+  res <- suppressWarnings(try(RcppR6_package$new(path, verbose=FALSE),
                               silent=TRUE))
   if (inherits(res, "try-error")) {
     sprintf("Error loading yml:\n\t%s\n\t", res)
-  } else if (length(res) == 0) {
+  } else if (length(res$classes) == 0) {
     sprintf("No classes found in package yml")
   } else {
     character(0)

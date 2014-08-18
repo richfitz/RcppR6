@@ -5,4 +5,4 @@
 ##' @useDynLib {{{package.name}}}
 NULL
 
-{{{r}}}
+{{{package.r}}}

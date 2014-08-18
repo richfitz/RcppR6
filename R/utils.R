@@ -1,31 +1,9 @@
-##' Internal function to find the location of the package.  This is
-##' used in the Makefiles that it provides.
-##' @title Path Name of Installed Package
-##' @return Nothing -- called for the side effect of printing the path
-##' name to the console.
-path <- function() {
-  writeLines(system.file(package="RcppR6"))
-}
-
 ##' Determine name of a package
 ##' @title Determine name of a package
 ##' @param path Path to the package (DESCRIPTION must be in this
 ##' directory).  Defaults to the current directory.
 package_name <- function(path=".") {
   read.dcf(file.path(path, "DESCRIPTION"), "Package")[[1]]
-}
-
-##' Extract a file from the RcppR6 (this!) package.  Just sets some
-##' defaults to \code{\link{system.file}}
-##'
-##' @title Get RcppR6 File
-##' @param ... Passed to \code{\link{system.file}}
-RcppR6_file <- function(...) {
-  system.file(..., package="RcppR6", mustWork=TRUE)
-}
-
-RcppR6_version <- function() {
-  as.character(packageVersion("RcppR6"))
 }
 
 read_file <- function(...) {
@@ -36,12 +14,12 @@ with_default <- function(x, default=NULL) {
   if (is.null(x)) default else x
 }
 
+## Really simple-minded indenting, by a number of spaces:
 indent <- function(str, n) {
   indent <- paste(rep(" ", n), collapse="")
   paste(indent, strsplit(str, "\n", fixed=TRUE)[[1]],
         sep="", collapse="\n")
 }
-
 
 ## https://github.com/viking/r-yaml/issues/5#issuecomment-16464325
 yaml_load <- function(string) {
@@ -64,8 +42,12 @@ yaml_read <- function(filename) {
 ## parameters are passed in.  Things might not be named and that might
 ## be OK.
 yaml_seq_map <- function(dat, named=TRUE) {
+  if (is.null(dat) || length(dat) == 0) {
+    return(structure(list(), names=character(0)))
+  }
+  assert_list(dat)
   ## First, check that everything is length 1:
-  if (!all(sapply(dat, length) == 1)) {
+  if (!all(sapply(dat, length) == 1L)) {
     stop("Expected every element to be length 1")
   }
   dat_contents <- lapply(dat, function(x) x[[1]])
@@ -78,7 +60,7 @@ yaml_seq_map <- function(dat, named=TRUE) {
   } else {
     dat_names[dat_unnamed] <- dat_contents[dat_unnamed]
   }
-  dat_names <- vapply(dat_names, identity, character(1))
+  dat_names <- vapply(dat_names, identity, character(1L))
   names(dat_contents) <- dat_names
   dat_contents
 }
@@ -146,25 +128,28 @@ wr <- function(...) {
   res
 }
 
-## Because of the devtools issue (hadley/devtools#531) we need to use
-## a non-standard temporary file location for the tests.
-prepare_temporary <- function(pkg, path="~/tmp") {
-  if (!file.exists(path)) {
-    dir.create(path)
-  }
-  pkg <- normalizePath(pkg)
-  pkg_dest <- file.path(path, basename(pkg))
-  if (file.exists(pkg_dest)) {
-    unlink(pkg_dest, recursive=TRUE)
-  }
-  file.copy(pkg, path, recursive=TRUE)
-  invisible(pkg_dest)
-}
-
 join_lists <- function(x) {
   unlist(unname(x), FALSE, TRUE)
 }
 
 dput_to_character <- function(x) {
   capture.output(dput(x))
+}
+
+first <- function(x) {
+  x[[1]]
+}
+
+strip_trailing_newline <- function(x) {
+  sub("\n$", "", x)
+}
+
+read_dcf <- function(filename, ...) {
+  d <- data.frame(read.dcf(filename, ...), stringsAsFactors=FALSE,
+                  check.names=FALSE)
+  ## Seems to be a bug in read.dcf:
+  if ("Authors.R" %in% names(d)) {
+    names(d)[names(d) == "Authors.R"] <- "Authors@R"
+  }
+  d
 }

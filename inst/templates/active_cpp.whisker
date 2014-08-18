@@ -1,5 +1,5 @@
 // [[Rcpp::export]]
-{{{active.return_type}}} {{{active.get_name}}}({{{class.input_type}}} {{{RcppR6.input_name}}}) {
+{{{active.return_type}}} {{{active.name_safe_get}}}({{{active.input_type}}} {{{RcppR6.input_name}}}) {
   {{{#active.is_field}}}
   return {{{RcppR6.input_name}}}->{{{active.name_cpp}}};
   {{{/active.is_field}}}
@@ -12,7 +12,7 @@
 }
 {{^active.is_readonly}}
 // [[Rcpp::export]]
-void {{{active.set_name}}}({{{class.input_type}}} {{{RcppR6.input_name}}}, {{{active.return_type}}} {{{RcppR6.r_value_name}}}) {
+void {{{active.name_safe_set}}}({{{active.input_type}}} {{{RcppR6.input_name}}}, {{{active.return_type}}} {{{RcppR6.r_value_name}}}) {
 {{{#active.is_field}}}
   {{{RcppR6.input_name}}}->{{{active.name_cpp}}} = {{{RcppR6.r_value_name}}};
 {{{/active.is_field}}}

@@ -83,6 +83,11 @@ assert_nonempty <- function(x, name=deparse(substitute(x))) {
   }
 }
 
+assert_scalar_list <- function(x, name=deparse(substitute(x))) {
+  assert_scalar(x, name)
+  assert_list(x, name)
+}
+
 assert_scalar_numeric <- function(x, name=deparse(substitute(x))) {
   assert_scalar(x, name)
   assert_numeric(x, name)

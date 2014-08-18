@@ -11,7 +11,7 @@ template <typename T> class RcppR6;
 }
 }
 
-{{{forward_declaration}}}
+{{{package.forward_declaration}}}
 
 namespace Rcpp {
 template <typename T> SEXP wrap(const {{{package.name}}}::RcppR6::RcppR6<T>&);
@@ -19,7 +19,7 @@ namespace traits {
 template <typename T> class Exporter<{{{package.name}}}::RcppR6::RcppR6<T> >;
 }
 
-{{{rcpp_prototypes}}}
+{{{package.rcpp_prototypes}}}
 }
 
 #endif

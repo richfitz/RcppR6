@@ -1,12 +1,12 @@
 {{{active.name_r}}} = function({{{RcppR6.r_value_name}}}) {
   if (missing({{{RcppR6.r_value_name}}})) {
-    {{{active.get_name}}}({{{RcppR6.r_self_name}}})
+    {{{active.name_safe_get}}}({{{RcppR6.r_self_name}}})
   } else {
 {{#active.is_readonly}}
-    stop("{{{class.name_safe}}}${{{active.name_r}}} is read-only")
+    stop("{{{active.class_name_r}}}${{{active.name_r}}} is read-only")
 {{/active.is_readonly}}
 {{^active.is_readonly}}
-    {{{active.set_name}}}({{{RcppR6.r_self_name}}}, {{{RcppR6.r_value_name}}})
+    {{{active.name_safe_set}}}({{{RcppR6.r_self_name}}}, {{{RcppR6.r_value_name}}})
 {{/active.is_readonly}}
   }
 }

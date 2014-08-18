@@ -1,2 +1,3 @@
 simple_empty:
   name_cpp: "examples::simple::empty"
+  forward_declare: true

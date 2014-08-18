@@ -1,6 +1,5 @@
 stack:
   name_cpp: examples::stack
-  forward_declare: false
   constructor:
     roxygen: |
       @export

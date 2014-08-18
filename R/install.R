@@ -25,34 +25,22 @@
 ##' @export
 RcppR6 <- function(path=".", verbose=TRUE,
                    install=FALSE, attributes=TRUE, roxygen=FALSE) {
-  package <- template_info_package(package_name(path), path)
+  package <- RcppR6_package$new(path, verbose)
 
   if (install) {
     RcppR6_install_files(package)
-  } else {
-    RcppR6_create_directories(package)
   }
 
-  ## This bit actually does the hard work:
-  ## Load the data:
-  classes <- load_RcppR6_yml(path, verbose)$classes
-  ## Build template lists:
-  template_info <- template_info_class_list(classes, package)
-  ## Process the templates into final strings:
-  processed <- format_class_list(template_info, package)
-  ## Write these out in the correct file:
-  for (type in c("r", "cpp", "RcppR6_pre", "RcppR6_post", "support")) {
-    update_file(processed[[type]], package$files[[type]], verbose)
-  }
+  package$write_files()
 
-  ## Update generated code that depends on our generated code:
   if (attributes) {
     RcppR6_run_attributes(package, verbose)
   }
-  if (roxygen && has_roxygen(classes)) {
+  if (roxygen) {
     RcppR6_run_roxygen(package, verbose)
   }
-  invisible(NULL)
+
+  invisible(package)
 }
 
 ##' @export
@@ -78,15 +66,11 @@ create <- function(path, ...) {
 
 ## Below here -- no exported functions that do all the work.
 
-RcppR6_create_directories <- function(info) {
-  for (pi in info$paths) {
-    dir.create(pi, FALSE)
-  }
-}
+RcppR6_install_files <- function(package, verbose=TRUE) {
+  package$create_directories()
+  info <- package$template_info()
 
-RcppR6_install_files <- function(info, verbose=TRUE) {
-  RcppR6_create_directories(info)
-  update_DESCRIPTION(info, verbose)
+  update_DESCRIPTION(package, verbose)
   install_file("Makevars", info$paths$src, verbose)
   if (!file.exists(info$files$package_include)) {
     template <-
@@ -97,7 +81,7 @@ RcppR6_install_files <- function(info, verbose=TRUE) {
       message("\t...you'll need to edit this file a bunch")
     }
   }
-  namespace <- file.path(info$paths$root, "NAMESPACE")
+  namespace <- file.path(package$path, "NAMESPACE")
   if (!file.exists(namespace)) {
     if (verbose) {
       message("Writing empty NAMESPACE")
@@ -107,7 +91,7 @@ RcppR6_install_files <- function(info, verbose=TRUE) {
 }
 
 ## NOTE: This duplicates some of the effort in check_DESCRIPTION
-update_DESCRIPTION <- function(info, verbose=TRUE) {
+update_DESCRIPTION <- function(package, verbose=TRUE) {
   add_depends_if_missing <- function(package, field, data, verbose) {
     if (!depends(package, field, data)) {
       field <- field[[1]]
@@ -124,13 +108,13 @@ update_DESCRIPTION <- function(info, verbose=TRUE) {
     data
   }
 
-  filename <- file.path(info$paths$root, "DESCRIPTION")
+  filename <- file.path(package$path, "DESCRIPTION")
   if (!file.exists(filename)) {
     stop("Did not find DESCRIPTION file to modify")
   }
 
-  d <- data.frame(read.dcf(filename), stringsAsFactors=FALSE)
-  d_orig <- d
+  d <- d_orig <- read_dcf(filename)
+
   d <- add_depends_if_missing("Rcpp", "LinkingTo", d, verbose)
   d <- add_depends_if_missing("Rcpp", c("Imports", "Depends"), d, verbose)
   d <- add_depends_if_missing("R6",   c("Imports", "Depends"), d, verbose)
@@ -145,23 +129,25 @@ update_DESCRIPTION <- function(info, verbose=TRUE) {
   }
 }
 
-RcppR6_run_attributes <- function(package_info, verbose) {
+RcppR6_run_attributes <- function(package, verbose) {
   if (verbose) {
     message("Compiling Rcpp attributes")
   }
-  Rcpp::compileAttributes(package_info$paths$root)
+  Rcpp::compileAttributes(package$path)
 }
 
-RcppR6_run_roxygen <- function(package_info, verbose) {
+RcppR6_run_roxygen <- function(package, verbose) {
   if (verbose) {
     message("Running devtools::document")
   }
-  devtools::document(package_info$paths$root)
+  devtools::document(package$path)
 }
 
 ## Seriously, don't use this.  This is for testing only.
 uninstall <- function(path=".", verbose=TRUE, attributes=TRUE) {
-  info <- template_info_package(package_name(path), path)
+  package <- RcppR6_package$new(path, FALSE)
+  info <- package$template_info()
+
   p <- info$paths
   file_remove_if_exists(file.path(p$include_pkg, "RcppR6_pre.hpp"),
                         file.path(p$include_pkg, "RcppR6_post.hpp"),
@@ -171,7 +157,23 @@ uninstall <- function(path=".", verbose=TRUE, attributes=TRUE) {
                         verbose=verbose)
   ## We leave alone the package include file, Makevars, DESCRIPTION
   if (attributes) {
-    RcppR6_run_attributes(info, verbose)
+    RcppR6_run_attributes(package, verbose)
   }
   dir_remove_if_empty(info$paths)
+}
+
+
+## Because of the devtools issue (hadley/devtools#531) we need to use
+## a non-standard temporary file location for the tests.
+prepare_temporary <- function(pkg, path="~/tmp") {
+  if (!file.exists(path)) {
+    dir.create(path)
+  }
+  pkg <- normalizePath(pkg)
+  pkg_dest <- file.path(path, basename(pkg))
+  if (file.exists(pkg_dest)) {
+    unlink(pkg_dest, recursive=TRUE)
+  }
+  file.copy(pkg, path, recursive=TRUE)
+  invisible(pkg_dest)
 }

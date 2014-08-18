@@ -8,7 +8,7 @@
 namespace {{{package.name}}} {
 namespace RcppR6 {
 namespace traits {
-{{{RcppR6_traits}}}
+{{{package.traits}}}
 }
 }
 }
@@ -30,7 +30,7 @@ private:
 };
 }
 
-{{{rcpp_definitions}}}
+{{{package.rcpp_definitions}}}
 }
 
 #endif

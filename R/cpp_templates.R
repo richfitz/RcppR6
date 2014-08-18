@@ -1,6 +1,5 @@
 ## This file refers using C++ templating rather than whisker text
 ## substitutions.  It's all a bit unfortunate, really.
-## Construct full C++ template names:
 cpp_template_name <- function(template, pars) {
   sprintf("%s<%s>", template, cpp_template_parameters(pars))
 }
@@ -11,6 +10,65 @@ cpp_template_parameters <- function(pars) {
     pars <- paste0(pars, " ")
   }
   pars
+}
+
+cpp_template_rewrite_class <- function(obj) {
+  generic <- obj$parent$parent
+
+  ## Build a new class but with templates disabled.  This could be
+  ## achived more easily if we had a copy() method.  Need to delete
+  ## the templates *first* because otherwise we get a loop.
+  defn <- generic$defn_yaml
+  defn[[1]]$templates <- NULL # disable templating
+  ret <- RcppR6_class$new(defn, generic$package())
+
+  ret$name_r    <- obj$name_r
+  ret$name_cpp  <- obj$name_cpp
+  ret$name_safe <- obj$name_safe
+  ret$inherits  <- generic$name_r
+
+  ## Bunch of type rewriting:
+  cpp_template_rewrite_constructor(ret$constructor, obj)
+  for (x in ret$methods) {
+    cpp_template_rewrite_method(x, obj)
+  }
+  for (x in ret$active) {
+    cpp_template_rewrite_active(x, obj)
+  }
+
+  ## The yaml definition is invalid now so drop them:
+  ret$defn <- ret$defn_yaml <- NULL
+
+  ret
+}
+
+cpp_template_rewrite_constructor <- function(obj, concrete) {
+  obj$roxygen <- NULL
+  obj$name_cpp <- cpp_template_rewrite_types(obj$name_cpp, concrete)
+  cpp_template_rewrite_args(obj$args, concrete)
+}
+
+cpp_template_rewrite_method <- function(obj, concrete) {
+  if (obj$access == "function") {
+    obj$name_cpp <- cpp_template_rewrite_types(obj$name_cpp, concrete)
+  }
+  obj$return_type <- cpp_template_rewrite_types(obj$return_type, concrete)
+  cpp_template_rewrite_args(obj$args, concrete)
+}
+
+cpp_template_rewrite_active <- function(obj, concrete) {
+  if (obj$access == "function") {
+    obj$name_cpp <- cpp_template_rewrite_types(obj$name_cpp, concrete)
+    if (!is.null(obj$name_cpp_set)) {
+      obj$name_cpp_set <-
+        cpp_template_rewrite_types(obj$name_cpp_set, concrete)
+    }
+  }
+  obj$type <- cpp_template_rewrite_types(obj$type, concrete)
+}
+
+cpp_template_rewrite_args <- function(obj, concrete) {
+  obj$types <- cpp_template_rewrite_types(obj$types, concrete)
 }
 
 cpp_template_rewrite_types <- function(x, template) {
@@ -24,19 +82,8 @@ cpp_template_rewrite_types <- function(x, template) {
 
   ## Sort out templated types.  This is very basic, probably prone to
   ## failure.  But it serves as an interface at least.
-  ##
   if (any(k <- !j & grepl("<", x, fixed=TRUE))) {
     if (any(k)) {
-      ## For single parameters we can replace like this:
-      ##   re <- sprintf("<[[:space:]]*%s[[:space:]]*>", from)
-      ##   x[k] <- sub(re, sprintf("<%s>", cpp_template_parameters(to)), x[k])
-      ## but we want to allow multiple template types at once.  This
-      ## version is very simple but I think will work.  It will do badly
-      ## within things like:
-      ##   T::Bar<T>
-      ## as it will replace *both* T's here.  Writing C++ parsers is
-      ## hard.  And I'm not really trying.  It's possible that code like
-      ## T::Bar<T> is not really allowed anyway.
       xk <- x[k]
       for (i in seq_along(from)) {
         xk <- gsub(sprintf("\\b%s\\b", from[i]),
@@ -45,43 +92,5 @@ cpp_template_rewrite_types <- function(x, template) {
       x[k] <- xk
     }
   }
-  x
-}
-
-cpp_template_rewrite_constructor <- function(x, template) {
-  x$roxygen <- NULL
-  x$name_cpp <- cpp_template_rewrite_types(x$name_cpp, template)
-  x$args$type <- cpp_template_rewrite_types(x$args$type, template)
-  x
-}
-
-cpp_template_rewrite_method <- function(x, template) {
-  if (x$access == "function") {
-    x$name_cpp <- cpp_template_rewrite_types(x$name_cpp, template)
-  }
-  x$args$type <- cpp_template_rewrite_types(x$args$type, template)
-  x$return_type <- cpp_template_rewrite_types(x$type, template)
-  x
-}
-
-cpp_template_rewrite_active <- function(x, template) {
-  if (x$access == "function") {
-    x$name_cpp <- cpp_template_rewrite_types(x$name_cpp, template)
-  }
-  x$type <- cpp_template_rewrite_types(x$type, template)
-  x
-}
-
-cpp_template_rewrite_class <- function(x, template) {
-  ## Turn off templating and rewrite names:
-  x$templates <- list(is_templated=FALSE)
-  x$inherits  <- x$name_safe
-  x$name_r    <- template$name_r
-  x$name_safe <- template$name_safe
-  x$name_cpp  <- template$name_cpp
-  x$constructor <-
-    cpp_template_rewrite_constructor(x$constructor, template)
-  x$methods <- lapply(x$methods, cpp_template_rewrite_method, template)
-  x$active  <- lapply(x$active, cpp_template_rewrite_active, template)
   x
 }

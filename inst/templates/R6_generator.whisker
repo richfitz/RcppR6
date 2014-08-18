@@ -10,5 +10,5 @@
                 {{{RcppR6.R6_ptr_name}}}=NULL,
                 initialize = function(ptr) {
                   {{{RcppR6.r_self_name}}}${{{RcppR6.R6_ptr_name}}} <- ptr
-                }{{{methods_r}}}),
-              active=list({{{active_r}}}))
+                }{{{class.methods_r}}}),
+              active=list({{{class.active_r}}}))

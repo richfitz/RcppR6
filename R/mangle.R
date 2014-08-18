@@ -1,14 +1,3 @@
-## There are a bunch of issues with mangling.  I *still* need R and
-## C++ dual viability.  It might be better long term to abandon
-## readability and just use C++ mangling!  Probably not.  This *all*
-## needs revisiting after allowing >1 template argument.  But I think
-## that using '___' or '_T_' to separate class and template
-## definitions should be easy enough and avoid issues.  Needs
-## documenting and the restrictions on names needs checking
-## throughout.
-##
-## TODO: The template type mangling is currently assumed within the
-## support function check_type.
 mangle_template_type <- function(class, template_type) {
   sprintf("%s___%s", class, paste(template_type, collapse="__"))
 }
@@ -42,4 +31,9 @@ mangle_method <- function(class, name) {
 
 mangle_constructor <- function(class) {
   sprintf("%s__ctor", class)
+}
+
+mangle_input <- function(package, name_cpp) {
+  sprintf("%s::RcppR6::RcppR6<%s>",
+          package, cpp_template_parameters(name_cpp))
 }
