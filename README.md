@@ -76,7 +76,7 @@ A couple of notes here:
       type: double
 ```
 
-A full working version of this is available [here](tree/master/tests/testthat/testREADME); see in particular the [class definition](tree/master/tests/testthat/testREADME/inst/include/testREADME.h) and the [yaml](tree/master/tests/testthat/testREADME/inst/RcppR6_classes.yml).
+A full working version of this is available [here](tests/testthat/testREADME); see in particular the [class definition](tests/testthat/testREADME/inst/include/testREADME.h) and the [yaml](tests/testthat/testREADME/inst/RcppR6_classes.yml).
 
 # How is this run?
 
