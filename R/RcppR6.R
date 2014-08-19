@@ -109,9 +109,7 @@ RcppR6_package <-
                 path=NULL,
                 name=NULL,
                 classes=NULL,
-                templates=NULL),
-              ## Still a bug in R6 here...
-              private=list(dummy=NULL))
+                templates=NULL))
 
 ## Might make a second class for templated things?  Might be a good
 ## idea.  But hard to pull off because we don't know if the class is
