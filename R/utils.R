@@ -153,3 +153,24 @@ read_dcf <- function(filename, ...) {
   }
   d
 }
+
+## Like strsplit, but only splits at the *first* occurence of the
+## pattern.  Return value is a matrix with the first and second column
+## being the left and right hand side of the match.  If no match is
+## found, the right column will be NA_character_.  Will probably
+## behave badly with things like NA values.
+strsplit_first <- function(x, split,
+                           fixed=FALSE, perl=FALSE, useBytes=FALSE) {
+  info <- regexpr(split, x,
+                  fixed=fixed, perl=perl, useBytes=useBytes)
+  match <- which(info > 0)
+  ret <- matrix(NA_character_, length(x), 2)
+  ret[-match,1] <- x[-match]
+  if (length(match) > 0) {
+    pos <- info[match]
+    len <- attr(info, "match.length")[match]
+    ret[match,1] <- substr(x[match], 1, pos-1)
+    ret[match,2] <- substr(x[match], pos + len, nchar(x[match]))
+  }
+  ret
+}

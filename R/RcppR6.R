@@ -326,7 +326,8 @@ RcppR6_args <-
                   self$parent
                 },
                 names=NULL,
-                types=NULL),
+                types=NULL,
+                defaults=NULL),
               private=list(
                 cleanup=cleanup_args))
 

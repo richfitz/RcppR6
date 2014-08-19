@@ -1,24 +1,15 @@
-
-# Writing this, it's apparent that extra levels of indenting are going
-# to be likely and very difficult to troubleshoot.  Probably going to
-# need some validation tools here.  That's not that horrible to do,
-# and we can just dump that validation code into the part that reads
-# things, or run it separately.
-#
-# But stress test with things like adding extra '-' in front of (say)
-# methods, or method names.
 uniform:
   name_cpp: examples::Uniform
   forward_declare: true
   constructor:
     roxygen: |
       Uniform distribution
-      @param min Lower bound of the distribution
-      @param max Upper bound of the distribution
+      @param min Lower bound of the distribution (default is zero)
+      @param max Upper bound of the distribution (default is one)
       @export
-    args: # equiv --> 'args: [min: double, max:double]'
-      - min: double
-      - max: double
+    args:
+      - min: double = 0.0
+      - max: double = 1.0
   methods:
     draw:
       args: [n: int]

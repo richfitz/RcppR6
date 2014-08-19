@@ -1,9 +1,6 @@
 context("uniform")
 
 test_that("Creation", {
-  expect_that(uniform(), throws_error("missing, with no default"))
-  expect_that(uniform(1), throws_error("missing, with no default"))
-
   u <- uniform(0, pi)
   expect_that(u, is_a("uniform"))
   expect_that(u, is_a("R6"))
@@ -56,4 +53,14 @@ test_that("Active", {
   u$the_max <- 2
   expect_that(u$max, equals(2))
   expect_that(u$the_max, equals(2))
+})
+
+test_that("Defaults", {
+  u <- uniform()
+  expect_that(u$min, is_identical_to(0.0))
+  expect_that(u$max, is_identical_to(1.0))
+
+  u <- uniform(max=pi)
+  expect_that(u$min, is_identical_to(0.0))
+  expect_that(u$max, is_identical_to(pi))
 })

@@ -159,8 +159,14 @@ template_info_args <- function() {
                 calling_function$access == "member")
 
   ret <- list()
-  ## R details are easy:
-  ret$defn_r <- collapse(self$names)
+  if (is.null(self$defaults)) {
+    ret$defn_r <- collapse(self$names)
+  } else {
+    defn_r <- self$names
+    i <- !is.na(self$defaults)
+    defn_r[i] <- sprintf("%s=%s", self$names[i], self$defaults[i])
+    ret$defn_r <- collapse(defn_r)
+  }
   ret$use_r  <- collapse(c(if (!is_constructor) RcppR6$r_self_name,
                            self$names))
 

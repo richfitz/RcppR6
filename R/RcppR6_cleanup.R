@@ -159,7 +159,17 @@ cleanup_args <- function(...) {
   self$defn_yaml <- list(args=self$defn_yaml)
   ## TODO: store versions of the names for C++
   self$names <- names(self$defn)
-  self$types <- vapply(self$defn, first, character(1), USE.NAMES=FALSE)
+
+  contents <- vapply(self$defn, first, character(1), USE.NAMES=FALSE)
+  re_default <- "\\s*=\\s*"
+  if (any(grepl(re_default, contents))) {
+    info <- strsplit_first(contents, re_default)
+    self$types <- info[,1]
+    self$defaults <- info[,2]
+  } else {
+    self$types <- contents
+    self$defaults <- NULL
+  }
 }
 
 ## Used within the above, not self-destructing:
