@@ -90,11 +90,9 @@ template_info_constructor <- function() {
       sprintf("list(%s)", collapse(sprintf('"%s"=%s', names(valid), valid)))
 
     ## Don't use the strings here: we want the actual functions:
-    ctors <- sapply(templates$concrete, function(x)
-                    mangle_constructor(x$name_safe))
-    names(ctors) <- names(valid)
     ret$constructors_r_repr <-
-      sprintf("list(%s)", collapse(sprintf('"%s"=%s', names(ctors), ctors)))
+      sprintf("list(%s)", collapse(sprintf('"%s"=`%s`',
+                                           names(valid), names(valid))))
   } else {
     ret$name_cpp    <- self$name_cpp
     ret$name_safe   <- mangle_constructor(self$class()$name_safe)
