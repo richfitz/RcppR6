@@ -1,0 +1,8 @@
+mystruct:
+  forward_declare: struct
+  name_cpp: "examples::mystruct"
+  list:
+    - a_bool: bool
+    - an_int: int
+    - a_real_number: double
+    - a_string: "std::string"

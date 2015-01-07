@@ -1,0 +1,13 @@
+Package: testList
+Title: RcppR6 list examples
+Version: 0.1
+Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
+Description: Examples for using RcppR6 to generate static list exports
+  (so does not actually use R6 at all!)
+Depends: R (>= 3.1.0)
+License: CC0
+LazyData: true
+LinkingTo: Rcpp
+Imports: Rcpp, R6
+Suggests:
+  testthat
