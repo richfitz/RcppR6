@@ -344,13 +344,8 @@ RcppR6_list <- R6::R6Class(
     template_info=template_info_list,
 
     format_r=function() {
-      ## Currently there is nothing to generate for the R side.
-      ## When/if this changes, it will go into the list_generator
-      ## template.
-      ##
-      ## Probably the simpliest thing to do is to generate the default
-      ## type, apply new bits, and return.  That should be pretty
-      ## bulletproof and simple.
+      wr(self$get_templates()$list_generator,
+         self$template_info("r"))
     },
 
     format_cpp=function() {

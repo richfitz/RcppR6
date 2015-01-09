@@ -7,6 +7,16 @@ test_that("Creation", {
                         a_string="hello world"),
                    class="mystruct")
   expect_that(x, is_identical_to(cmp))
+
+  y <- mystruct(a_bool=FALSE, an_int=4L)
+  cmp$a_bool <- FALSE
+  cmp$an_int <- 4L
+  expect_that(y, is_identical_to(cmp))
+
+  z <- mystruct(values=list(an_int=100L))
+  expect_that(z$an_int, is_identical_to(100L))
+
+  expect_that(mystruct(foo=1), throws_error("Unknown fields: foo"))
 })
 
 test_that("Loading", {

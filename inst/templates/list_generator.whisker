@@ -1,1 +1,9 @@
-# Nothing is actually copied over at this point.
+{{{constructor.name_r}}} <- function(..., values=list(...)) {
+  ret <- {{{constructor.name_cpp}}}()
+  if (length(err <- setdiff(names(values), names(ret))) > 0L) {
+    stop(sprintf("Unknown fields: %s", paste(err, collapse=", ")))
+  }
+  to_set <- intersect(names(values), names(ret))
+  ret[to_set] <- values[to_set]
+  ret
+}

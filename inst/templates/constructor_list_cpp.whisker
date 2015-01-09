@@ -1,4 +1,4 @@
-// [[Rcpp::export({{{class.constructor.name_r}}})]]
+// [[Rcpp::export]]
 SEXP {{{class.constructor.name_cpp}}}() {
   return Rcpp::wrap({{{class.name_cpp}}}());
 }
