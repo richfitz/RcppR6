@@ -331,13 +331,70 @@ RcppR6_args <-
               private=list(
                 cleanup=cleanup_args))
 
+## This is a weird exporter that might be useful.  I've based it on
+## the "class" version for now, as this does actually deal with the
+## same sort of thing.  That's probably not ideal though.
+##
+## NOTE: templating is *not* ok, mostly because I don't really know
+## what that would imply for now.
+RcppR6_list <- R6::R6Class(
+  "RcppR6_list",
+  inherit=RcppR6_class,
+  public=list(
+    template_info=template_info_list,
+
+    format_r=function() {
+      ## Currently there is nothing to generate for the R side.
+      ## When/if this changes, it will go into the list_generator
+      ## template.
+      ##
+      ## Probably the simpliest thing to do is to generate the default
+      ## type, apply new bits, and return.  That should be pretty
+      ## bulletproof and simple.
+    },
+
+    format_cpp=function() {
+      if (self$is_templated) {
+        stop("Templated list classes not yet supported")
+      }
+      wr(self$get_templates()$constructor_list_cpp,
+         dat=list(class=self$template_info("cpp")))
+    },
+
+    format_rcpp_definitions=function() {
+      if (self$is_templated) {
+        stop("Templated list classes not yet supported")
+      }
+      dat <- self$template_info("cpp")
+      ## The type information is being passed along, but not the name
+      drop_blank(wr(self$get_templates()$rcpp_list_definitions,
+                    list(class=dat,
+                         package=list(name=self$package()$name))))
+    },
+
+    list=NULL
+  ),
+  private=list(
+    cleanup=cleanup_list
+    ))
+
 ## Some for iteration helpers:
 RcppR6_class_list <- function(yaml, parent=NULL) {
   if (length(yaml) > 0) {
     assert_list(yaml)
     assert_named(yaml)
-    lapply(seq_along(yaml),
-           function(i) RcppR6_class$new(yaml[i], parent))
+    lapply(seq_along(yaml), function(i)
+           RcppR6_class_new(yaml[i], parent))
+  }
+}
+## The presence of a 'list' attribute is enough to trigger making a
+## "list" class, rather than a proper R6 reference class.  This can
+## always be tweaked later.
+RcppR6_class_new <- function(yaml, parent=NULL) {
+  if ("list" %in% names(yaml[[1]])) {
+    RcppR6_list$new(yaml, parent)
+  } else {
+    RcppR6_class$new(yaml, parent)
   }
 }
 RcppR6_method_list <- function(yaml, parent=NULL) {
@@ -396,6 +453,7 @@ rm(cleanup_active)
 rm(cleanup_templates)
 rm(cleanup_concrete)
 rm(cleanup_args)
+rm(cleanup_list)
 
 rm(template_info_package)
 rm(template_info_class)
@@ -403,3 +461,4 @@ rm(template_info_constructor)
 rm(template_info_method)
 rm(template_info_active)
 rm(template_info_args)
+rm(template_info_list)

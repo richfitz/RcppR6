@@ -1,0 +1,4 @@
+// [[Rcpp::export({{{class.constructor.name_r}}})]]
+SEXP {{{class.constructor.name_cpp}}}() {
+  return Rcpp::wrap({{{class.name_cpp}}}());
+}

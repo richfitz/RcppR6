@@ -174,3 +174,7 @@ strsplit_first <- function(x, split,
   }
   ret
 }
+
+is_scalar_character <- function(x) {
+  length(x) == 1L && is.character(x)
+}

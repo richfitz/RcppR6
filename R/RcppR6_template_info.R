@@ -221,6 +221,24 @@ template_info_forward_declaration <- function(x) {
   }
 }
 
+template_info_list <- function(type=NULL) {
+  ret <- list()
+  ret$name_r       <- self$name_r
+  ret$name_cpp     <- self$name_cpp
+  ret$name_safe    <- self$name_safe
+  ## TODO: input_type needed?
+  ret$input_type   <- mangle_input(self$package()$name, self$name_cpp)
+  ret$forward_declaration <- template_info_forward_declaration(self)
+  if ("cpp" %in% type) {
+    ret$fields <- whisker::iteratelist(self$list,
+                                       name="field_name",
+                                       value="field_type")
+  }
+  ret$constructor <- list(name_cpp=mangle_constructor(self$name_safe),
+                          name_r=self$name_r)
+  ret
+}
+
 guess_namespace <- function(name) {
   re <- '^(::)?([[:alnum:]_:]+)::(.+)$'
   if (grepl(re, name)) {

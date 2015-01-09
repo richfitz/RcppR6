@@ -211,3 +211,29 @@ check_name <- function(x) {
     stop("Name ", collapse(dQuote(x[i])), " does not look valid in R & C")
   }
 }
+
+cleanup_list <- function(...) {
+  cleanup_common(self, c("name_cpp", "forward_declare", "list"))
+
+  ## Three major options: FALSE / TRUE / {class | struct}
+  self$forward_declare <- with_default(self$defn$forward_declare, FALSE)
+  if (identical(self$forward_declare, FALSE)) {
+    self$forward_declare <- FALSE
+    self$forward_declare_type <- NULL
+  } else if (identical(self$forward_declare, TRUE)) {
+    self$forward_declare_type <- "class"
+  } else {
+    self$forward_declare_type <- match_value(self$forward_declare,
+                                             c("class", "struct"))
+    self$forward_declare <- TRUE
+  }
+
+  ## Check the actual list here, in self$list; basically all we need
+  ## is a named list with no duplicate names, and every element of
+  ## this is a character vector.  Pretty easy!
+  self$list <- yaml_seq_map(self$defn$list)
+  assert_named(self$list)
+  if (!all(sapply(self$list, is_scalar_character))) {
+    stop("All elements of 'list' must be a scalar character")
+  }
+}

@@ -1,0 +1,22 @@
+template <> inline SEXP wrap(const {{{class.name_cpp}}}& x) {
+  Rcpp::List ret;
+{{{#class.fields}}}
+  ret["{{{field_name}}}"] = Rcpp::wrap(x.{{{field_name}}});
+{{{/class.fields}}}
+  ret.attr("class") = "{{{class.name_r}}}";
+  return ret;
+}
+template <> inline {{{class.name_cpp}}} as(SEXP x) {
+  if (!{{package.name}}::RcppR6::is<{{{class.name_cpp}}}>(x)) {
+    Rcpp::stop("Expected an object of type {{{class.name_r}}}");
+    // NOTE: Won't drop through or return anything.
+  }
+  // NOTE: assumes default constructable, and will assign *every*
+  // field twice.  No current support for a hook.
+  {{{class.name_cpp}}} ret;
+  Rcpp::List xl(x);
+{{{#class.fields}}}
+  ret.{{{field_name}}} = Rcpp::as<{{{field_type}}}>(xl["{{{field_name}}}"]);
+{{{/class.fields}}}
+  return ret;
+}

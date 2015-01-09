@@ -3,7 +3,7 @@
 #define _{{{package.NAME}}}_H_
 
 // Include this early on.  It can be either after classes have been
-// define (but before Rcpp has been loaded) or first.  This file will
+// defined (but before Rcpp has been loaded) or first.  This file will
 // attempt to provide declarations for the classes and namespaces that
 // you use, but this might be fragile.
 #include <{{{package.name}}}/RcppR6_pre.hpp>
