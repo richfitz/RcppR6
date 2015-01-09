@@ -1,6 +1,11 @@
 mystruct:
   forward_declare: struct
   name_cpp: "examples::mystruct"
+  roxygen: |
+    A test struct
+    @param ...,values Values to initialise the struct with (either as
+    variadic arguments, or as a list, but not both).
+    @export
   list:
     - a_bool: bool
     - an_int: int

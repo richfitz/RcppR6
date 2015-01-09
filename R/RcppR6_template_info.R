@@ -235,7 +235,8 @@ template_info_list <- function(type=NULL) {
                                        value="field_type")
   }
   ret$constructor <- list(name_cpp=mangle_constructor(self$name_safe),
-                          name_r=self$name_r)
+                          name_r=self$name_r,
+                          roxygen=template_info_roxygen(self$roxygen))
   ret
 }
 

@@ -213,7 +213,7 @@ check_name <- function(x) {
 }
 
 cleanup_list <- function(...) {
-  cleanup_common(self, c("name_cpp", "forward_declare", "list"))
+  cleanup_common(self, c("name_cpp", "forward_declare", "list", "roxygen"))
 
   ## Three major options: FALSE / TRUE / {class | struct}
   self$forward_declare <- with_default(self$defn$forward_declare, FALSE)
@@ -235,5 +235,10 @@ cleanup_list <- function(...) {
   assert_named(self$list)
   if (!all(sapply(self$list, is_scalar_character))) {
     stop("All elements of 'list' must be a scalar character")
+  }
+
+  if (!is.null(self$defn$roxygen)) {
+    self$roxygen <- self$defn$roxygen
+    assert_scalar_character(self$roxygen)
   }
 }

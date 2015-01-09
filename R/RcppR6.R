@@ -367,7 +367,8 @@ RcppR6_list <- R6::R6Class(
                          package=list(name=self$package()$name))))
     },
 
-    list=NULL
+    list=NULL,
+    roxygen=NULL
   ),
   private=list(
     cleanup=cleanup_list
