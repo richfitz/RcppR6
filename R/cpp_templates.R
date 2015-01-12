@@ -6,10 +6,14 @@ cpp_template_name <- function(template, pars) {
 
 cpp_template_parameters <- function(pars) {
   pars <- paste(pars, collapse=", ")
-  if (grepl(">$", pars)) {
-    pars <- paste0(pars, " ")
+  cpp_pad_template(pars)
+}
+
+cpp_pad_template <- function(str) {
+  if (grepl(">$", str)) {
+    str <- paste0(str, " ")
   }
-  pars
+  str
 }
 
 cpp_template_rewrite_class <- function(obj) {
