@@ -213,7 +213,8 @@ check_name <- function(x) {
 }
 
 cleanup_list <- function(...) {
-  cleanup_common(self, c("name_cpp", "forward_declare", "list", "roxygen"))
+  cleanup_common(self, c("name_cpp", "forward_declare", "list",
+                         "roxygen", "validator_cpp"))
 
   ## Three major options: FALSE / TRUE / {class | struct}
   self$forward_declare <- with_default(self$defn$forward_declare, FALSE)
@@ -240,5 +241,10 @@ cleanup_list <- function(...) {
   if (!is.null(self$defn$roxygen)) {
     self$roxygen <- self$defn$roxygen
     assert_scalar_character(self$roxygen)
+  }
+
+  if (!is.null(self$defn$validator_cpp)) {
+    self$validator_cpp <- self$defn$validator_cpp
+    assert_scalar_character(self$validator_cpp)
   }
 }

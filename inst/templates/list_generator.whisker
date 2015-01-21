@@ -6,5 +6,10 @@
   }
   to_set <- intersect(names(values), names(ret))
   ret[to_set] <- values[to_set]
+{{{#constructor.validator_cpp}}}
+  {{{constructor.validator_cpp}}}(ret)
+{{{/constructor.validator_cpp}}}
+{{{^constructor.validator_cpp}}}
   ret
+{{{/constructor.validator_cpp}}}
 }

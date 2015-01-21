@@ -2,3 +2,9 @@
 SEXP {{{class.constructor.name_cpp}}}() {
   return Rcpp::wrap({{{class.name_cpp}}}());
 }
+{{{#class.validator_cpp}}}
+// [[Rcpp::export]]
+SEXP {{{class.constructor.validator_cpp}}}(SEXP obj) {
+  return Rcpp::wrap(Rcpp::as<{{{class.name_cpp}}}>(obj));
+}
+{{{/class.validator_cpp}}}

@@ -33,6 +33,10 @@ mangle_constructor <- function(class) {
   sprintf("%s__ctor", class)
 }
 
+mangle_validator <- function(class) {
+  sprintf("%s__vdor", class)
+}
+
 mangle_input <- function(package, name_cpp) {
   sprintf("%s::RcppR6::RcppR6<%s>",
           package, cpp_template_parameters(name_cpp))

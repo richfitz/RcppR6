@@ -344,8 +344,8 @@ RcppR6_list <- R6::R6Class(
     template_info=template_info_list,
 
     format_r=function() {
-      wr(self$get_templates()$list_generator,
-         self$template_info("r"))
+      drop_blank(wr(self$get_templates()$list_generator,
+                    self$template_info("r")))
     },
 
     format_cpp=function() {
@@ -368,7 +368,8 @@ RcppR6_list <- R6::R6Class(
     },
 
     list=NULL,
-    roxygen=NULL
+    roxygen=NULL,
+    validator_cpp=NULL
   ),
   private=list(
     cleanup=cleanup_list

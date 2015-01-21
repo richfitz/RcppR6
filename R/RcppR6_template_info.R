@@ -130,13 +130,13 @@ template_info_active <- function() {
 
   ret$name_safe_get <- mangle_active(class$name_safe, self$name_safe, "get")
   if (self$access == "field") {
-    ret$name_cpp <- self$name_cpp
+    ret$name_cpp <- self[["name_cpp"]]
   } else {
-    ret$name_cpp_get  <- self$name_cpp
+    ret$name_cpp_get  <- self[["name_cpp"]]
   }
   if (!self$readonly) {
     ret$name_safe_set <- mangle_active(class$name_safe, self$name_safe, "set")
-    ret$name_cpp_set  <- self$name_cpp_set
+    ret$name_cpp_set  <- self[["name_cpp_set"]]
   }
   ## TODO: duplicated with class
   ret$input_type   <- mangle_input(class$package()$name, class$name_cpp)
@@ -234,9 +234,16 @@ template_info_list <- function(type=NULL) {
                                        name="field_name",
                                        value="field_type")
   }
+  ## TODO: This will change; eventually this needs it's own
+  ## templates.  I'd like to support free functions / methods, and
+  ## returning bool vs throwing.
+  ret$validator_cpp <- self$validator_cpp
   ret$constructor <- list(name_cpp=mangle_constructor(self$name_safe),
                           name_r=self$name_r,
                           roxygen=template_info_roxygen(self$roxygen))
+  if (!is.null(ret$validator_cpp)) {
+    ret$constructor$validator_cpp <- mangle_validator(self$name_safe)
+  }
   ret
 }
 

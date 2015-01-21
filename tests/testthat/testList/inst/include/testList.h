@@ -3,6 +3,7 @@
 #define _TESTLIST_H_
 
 #include <testList/mystruct.hpp>
+#include <testList/validated.hpp>
 
 // Include this early on.  It can be either after classes have been
 // defined (but before Rcpp has been loaded) or first.  This file will

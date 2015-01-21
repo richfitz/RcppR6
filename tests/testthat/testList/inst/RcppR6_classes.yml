@@ -11,3 +11,11 @@ mystruct:
     - an_int: int
     - a_real_number: double
     - a_string: "std::string"
+
+validated:
+  forward_declare: struct
+  name_cpp: "examples::validated"
+  list:
+    - n_elements: int
+    - list: "std::vector<double>"
+  validator_cpp: validate
