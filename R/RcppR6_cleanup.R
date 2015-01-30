@@ -196,7 +196,8 @@ cleanup_common <- function(obj, known=NULL) {
     warn_unknown(obj$name_r, obj$defn, known)
   }
   obj$name_safe <- cleanup_name(obj$name_r)
-  obj$name_cpp  <- with_default(obj$defn$name_cpp, obj$name_r)
+  ## NOTE: Be careful about partial matching on name_cpp / name_cpp_set
+  obj$name_cpp  <- with_default(obj$defn[["name_cpp"]], obj$name_r)
   assert_scalar_character(obj$name_cpp)
 }
 
