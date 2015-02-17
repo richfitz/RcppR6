@@ -353,7 +353,7 @@ RcppR6_list <- R6::R6Class(
         stop("Templated list classes not yet supported")
       }
       wr(self$get_templates()$constructor_list_cpp,
-         dat=list(class=self$template_info("cpp")))
+         data=list(class=self$template_info("cpp")))
     },
 
     format_rcpp_definitions=function() {
