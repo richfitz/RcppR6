@@ -16,65 +16,6 @@ cpp_pad_template <- function(str) {
   str
 }
 
-cpp_template_rewrite_class <- function(obj) {
-  generic <- obj$parent$parent
-
-  ## Build a new class but with templates disabled.  This could be
-  ## achived more easily if we had a copy() method.  Need to delete
-  ## the templates *first* because otherwise we get a loop.
-  defn <- generic$defn_yaml
-  defn[[1]]$templates <- NULL # disable templating
-  ret <- RcppR6_class$new(defn, generic$package())
-
-  ret$name_r    <- obj$name_r
-  ret$name_cpp  <- obj$name_cpp
-  ret$name_safe <- obj$name_safe
-  ret$inherits  <- generic$name_r
-
-  ## Bunch of type rewriting:
-  cpp_template_rewrite_constructor(ret$constructor, obj)
-  for (x in ret$methods) {
-    cpp_template_rewrite_method(x, obj)
-  }
-  for (x in ret$active) {
-    cpp_template_rewrite_active(x, obj)
-  }
-
-  ## The yaml definition is invalid now so drop them:
-  ret$defn <- ret$defn_yaml <- NULL
-
-  ret
-}
-
-cpp_template_rewrite_constructor <- function(obj, concrete) {
-  obj$roxygen <- NULL
-  obj$name_cpp <- cpp_template_rewrite_types(obj$name_cpp, concrete)
-  cpp_template_rewrite_args(obj$args, concrete)
-}
-
-cpp_template_rewrite_method <- function(obj, concrete) {
-  if (obj$access == "function") {
-    obj$name_cpp <- cpp_template_rewrite_types(obj$name_cpp, concrete)
-  }
-  obj$return_type <- cpp_template_rewrite_types(obj$return_type, concrete)
-  cpp_template_rewrite_args(obj$args, concrete)
-}
-
-cpp_template_rewrite_active <- function(obj, concrete) {
-  if (obj$access == "function") {
-    obj$name_cpp <- cpp_template_rewrite_types(obj$name_cpp, concrete)
-    if (!is.null(obj$name_cpp_set)) {
-      obj$name_cpp_set <-
-        cpp_template_rewrite_types(obj$name_cpp_set, concrete)
-    }
-  }
-  obj$type <- cpp_template_rewrite_types(obj$type, concrete)
-}
-
-cpp_template_rewrite_args <- function(obj, concrete) {
-  obj$types <- cpp_template_rewrite_types(obj$types, concrete)
-}
-
 cpp_template_rewrite_types <- function(x, template) {
   from <- names(template$parameters_cpp)
   to <- unname(template$parameters_cpp)
@@ -97,4 +38,59 @@ cpp_template_rewrite_types <- function(x, template) {
     }
   }
   x
+}
+
+## The idea here is to generate a concrete type by rewriting all the
+## <T> bits with the concrete representation.
+cpp_template_rewrite_class <- function(defn, parent, parent_class) {
+  ret <- parent_class
+
+  ret$name_r    <- defn$name_r
+  ret$name_cpp  <- defn$name_cpp
+  ret$name_safe <- defn$name_safe
+  ret$inherits  <- parent_class$name_safe
+  ret$is_templated <- FALSE
+
+  ## Bunch of type rewriting:
+  ret$constructor <- cpp_template_rewrite_constructor(ret$constructor, defn)
+  ret$methods <- lapply(ret$methods, cpp_template_rewrite_method, defn)
+  ret$active  <- lapply(ret$active,  cpp_template_rewrite_active, defn)
+
+  ret
+}
+
+cpp_template_rewrite_constructor <- function(defn, concrete) {
+  defn$roxygen <- NULL
+  defn$name_cpp <- cpp_template_rewrite_types(defn$name_cpp, concrete)
+  defn$args     <- cpp_template_rewrite_args(defn$args, concrete)
+  defn
+}
+
+cpp_template_rewrite_method <- function(defn, concrete) {
+  if (defn$access == "function") {
+    defn$name_cpp <- cpp_template_rewrite_types(defn$name_cpp, concrete)
+  }
+  defn$return_type <- cpp_template_rewrite_types(defn$return_type, concrete)
+  defn$args <- cpp_template_rewrite_args(defn$args, concrete)
+  defn
+}
+
+cpp_template_rewrite_active <- function(defn, concrete) {
+  if (defn$access == "function") {
+    defn$name_cpp <- cpp_template_rewrite_types(defn$name_cpp, concrete)
+    if (!is.null(defn$name_cpp_set)) {
+      defn$name_cpp_set <-
+        cpp_template_rewrite_types(defn$name_cpp_set, concrete)
+    }
+  }
+  defn$type <- cpp_template_rewrite_types(defn$type, concrete)
+  defn
+}
+
+cpp_template_rewrite_args <- function(defn, concrete) {
+  defn$types <- cpp_template_rewrite_types(defn$types, concrete)
+  ## TODO: I think this can actually just be concrete$name_cpp
+  defn$parent_class_name_cpp <-
+    cpp_template_rewrite_types(defn$parent_class_name_cpp, concrete)
+  defn
 }

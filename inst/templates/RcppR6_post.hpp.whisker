@@ -8,7 +8,7 @@
 namespace {{{package.name}}} {
 namespace RcppR6 {
 namespace traits {
-{{{package.traits}}}
+{{{package.RcppR6_traits}}}
 }
 }
 }

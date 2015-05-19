@@ -1,4 +1,4 @@
 // [[Rcpp::export]]
 {{{constructor.return_type}}} {{{constructor.name_safe}}}({{{constructor.args.defn_cpp}}}) {
-  return {{{constructor.name_cpp}}}({{{constructor.args.use_cpp}}});
+  return {{{constructor.name_cpp}}}({{{constructor.args.body_cpp}}});
 }

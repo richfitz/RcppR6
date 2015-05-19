@@ -1,14 +1,11 @@
-{{{constructor.roxygen}}}
-`{{{class.name_r}}}` <- function({{{constructor.args.defn_r}}}) {
-  {{{constructor.name_safe}}}({{{constructor.args.use_r}}})
-}
 {{{class.R6_generator}}} <-
-  R6::R6Class("{{{class.name_r}}}",
-              portable=TRUE,
-              inherit={{class.inherits}},
-              public=list(
-                {{{RcppR6.R6_ptr_name}}}=NULL,
-                initialize = function(ptr) {
-                  {{{RcppR6.r_self_name}}}${{{RcppR6.R6_ptr_name}}} <- ptr
-                }{{{class.methods_r}}}),
-              active=list({{{class.active_r}}}))
+  R6::R6Class(
+    "{{{class.name_r}}}",
+    inherit={{class.inherits}},
+    portable=TRUE,
+    public=list(
+      {{{RcppR6.R6_ptr_name}}}=NULL,
+      initialize = function(ptr) {
+        {{{RcppR6.r_self_name}}}${{{RcppR6.R6_ptr_name}}} <- ptr
+      }{{{class.methods_r}}}),
+    active=list({{{class.active_r}}}))

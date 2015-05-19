@@ -1,7 +1,3 @@
-##' Determine name of a package
-##' @title Determine name of a package
-##' @param path Path to the package (DESCRIPTION must be in this
-##' directory).  Defaults to the current directory.
 package_name <- function(path=".") {
   read.dcf(file.path(path, "DESCRIPTION"), "Package")[[1]]
 }
@@ -83,12 +79,21 @@ lnapply <- function(X, FUN, ...) {
 depends <- function(package, field, data) {
   depend1 <- function(field) {
     if (field %in% colnames(data)) {
-      package %in% devtools::parse_deps(data[,field])$name
+      package %in% parse_dep(data[, field])
     } else {
       FALSE
     }
   }
   any(sapply(field, depend1))
+}
+
+parse_dep <- function(x) {
+  x <- strsplit(x, "\\s*,\\s*")[[1]]
+  sub("[^[:alnum:].].*", "", x)
+}
+
+parse_ns_file <- function(path) {
+  parseNamespaceFile(basename(path), dirname(path))
 }
 
 ## Drop blank lines from a string.  Used to work around some
@@ -177,4 +182,27 @@ strsplit_first <- function(x, split,
 
 is_scalar_character <- function(x) {
   length(x) == 1L && is.character(x)
+}
+
+isFALSE <- function(x) {
+  identical(x, FALSE)
+}
+
+vlapply <- function(X, FUN, ...) {
+  vapply(X, FUN, logical(1), ...)
+}
+vcapply <- function(X, FUN, ...) {
+  vapply(X, FUN, character(1), ...)
+}
+
+guess_namespace <- function(name) {
+  re <- '^(::)?([[:alnum:]_:]+)::(.+)$'
+  if (grepl(re, name)) {
+    ns <- sub(re, "\\2", name)
+    cl <- sub(re, "\\3", name)
+  } else {
+    ns <- ""
+    cl <- name
+  }
+  list(namespace=ns, name=cl)
 }

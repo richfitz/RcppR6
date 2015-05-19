@@ -1,0 +1,4 @@
+{{{constructor.roxygen}}}
+`{{{class.name_r}}}` <- function({{{constructor.args.defn_r}}}) {
+  {{{constructor.name_safe}}}({{{constructor.args.body_r}}})
+}

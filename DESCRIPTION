@@ -1,31 +1,17 @@
 Package: RcppR6
 Title: Code-generation Wrapping C++ Classes as R6 Classes
-Version: 0.2.001
+Version: 0.2.002
 Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
 Description: Experiments!  This is all a work in progress.  See the
     README on the github page, at least for now.
 Depends:
     R (>= 3.1.0)
 License: BSD_2_clause + file LICENSE
-Suggests:
-    testthat,
-    roxygen2 (>= 4.0.0),
-    R6 (>= 1.0.1.9001)
-Roxygen: list(wrap = FALSE)
 Imports:
-    Rcpp,
-    devtools,
     whisker,
     yaml
-Collate:
-    'RcppR6_template_info.R'
-    'RcppR6_cleanup.R'
-    'RcppR6.R'
-    'RcppR6_other.R'
-    'check.R'
-    'cpp_templates.R'
-    'install.R'
-    'mangle.R'
-    'utils.R'
-    'utils_assert.R'
-    'utils_install.R'
+Suggests:
+    R6 (>= 2.0.0),
+    Rcpp,
+    testthat,
+    devtools

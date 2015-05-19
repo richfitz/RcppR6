@@ -143,3 +143,9 @@ match_value <- function(arg, choices, msg=NULL) {
   }
   arg
 }
+
+assert_file_exists <- function(x, name=deparse(substitute(x))) {
+  if (!file.exists(x)) {
+    stop(sprintf("The file '%s' does not exist", x), call.=FALSE)
+  }
+}

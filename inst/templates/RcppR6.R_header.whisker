@@ -4,5 +4,3 @@
 ##' @importFrom R6 R6Class
 ##' @useDynLib {{{package.name}}}
 NULL
-
-{{{package.r}}}

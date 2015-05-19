@@ -1,9 +1,9 @@
-context("README")
+context("list")
 
-test_that("README", {
+test_that("list", {
   ## Because of the devtools issue (hadley/devtools#531) we need to use
   ## a non-standard temporary file location for the tests.
-  pkg <- RcppR6:::prepare_temporary("testREADME")
+  pkg <- RcppR6:::prepare_temporary("testList")
 
   RcppR6::install(pkg)
   devtools::document(pkg)

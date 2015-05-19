@@ -74,3 +74,9 @@ dir_remove_if_empty <- function(..., verbose=FALSE) {
 is_directory <- function(path) {
   file.info(path)[["isdir"]]
 }
+
+create_directories <- function(paths) {
+  for (p in paths) {
+    dir.create(p, FALSE, TRUE)
+  }
+}
