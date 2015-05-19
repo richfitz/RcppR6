@@ -20,3 +20,4 @@ notifications:
   email:
     on_success: change
     on_failure: change
+  slack: bdkd:hY2eBCaH3bbsvNwlWwOfFdfr
