@@ -8,7 +8,8 @@ RcppR6_read <- function(path, verbose=TRUE) {
   classes <- join_lists(lapply(filename_classes, RcppR6_read_classes,
                                verbose))
   list(path=path,
-       classes=classes)
+       classes=classes,
+       hash=digest::digest(classes))
 }
 
 RcppR6_read_config <- function(path) {

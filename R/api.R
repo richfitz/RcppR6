@@ -7,8 +7,6 @@
 ##' @title Update Or Install RcppR6 Files
 ##' @param path Path to the package (this directory must contain the
 ##' DESCRIPTION file)
-##' @param verbose Logical indicating if information about the process
-##' will be generated.  It's not all that verbose really.
 ##' @param install Logical indicating if this should be treated as a
 ##' fresh install.  Specifying \code{TRUE} (not the default) should
 ##' always be safe, but will copy default or skeleton copyies of files
@@ -16,23 +14,52 @@
 ##' DESCRIPTION file.
 ##' @param attributes Should Rcpp attributes be regenerated as well?
 ##' This is probably a good idea (and is the default).
+##' @param verbose Logical indicating if information about the process
+##' will be generated.  It's not all that verbose really.
+##' @param force Generate code even if the class definitions (in the
+##' yaml files) is unchanged and was generated with the same version
+##' of RcppR6?
 ##' @export
 RcppR6 <- function(path=".", install=FALSE,
-                   attributes=TRUE, verbose=TRUE) {
+                   attributes=TRUE, verbose=TRUE,
+                   force=FALSE) {
   dat <- RcppR6_read(path)
-  dat_valid <- RcppR6_validate(dat)
 
-  ## This is surprisingly slow; whisker render is the culprit.  Need
-  ## to get that faster; might try something that allows for compiled
-  ## templates.  wr takes 92% and parseTemplate 85% so not great.
-  ## Will need to look carefully at this and try to get it faster.
-  code <- RcppR6_generate(dat_valid)
-
-  if (install) {
-    RcppR6_install_files(code$package, verbose)
+  skip <- FALSE
+  if (!force) {
+    ## TODO: probably should be using RcppR6_package_info here, but
+    ## that reads all templates in, so not going to bother.
+    ## Alternatively, read that in with RcppR6_read?
+    filename_R <- file.path(path, "R", "RcppR6.R")
+    if (file.exists(filename_R)) {
+      x <- readLines(filename_R, n=3L)
+      if (length(x) == 3L) {
+        version <- sub("^## Version: ", "", x[[2]])
+        hash    <- sub("^## Hash: ",    "", x[[3]])
+        skip <-
+          identical(version, as.character(packageVersion(.packageName))) &&
+          identical(hash, dat$hash)
+      }
+    }
   }
 
-  RcppR6_write(code)
+  if (skip) {
+    if (verbose) {
+      message("RcppR6 up to date")
+    }
+  } else {
+    dat_valid <- RcppR6_validate(dat)
+    ## TODO: This is surprisingly slow; whisker render is the culprit.
+    ## Need to get that faster; might try something that allows for
+    ## compiled templates.  wr takes 92% and parseTemplate 85% so not
+    ## great.  Will need to look carefully at this and try to get it
+    ## faster.
+    code <- RcppR6_generate(dat_valid)
+    if (install) {
+      RcppR6_install_files(code$package, verbose)
+    }
+    RcppR6_write(code)
+  }
 
   if (attributes) {
     RcppR6_run_attributes(path, verbose)

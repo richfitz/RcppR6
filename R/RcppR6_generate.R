@@ -4,6 +4,8 @@
 ## different places.
 RcppR6_generate <- function(dat) {
   info <- RcppR6_package_info(dat$path)
+  info$hash <- dat$hash
+
   tmp <- lapply(dat$classes, RcppR6_generate_class, info)
 
   collect <- function(name, dat, required=TRUE, collapse="\n") {
@@ -20,7 +22,6 @@ RcppR6_generate <- function(dat) {
   info$rcpp_definitions    <- collect("rcpp_definition",     tmp)
   info$RcppR6_traits       <- collect("RcppR6_traits",       tmp)
 
-  ## Need to hit forward_declaration here too?
   wr_data <- list(RcppR6=info$RcppR6, package=info)
 
   str_r_header   <- wr(info$templates$RcppR6.R_header,   wr_data)

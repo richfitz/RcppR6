@@ -5,7 +5,8 @@
 \alias{install}
 \title{Update Or Install RcppR6 Files}
 \usage{
-RcppR6(path, install = FALSE, attributes = TRUE, verbose = TRUE)
+RcppR6(path = ".", install = FALSE, attributes = TRUE, verbose = TRUE,
+  force = FALSE)
 
 install(...)
 }
@@ -24,6 +25,10 @@ This is probably a good idea (and is the default).}
 
 \item{verbose}{Logical indicating if information about the process
 will be generated.  It's not all that verbose really.}
+
+\item{force}{Generate code even if the class definitions (in the
+yaml files) is unchanged and was generated with the same version
+of RcppR6?}
 
 \item{...}{Arguments passed to \code{RcppR6()}}
 }
