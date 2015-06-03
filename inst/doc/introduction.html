@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Rich FitzJohn" />
+
+<meta name="date" content="2015-06-03" />
+
+<title>Introduction to RcppR6</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%7D%0Apre%20%7B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title">Introduction to RcppR6</h1>
+<h4 class="author"><em>Rich FitzJohn</em></h4>
+<h4 class="date"><em>2015-06-03</em></h4>
+</div>
+
+
+<p>RcppR6 is a code generation approach for exposing C++ classes as R classes. It makes it possible to define a class in C++ and expose it in R as an <a href="https://github.com/wch/R6">R6</a> class, with reference semantics for the class on the R side.</p>
+<p>This first example walks through setting up the example used in the package <a href="https://github.com/richfitz/RcppR6">README</a>. This example creates a simple “circle” class to show a few features of the package.</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#include &lt;RcppCommon.h&gt;</span>
+
+<span class="kw">class</span> circle {
+<span class="kw">public</span>:
+  <span class="dt">double</span> radius;
+  circle(<span class="dt">double</span> r) : radius(r) {}
+  <span class="dt">double</span> area() <span class="dt">const</span> {
+    <span class="kw">return</span> M_PI * radius * radius;
+  }
+  <span class="dt">double</span> circumference() <span class="dt">const</span> {
+    <span class="kw">return</span> M_PI * <span class="dv">2</span> * radius;
+  }
+  <span class="dt">void</span> set_circumference(<span class="dt">double</span> c) {
+    <span class="kw">if</span> (c &lt; <span class="dv">0</span>) {
+      Rcpp::stop(<span class="st">&quot;Circumference must be positive&quot;</span>);
+    }
+    radius = c / (<span class="dv">2</span> * M_PI);
+  }
+};</code></pre>
+<p>What we want is some way if exposing this class to R so that we could interact with the methods directly. The usual approach with annotating with</p>
+<pre><code>// [[Rcpp::export]]</code></pre>
+<p>won’t work here because that only wraps free functions; we need a way to generate these free functions and to organise getting an object that will keep the state of the class (here, the <code>radius</code> field).</p>
+<p>RcppR6 currently requires working in a package structure: this is encouraged in the <a href="TODO:LINK">Rcpp intro</a> anyway. Eventually it might support inline use, but that is not currently supported.</p>
+<p>RcppR6 also requires a particular structure to a package (this might change!) because it needs to be able to <code>#include</code> all the class definitions in ways that plain Rcpp attributes don’t need.</p>
+<pre class="plain"><code>README
+|-+= inst
+| |-+= include
+| | \--= README.h
+| \--= RcppR6_classes.yml
+|--= DESCRIPTION
+\--= NAMESPACE</code></pre>
+<p>(note that the <em>package</em> here is called README, as this is the package used in generating the README for RcppR6 - OK that’s probably confusing).</p>
+<p>A file <code>&lt;package_name&gt;.h</code> is required within <code>inst/include</code>; this file must include <em>all</em> class definitions that RcppR6 is to wrap. So for this package <code>README</code>, the above definition is included there.</p>
+<p>The main work is in the file <code>inst/RcppR6_classes.yml</code> this is a <a href="http:/yaml.org">yaml</a> file containing key/value pairs indicating how to export the class.</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">circle:</span>
+  <span class="fu">constructor:</span>
+    <span class="fu">args:</span> <span class="kw">[</span><span class="fu">radius:</span> double]
+  <span class="fu">methods:</span>
+    <span class="fu">area:</span>
+      <span class="fu">return_type:</span> double
+  <span class="fu">active:</span>
+    <span class="fu">circumference:</span>
+      <span class="fu">name_cpp:</span> circumference
+      <span class="fu">name_cpp_set:</span> set_circumference
+      <span class="fu">access:</span> member
+      <span class="fu">type:</span> double
+    <span class="fu">radius:</span> <span class="kw">{</span><span class="fu">access:</span> field<span class="kw">,</span> <span class="fu">type:</span> double<span class="kw">}</span></code></pre>
+<p>This is the main file that needs editing to organise export of the class. Compared with Rcpp modules it contains a lot of type information that could have been lifted from the class definition, but future versions may remove this limitation.</p>
+<p>The yaml is hopefully fairly self-explanatory, and illustrates <em>almost</em> all of the features needed features. Below, I’ll walk through each section in turn: the constructor, the method, and then the “active” fields.</p>
+<p>First, a <strong>constructor</strong>; this is the function that creates the object.</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">constructor:</span>
+    <span class="fu">args:</span> <span class="kw">[</span><span class="fu">radius:</span> double]</code></pre>
+<p>The <code>args</code> element is a yaml ordered map (by definition a map in yaml is not ordered, but ordering is critical here). Each pair in the args is of the form: <code>&lt;name&gt;: &lt;type&gt;</code>, so this just says that there is one argument, <code>radius</code>, which has type <code>double</code>. Note that the name need not match up with the name in the C++ class (and does not here) but the name must be valid in <em>both</em> R and C++. That means no dots are allowed.</p>
+<p>If the type contains colons (e.g., <code>std::string</code>) it will probably be required to enclose the type in double quotes or the yaml parser will throw an error.</p>
+<p>An alternative way of writing the arguments using an ordered map in yaml is:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">    <span class="fu">args:</span>
+      <span class="kw">-</span> <span class="kw">{</span><span class="fu">radius:</span> double<span class="kw">}</span></code></pre>
+<p>with additional arguments as additional list elements (<code>-</code>).</p>
+<p>By default (and above) this will use the constructor of the C++ class, but it is possible to specify a free function that returns an object of class <code>circle</code>. So if you had:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp">circle make_circle(<span class="dt">double</span> radius) {
+  <span class="kw">return</span> circle(radius);
+}</code></pre>
+<p>you could use that by writing:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">constructor:</span>
+    <span class="fu">name_cpp:</span> make_circle
+    <span class="fu">args:</span> ... <span class="co"># as above</span></code></pre>
+<p>In the generated object, a function with the name of the class will be generated (so <code>circle</code>) taking the one argument <code>radius</code>. (Note that this differs from the usual way that R6 objects are generated).</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">circle</span>(<span class="fl">1.0</span>) <span class="co"># would create a circle with radius 1.0</span></code></pre>
+<p>Next, one <strong>method</strong> is defined in the yaml:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">methods:</span>
+    <span class="fu">area:</span>
+      <span class="fu">return_type:</span> double</code></pre>
+<p>The <code>methods</code> field contains any number of methods; here, only the method <code>area</code> is defined.</p>
+<p>Each method may contain an <code>args</code> element (as the constructor did) but here it is omitted because the function has no arguments.</p>
+<p>The field <code>return_type</code> is required; here the method is going to return a <code>double</code>.</p>
+<p>If <code>x</code> is a circle object, created by the constructor <code>circle</code> above, then the method would be used by writing:</p>
+<pre class="sourceCode r"><code class="sourceCode r">r$<span class="kw">area</span>()</code></pre>
+<p>Instead of using class methods, RcppR6 can also use functions that take references to objects and turn these into methods in the generated object. So if we had a function:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">double</span> circle_area(<span class="dt">const</span> circle&amp; x) {
+  <span class="kw">return</span> x.area();
+}</code></pre>
+<p>that could be specified above by writing:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">area:</span>
+    <span class="fu">return_type:</span> double
+    <span class="fu">access:</span> function
+    <span class="fu">name_cpp:</span> circle_area</code></pre>
+<p>The field <code>access</code> takes values “member” (the default, indicating a member function) or <code>function</code>, indicating a free function. The field <code>name_cpp</code> is the name of the function (or member) in C++. The actual name <code>area</code> will be used in the generated object.</p>
+<p>Finally, two <strong>active fields</strong> are specified; <code>circumference</code> and <code>radius</code>:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">active:</span>
+    <span class="fu">circumference:</span>
+      <span class="fu">name_cpp:</span> circumference
+      <span class="fu">name_cpp_set:</span> set_circumference
+      <span class="fu">access:</span> member
+      <span class="fu">type:</span> double
+    <span class="fu">radius:</span> <span class="kw">{</span><span class="fu">access:</span> field<span class="kw">,</span> <span class="fu">type:</span> double<span class="kw">}</span></code></pre>
+<p>The first, <code>circumference</code> provides both setters and getters (<code>name_cpp</code> and <code>name_cpp_set</code>, respectively). The getter could be ommited here because it shares the same name as the R name for the field.</p>
+<p>Getters must be a function that takes no arguments and return a thing that they get, while setters must take a single thing and return void. It’s probably a good idea for a getter to be a const method (see the C++ definition of <code>circumference</code> above), but that’s not enforced. A setter can do whatever argument checking it wants.</p>
+<p>“active” members also require a <code>type</code> entry: this is the return type for the getter and the argument type for the setter.</p>
+<p>The <code>circumference</code> field has access “member”; this means it is accessed by member functions). The other alternatives are “function” (as for the “methods” section above) and <code>field</code>.</p>
+<p>The <code>radius</code> active member has access <code>field</code>: it means that the field is accesed directly, with no argument checking. By default this is a read-write binding, but by specifying <code>readonly: true</code>, this can be made read-only. Note here that a shorthand <code>{...}</code> notation is used - this is equivalent yaml to:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">radius:</span>
+  <span class="fu">access:</span> field
+  <span class="fu">type:</span> double</code></pre>
+<p>That’s almost all the bits: there are a few other required bits for the package header:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#ifndef _README_H_</span>
+<span class="ot">#define _README_H_</span>
+
+<span class="ot">#include &lt;RcppCommon.h&gt;</span>
+
+<span class="kw">class</span> circle {
+<span class="kw">public</span>:
+  <span class="dt">double</span> radius;
+  circle(<span class="dt">double</span> r) : radius(r) {}
+  <span class="dt">double</span> area() <span class="dt">const</span> {
+    <span class="kw">return</span> M_PI * radius * radius;
+  }
+  <span class="dt">double</span> circumference() <span class="dt">const</span> {
+    <span class="kw">return</span> M_PI * <span class="dv">2</span> * radius;
+  }
+  <span class="dt">void</span> set_circumference(<span class="dt">double</span> c) {
+    <span class="kw">if</span> (c &lt; <span class="dv">0</span>) {
+      Rcpp::stop(<span class="st">&quot;Circumference must be positive&quot;</span>);
+    }
+    radius = c / (<span class="dv">2</span> * M_PI);
+  }
+};
+
+<span class="ot">#include &lt;README/RcppR6_pre.hpp&gt;</span>
+
+<span class="ot">#include &lt;README/RcppR6_post.hpp&gt;</span>
+
+<span class="ot">#endif</span></code></pre>
+<p>In addition to the class defnition above, there are a few extra bits: * header guards (optional, but probably going to be needed) * including the file <code>&lt;README/RcppR6_pre.hpp&gt;</code> - this will be added to the <code>inst/include/README</code> directory when running RcppR6; it contains prototypes for the <code>as</code> and <code>wrap</code> functions required to export types from C++ to R (see the “extending Rcpp” vignette). - this needs to be included after your classes have been <em>declared</em>, but may be included before your classes have been <em>defined</em>. It must be included <em>after</em> <code>&lt;RcppCommon.h&gt;</code> and <em>before</em> <code>&lt;Rcpp.h&gt;</code>. * including the file <README RcppR6_post.hpp><code>- this will include the definition of the</code>as<code>and</code>wrap<code>functions, as well as</code><Rcpp.h>` (if it hasn’t already been included) and some support code needed by RcppR6.</p>
+<p>The <code>DESCRIPTION</code> file contains nothing special:</p>
+<pre class="plain"><code>Package: README
+Title: Code from the package README
+Version: 0.1
+Authors.R: &quot;Rich FitzJohn &lt;rich.fitzjohn@gmail.com&gt; [aut, cre]&quot;
+Description: Code from the RcppR6 README.md file
+Depends: R (&gt;= 3.1.0)
+License: CC0</code></pre>
+<p>and the NAMESPACE file is empty.</p>
+<p>With everything in place, let’s go:</p>
+<pre class="sourceCode r"><code class="sourceCode r">RcppR6::<span class="kw">install</span>(path)</code></pre>
+<pre><code>## Reading classes from /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/RcppR6_classes.yml
+## DESCRIPTION: Adding dependency Rcpp in field LinkingTo
+## DESCRIPTION: Adding dependency Rcpp in field Imports
+## DESCRIPTION: Adding dependency R6 in field Imports
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/DESCRIPTION: writing (changed)
+## Installing file /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/src/Makevars (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/R/RcppR6.R: writing (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/src/RcppR6.cpp: writing (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/include/README/RcppR6_pre.hpp: writing (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/include/README/RcppR6_post.hpp: writing (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/include/README/RcppR6_support.hpp: writing (new file)
+## Compiling Rcpp attributes</code></pre>
+<p>Quite a few files have been added, and some of the existing files have been updated</p>
+<pre class="plain"><code>README
+|-+= inst
+| |-+= include
+| | |-+= README
+| | | |--= RcppR6_post.hpp
+| | | |--= RcppR6_pre.hpp
+| | | \--= RcppR6_support.hpp
+| | \--= README.h
+| \--= RcppR6_classes.yml
+|-+= R
+| |--= RcppExports.R
+| \--= RcppR6.R
+|-+= src
+| |--= Makevars
+| |--= RcppExports.cpp
+| \--= RcppR6.cpp
+|--= DESCRIPTION
+\--= NAMESPACE</code></pre>
+<p>RcppR6 reads the DESCRIPTION and adds the required packages: the package must import Rcpp and R6, and must include Rcpp in <code>LinkingTo:</code>. Note that RcppR6 <em>does not appear anywhere</em> in the description: once RcppR6 has generated code, it is done and is not a dependency.</p>
+<pre class="plain"><code>Package: README
+Title: Code from the package README
+Version: 0.1
+Authors@R: &quot;Rich FitzJohn &lt;rich.fitzjohn@gmail.com&gt; [aut, cre]&quot;
+Description: Code from the RcppR6 README.md file
+Depends: R (&gt;= 3.1.0)
+License: CC0
+LinkingTo: Rcpp
+Imports: Rcpp, R6</code></pre>
+<p>Because <code>src/Makevars</code> was missing originally, it has been creted with contents:</p>
+<pre class="plain"><code>## -*- makefile -*-
+PKG_CPPFLAGS += -I../inst/include/</code></pre>
+<p>(if it already existed it would have been left alone and you would have to add this yourself).</p>
+<p>The other files: <code>inst/include/README/RcppR6_pre.hpp</code>, <code>inst/include/README/RcppR6_post.hpp</code>, <code>inst/include/README/RcppR6_support.hpp</code>, <code>R/RcppR6.R</code> and <code>src/RcppR6.R</code> contain boilerplate glue code, and the files <code>R/RcppExports.R</code> and <code>src/RcppExports.cpp</code> contain the usual Rcpp attributes generated code to support them. See the bottom of this file for what is generated, if you are curious.</p>
+<p>The package can now be compiled. I’m using <code>devtools::document</code> here because the generated code includes enough roxygen hints to generate a minimal <code>NAMESPACE</code> file:</p>
+<pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">document</span>(path)</code></pre>
+<pre><code>## Updating README documentation
+## Loading README
+## Re-compiling README
+## '/Library/Frameworks/R.framework/Resources/bin/R' --no-site-file  \
+##   --no-environ --no-save --no-restore CMD INSTALL  \
+##   '/private/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/Rtmp3uAaZn/file1fbe262ed35/README'  \
+##   --library='/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/devtools_install_1fbed3f694f'  \
+##   --no-R --no-data --no-help --no-demo --no-inst --no-docs --no-exec  \
+##   --no-multiarch --no-test-load --preclean 
+## 
+## First time using roxygen2 4.0. Upgrading automatically...</code></pre>
+<pre><code>## Writing NAMESPACE</code></pre>
+<p>The package can now be loaded:</p>
+<pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">load_all</span>(path)</code></pre>
+<pre><code>## Loading README</code></pre>
+<p>and a circle object can be created:</p>
+<pre class="sourceCode r"><code class="sourceCode r">obj &lt;-<span class="st"> </span><span class="kw">circle</span>(<span class="fl">1.0</span>)
+obj</code></pre>
+<pre><code>## &lt;circle&gt;
+##   Public:
+##     .ptr: externalptr
+##     area: function
+##     circumference: active binding
+##     initialize: function
+##     radius: active binding</code></pre>
+<p>This object has class circle:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(obj)</code></pre>
+<pre><code>## [1] &quot;circle&quot; &quot;R6&quot;</code></pre>
+<p>There’s a data member <code>.ptr</code></p>
+<pre class="sourceCode r"><code class="sourceCode r">obj$.ptr</code></pre>
+<pre><code>## &lt;pointer: 0x7fb36b605580&gt;</code></pre>
+<p>This is the actual external pointer object that holds a reference to the underlying C++ class instance. It is not designed to be interacted with directly. The <code>initialize</code> method is also not meant to be used directly:</p>
+<pre class="sourceCode r"><code class="sourceCode r">obj$initialize</code></pre>
+<pre><code>## function(ptr) {
+##         self$.ptr &lt;- ptr
+##       }
+## &lt;environment: 0x7fb3688c66e8&gt;</code></pre>
+<p>(this is used by the support code and why the objects are not created with the usual R6 <code>circle$new()</code> syntax).</p>
+<p>The one method and two active binding members are present in the class: <code>area</code>, <code>circumference</code> and <code>radius</code>.</p>
+<p>The area of a circle of radius 1 is of course pi</p>
+<pre class="sourceCode r"><code class="sourceCode r">obj$<span class="kw">area</span>()</code></pre>
+<pre><code>## [1] 3.141593</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">obj$<span class="kw">area</span>() -<span class="st"> </span>pi</code></pre>
+<pre><code>## [1] 0</code></pre>
+<p>Because the radius is an active member, parentheses are not needed to access it:</p>
+<pre class="sourceCode r"><code class="sourceCode r">obj$radius</code></pre>
+<pre><code>## [1] 1</code></pre>
+<p>and it can be set as if it were a field:</p>
+<pre class="sourceCode r"><code class="sourceCode r">obj$radius &lt;-<span class="st"> </span><span class="dv">2</span>
+obj$radius</code></pre>
+<pre><code>## [1] 2</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">obj$<span class="kw">area</span>()</code></pre>
+<pre><code>## [1] 12.56637</code></pre>
+<p>Similarly, the circumference can be set, routing through the <code>set_circumference</code> function that converts to a radius:</p>
+<pre class="sourceCode r"><code class="sourceCode r">obj$circumference &lt;-<span class="st"> </span><span class="fl">1.0</span>
+obj$circumference</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">obj$radius</code></pre>
+<pre><code>## [1] 0.1591549</code></pre>
+<p>and because that function has error checking in it, you can’t set negative values:</p>
+<pre class="sourceCode r"><code class="sourceCode r">obj$circumference &lt;-<span class="st"> </span>-<span class="dv">1</span></code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): Circumference must be positive</code></pre>
+<p>Once set up, RcppR6 should be relatively cheap to run as it detects that nothing has changed:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(RcppR6::<span class="kw">RcppR6</span>(path))</code></pre>
+<pre><code>## Reading classes from /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/RcppR6_classes.yml
+## RcppR6 up to date
+## Compiling Rcpp attributes</code></pre>
+<pre><code>##    user  system elapsed 
+##   0.005   0.001   0.006</code></pre>
+<div id="contents-of-generated-files" class="section level1">
+<h1>Contents of generated files:</h1>
+<p><code>inst/include/README/RcppR6_pre.hpp</code>:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="co">// Generated by RcppR6 (0.2.2): do not edit by hand</span>
+<span class="ot">#ifndef _README_RCPPR6_PRE_HPP_</span>
+<span class="ot">#define _README_RCPPR6_PRE_HPP_</span>
+
+<span class="ot">#include &lt;RcppCommon.h&gt;</span>
+
+
+<span class="kw">namespace</span> README {
+<span class="kw">namespace</span> RcppR6 {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt; <span class="kw">class</span> RcppR6;
+}
+}
+
+
+
+<span class="kw">namespace</span> Rcpp {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt; SEXP wrap(<span class="dt">const</span> README::RcppR6::RcppR6&lt;T&gt;&amp;);
+<span class="kw">namespace</span> traits {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt; <span class="kw">class</span> Exporter&lt;README::RcppR6::RcppR6&lt;T&gt; &gt;;
+}
+
+<span class="kw">template</span> &lt;&gt; SEXP wrap(<span class="dt">const</span> circle&amp;);
+<span class="kw">template</span> &lt;&gt; circle as(SEXP);
+}
+
+<span class="ot">#endif</span></code></pre>
+<p><code>inst/include/README/RcppR6_post.hpp</code>:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="co">// Generated by RcppR6 (0.2.2): do not edit by hand</span>
+<span class="ot">#ifndef _README_RCPPR6_POST_HPP_</span>
+<span class="ot">#define _README_RCPPR6_POST_HPP_</span>
+
+<span class="ot">#include &lt;Rcpp.h&gt;</span>
+<span class="ot">#include &lt;README/RcppR6_support.hpp&gt;</span>
+
+<span class="kw">namespace</span> README {
+<span class="kw">namespace</span> RcppR6 {
+<span class="kw">namespace</span> traits {
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   class_name_r&lt;circle &gt;() {<span class="kw">return</span> <span class="st">&quot;circle&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   package_name&lt;circle &gt;() {<span class="kw">return</span> <span class="st">&quot;README&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string generator_name&lt;circle &gt;() {<span class="kw">return</span> <span class="st">&quot;.R6_circle&quot;</span>;}
+}
+}
+}
+
+<span class="kw">namespace</span> Rcpp {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+SEXP wrap(<span class="dt">const</span> README::RcppR6::RcppR6&lt;T&gt;&amp; x) {
+  <span class="kw">return</span> x.to_R6();
+}
+
+<span class="kw">namespace</span> traits {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">class</span> Exporter&lt;README::RcppR6::RcppR6&lt;T&gt; &gt; {
+<span class="kw">public</span>:
+  Exporter(SEXP x) : obj(README::RcppR6::RcppR6&lt;T&gt;(x)) {}
+  <span class="kw">inline</span> README::RcppR6::RcppR6&lt;T&gt; get() { <span class="kw">return</span> obj; }
+<span class="kw">private</span>:
+  README::RcppR6::RcppR6&lt;T&gt; obj;
+};
+}
+
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> SEXP wrap(<span class="dt">const</span> circle&amp; x) {
+  <span class="kw">return</span> wrap(README::RcppR6::RcppR6&lt;circle&gt;(x));
+}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> circle as(SEXP x) {
+  <span class="kw">return</span> *(README::RcppR6::RcppR6&lt;circle&gt;(x));
+}
+}
+
+<span class="ot">#endif</span></code></pre>
+<p><code>inst/include/README/RcppR6_support.hpp</code>:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="co">// Generated by RcppR6 (0.2.2): do not edit by hand -*-c++-*-</span>
+<span class="ot">#ifndef _README_RCPPR6_SUPPORT_HPP_</span>
+<span class="ot">#define _README_RCPPR6_SUPPORT_HPP_</span>
+
+<span class="co">// These functions are all used in RcppR6_post.hpp, and require Rcpp</span>
+<span class="co">// to be loaded.</span>
+<span class="co">//</span>
+<span class="co">// It's possible that this will move into the RcppR6_post.hpp file</span>
+<span class="co">// itself at some point.</span>
+<span class="ot">#include &lt;Rcpp.h&gt;</span>
+
+<span class="kw">namespace</span> README {
+<span class="kw">namespace</span> RcppR6 {
+
+<span class="co">// Not quite traits, but should be close enough.  This is non-API!</span>
+<span class="kw">namespace</span> traits {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string class_name_r() {
+  Rcpp::stop(<span class="st">&quot;Unknown class&quot;</span>);
+  <span class="kw">return</span> <span class="st">&quot;&quot;</span>; <span class="co">// never get here.</span>
+}
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string package_name() {
+  Rcpp::stop(<span class="st">&quot;Unknown class&quot;</span>);
+  <span class="kw">return</span> <span class="st">&quot;&quot;</span>; <span class="co">// never get here.</span>
+}
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string generator_name() {
+  Rcpp::stop(<span class="st">&quot;Unknown class&quot;</span>);
+  <span class="kw">return</span> <span class="st">&quot;&quot;</span>; <span class="co">// never get here.</span>
+}
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string class_name_r(<span class="dt">const</span> T&amp;) {
+  <span class="kw">return</span> class_name_r&lt;T&gt;();
+}
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string package_name(<span class="dt">const</span> T&amp;) {
+  <span class="kw">return</span> package_name&lt;T&gt;();
+}
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string generator_name(<span class="dt">const</span> T&amp;) {
+  <span class="kw">return</span> generator_name&lt;T&gt;();
+}
+}
+
+<span class="co">// In parallel/contrast with Rcpp::is :)</span>
+<span class="co">//</span>
+<span class="co">// This will throw a *compile time* error if T is not a type known to</span>
+<span class="co">// RcppR6.  It will return false at runtime if x is not the required</span>
+<span class="co">// type.</span>
+<span class="co">//</span>
+<span class="co">// Note that this does not actually check that we inherit from R6.</span>
+<span class="co">// Strictly we should look for the classname, then from that position</span>
+<span class="co">// check that we hit R6.  But omelettes and eggs and all that.</span>
+<span class="co">//</span>
+<span class="co">// It would be nice to roll this into Rcpp::is, but I don't really see</span>
+<span class="co">// how to do that -- Rcpp::is mostly seems to use things in</span>
+<span class="co">// Rcpp::internal and I don't see any examples of extending things.</span>
+<span class="co">//</span>
+<span class="co">// Use this by doing:</span>
+<span class="co">//    README::RcppR6::is&lt;mytype&gt;(x)</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="dt">bool</span> is(Rcpp::RObject x) {
+  <span class="kw">return</span> x.inherits(traits::class_name_r&lt;T&gt;().c_str());
+}
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="dt">void</span> check_ptr_valid(Rcpp::XPtr&lt;T&gt; p) {
+  T* test = p;
+  <span class="kw">if</span> (test == NULL) {
+    Rcpp::stop(<span class="st">&quot;Pointer is NULL&quot;</span>);
+  }
+}
+
+<span class="co">// This is absolutely basic, and does not do much more than XPtr.</span>
+<span class="co">// Differences are:</span>
+<span class="co">//   - pointer validity checking when an externalptr is recieved.</span>
+<span class="co">//   - knows what &quot;type&quot; of pointer it contains and checks this when</span>
+<span class="co">//     recieved</span>
+<span class="co">//   - can generate a special R6 object on return</span>
+<span class="co">//</span>
+<span class="co">// Possible improvements:</span>
+<span class="co">//   - the appropriate generator should really be a static member of</span>
+<span class="co">//     the class, which we generate only when it's not been</span>
+<span class="co">//     initialised yet.  That will save a few calls, but will take</span>
+<span class="co">//     care through a load/unload cycle.</span>
+<span class="co">//   - first-class access to *general* R6 classes would be preferable</span>
+<span class="co">//     to the dodgy 'find' call.</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">class</span> RcppR6 {
+<span class="kw">public</span>:
+  RcppR6(SEXP x) : ptr(ptr_from_R6(x)) {}
+  RcppR6(<span class="dt">const</span> T&amp; x) : ptr(<span class="kw">new</span> T(x), <span class="kw">true</span>) {}
+  T&amp; <span class="kw">operator</span>*() <span class="dt">const</span> {
+    <span class="kw">return</span> *ptr;
+  }
+  <span class="kw">inline</span> <span class="kw">operator</span> T*(){ <span class="kw">return</span> (T*)(ptr); }
+  T* <span class="kw">operator</span>-&gt;() <span class="dt">const</span> {
+    <span class="kw">return</span> &amp;(*ptr);
+  }
+  Rcpp::XPtr&lt;T&gt; ptr;
+  <span class="co">// Convert from an R6 object from R:</span>
+  <span class="dt">static</span> Rcpp::XPtr&lt;T&gt; ptr_from_R6(Rcpp::RObject x) {
+    <span class="kw">if</span> (is&lt;T&gt;(x)) {
+      Rcpp::Environment xe = Rcpp::as&lt;Rcpp::Environment&gt;(x);
+      Rcpp::XPtr&lt;T&gt; ptr = Rcpp::as&lt;Rcpp::XPtr&lt;T&gt; &gt;(xe[<span class="st">&quot;.ptr&quot;</span>]);
+      check_ptr_valid&lt;T&gt;(ptr);
+      <span class="kw">return</span> ptr;
+    } <span class="kw">else</span> {
+      Rcpp::stop(<span class="st">&quot;Expected an object of type R6 / &quot;</span> +
+                 traits::class_name_r&lt;T&gt;());
+      <span class="kw">return</span> Rcpp::as&lt;Rcpp::XPtr&lt;T&gt; &gt;(x); <span class="co">// Won't get here</span>
+    }
+  }
+  SEXP to_R6() <span class="dt">const</span> {
+    <span class="dt">const</span> std::string packagename(traits::package_name&lt;T&gt;());
+    <span class="dt">const</span> std::string generatorname(traits::generator_name&lt;T&gt;());
+    Rcpp::Environment base(<span class="st">&quot;package:base&quot;</span>);
+    Rcpp::Function getNamespace = base[<span class="st">&quot;getNamespace&quot;</span>];
+    Rcpp::Environment pkg = getNamespace(packagename);
+    <span class="co">// TODO: need to deal with failure here (i.e. R_NilValue), or we</span>
+    <span class="co">// get a really hard to diagnose error message.</span>
+    Rcpp::Environment Generator = pkg[generatorname];
+    Rcpp::Function Generator_new = Generator[<span class="st">&quot;new&quot;</span>];
+    <span class="kw">return</span> Generator_new(ptr);
+  }
+};
+
+}
+}
+
+<span class="ot">#endif</span></code></pre>
+<p><code>R/RcppR6.R</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r">## Generated by RcppR6: do not edit by hand
+## Version: 0.2.2
+## Hash: 4995ec3bd57f8c57da2095ae32863641
+
+##' @importFrom Rcpp evalCpp
+##' @importFrom R6 R6Class
+##' @useDynLib README
+<span class="ot">NULL</span>
+
+
+<span class="st">`</span><span class="dt">circle</span><span class="st">`</span> &lt;-<span class="st"> </span>function(radius) {
+  <span class="kw">circle__ctor</span>(radius)
+}
+.R6_circle &lt;-
+<span class="st">  </span>R6::<span class="kw">R6Class</span>(
+    <span class="st">&quot;circle&quot;</span>,
+    <span class="dt">inherit=</span>,
+    <span class="dt">portable=</span><span class="ot">TRUE</span>,
+    <span class="dt">public=</span><span class="kw">list</span>(
+      <span class="dt">.ptr=</span><span class="ot">NULL</span>,
+      <span class="dt">initialize =</span> function(ptr) {
+        self$.ptr &lt;-<span class="st"> </span>ptr
+      },
+      <span class="dt">area =</span> function() {
+        <span class="kw">circle__area</span>(self)
+      }),
+    <span class="dt">active=</span><span class="kw">list</span>(
+      <span class="dt">circumference =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">circle__circumference__get</span>(self)
+        } else {
+          <span class="kw">circle__circumference__set</span>(self, value)
+        }
+      },
+      <span class="dt">radius =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">circle__radius__get</span>(self)
+        } else {
+          <span class="kw">circle__radius__set</span>(self, value)
+        }
+      }))</code></pre>
+<p><code>R/RcppR6.R</code>:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="co">// Generated by RcppR6 (0.2.2): do not edit by hand</span>
+<span class="ot">#include &lt;README.h&gt;</span>
+
+<span class="co">// [[Rcpp::export]]</span>
+circle circle__ctor(<span class="dt">double</span> radius) {
+  <span class="kw">return</span> circle(radius);
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">double</span> circle__area(README::RcppR6::RcppR6&lt;circle&gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;area();
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">double</span> circle__circumference__get(README::RcppR6::RcppR6&lt;circle&gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;circumference();
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> circle__circumference__set(README::RcppR6::RcppR6&lt;circle&gt; obj_, <span class="dt">double</span> value) {
+  obj_-&gt;set_circumference(value);
+}
+
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">double</span> circle__radius__get(README::RcppR6::RcppR6&lt;circle&gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;radius;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> circle__radius__set(README::RcppR6::RcppR6&lt;circle&gt; obj_, <span class="dt">double</span> value) {
+  obj_-&gt;radius = value;
+}</code></pre>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
