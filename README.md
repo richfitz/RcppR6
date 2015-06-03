@@ -76,6 +76,10 @@ A couple of notes here:
 
 A full working version of this is available [here](tests/testthat/testREADME); see in particular the [class definition](tests/testthat/testREADME/inst/include/testREADME.h) and the [yaml](tests/testthat/testREADME/inst/RcppR6_classes.yml).
 
+# Documentation
+
+A vignette showing how the above example works is included in the package (`vignette("introduction", package="RcppR6")` and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/richfitz/RcppR6/master/inst/doc/introduction.html)
+
 # How is this run?
 
 RcppR6 assumes you are building a package.  There is currently no support for inline use.  A file `inst/include/RcppR6_classes.yml` needs to exist with class definitions (though see Configuration, below).  Running `RcppR6::RcppR6()` will generate a bunch of code, and re-run Rcpp attributes.  The package can then be built as usual.  Importantly, your package does not need to depend on RcppR6 at all -- once the code has been generated your package is independent of RcppR6.
