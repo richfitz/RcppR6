@@ -2,8 +2,6 @@
 
 [![Build Status](https://travis-ci.org/richfitz/RcppR6.png?branch=master)](https://travis-ci.org/richfitz/RcppR6)
 
-**Warning: this package is under heavy development and everything may change.  I welcome any comments on design ideas though**
-
 # What is this thing?
 
 This package aims to provide a simple way of generating boilerplate code for exposing C++ classes to R.  It is similar in many ways to Rcpp "modules".

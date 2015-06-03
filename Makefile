@@ -1,4 +1,5 @@
 PACKAGE := $(shell grep '^Package:' DESCRIPTION | sed -E 's/^Package:[[:space:]]+//')
+RSCRIPT = Rscript --no-init-file
 
 all:
 
@@ -18,12 +19,18 @@ check: cleanup build
 
 roxygen:
 	@mkdir -p man
-	Rscript -e "library(methods); devtools::document()"
+	${RSCRIPT} -e "library(methods); devtools::document()"
 
 test:
-	Rscript -e 'library(methods); devtools::test()'
+	${RSCRIPT} -e 'library(methods); devtools::test()'
 
 cleanup:
 	rm -f `find inst -name '*.o' -or -name '*.so'`
 
-.PHONY: all install clean build check roxygen test
+vignettes/introduction.Rmd: vignettes/src/introduction.R
+	${RSCRIPT} -e 'library(sowsear); sowsear("$<", output="$@")'
+
+vignettes: vignettes/introduction.Rmd
+	${RSCRIPT} -e 'library(methods); devtools::build_vignettes()'
+
+.PHONY: all install clean build check roxygen test vignettes

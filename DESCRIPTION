@@ -15,4 +15,6 @@ Imports:
 Suggests:
     R6 (>= 2.0.0),
     testthat,
-    devtools
+    devtools,
+    knitr
+VignetteBuilder: knitr

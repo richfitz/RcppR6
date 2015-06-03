@@ -1,0 +1,399 @@
+## ---
+## title: "Introduction to RcppR6"
+## author: "Rich FitzJohn"
+## date: "`r Sys.Date()`"
+## output: rmarkdown::html_vignette
+## vignette: >
+##   %\VignetteIndexEntry{Introduction to RcppR6}
+##   %\VignetteEngine{knitr::rmarkdown}
+##   %\VignetteEncoding{UTF-8}
+## ---
+
+## RcppR6 is a code generation approach for exposing C++ classes as R
+## classes.  It makes it possible to define a class in C++ and expose
+## it in R as an [R6](https://github.com/wch/R6) class, with reference
+## semantics for the class on the R side.
+
+## This first example walks through setting up the example used in the
+## package [README](https://github.com/richfitz/RcppR6).  This example
+## creates a simple "circle" class to show a few features of the
+## package.
+
+##+ echo=FALSE
+path <- system.file("examples/README", package="RcppR6")
+path <- RcppR6:::prepare_temporary(path, tempfile())
+unlink(file.path(path, "tests"), recursive=TRUE)
+descr <- readLines(file.path(path, "DESCRIPTION"))
+descr <- descr[!grepl("Suggests: testthat", descr, fixed=TRUE)]
+writeLines(descr, file.path(path, "DESCRIPTION"))
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep="\n")
+}
+cpp_output <- function(x) lang_output(x, "c++")
+r_output <- function(x) lang_output(x, "r")
+yaml_output <- function(x) lang_output(x, "yaml")
+plain_output <- function(x) lang_output(x, "plain")
+yaml_load <- RcppR6:::yaml_load
+
+### Here, I only want to include the core of the class definition, and
+### don't want the distracting Emacs bits or the header guard:
+##+ echo=FALSE, results="asis"
+cls <- readLines(file.path(path, "inst/include/README.h"))
+i1 <- grep("^#include", cls)[[1]]
+i2 <- grep("^};", cls)[[1]]
+cpp_output(cls[i1:i2])
+
+## What we want is some way if exposing this class to R so that we
+## could interact with the methods directly.  The usual approach with
+## annotating with
+## ```
+## // [[Rcpp::export]]
+## ```
+## won't work here because that only wraps free functions; we need a
+## way to generate these free functions and to organise getting an
+## object that will keep the state of the class (here, the `radius`
+## field).
+
+## RcppR6 currently requires working in a package structure: this is
+## encouraged in the [Rcpp intro](TODO:LINK) anyway.  Eventually it
+## might support inline use, but that is not currently supported.
+
+## RcppR6 also requires a particular structure to a package (this
+## might change!) because it needs to be able to `#include` all the
+## class definitions in ways that plain Rcpp attributes don't need.
+
+##+ echo=FALSE, results="asis"
+tree <- function(path, header=path) {
+  paste1 <- function(a, b) {
+    paste(rep_len(a, length(b)), b)
+  }
+  indent <- function(x, files) {
+    paste0(if (files) "| " else "  ", x)
+  }
+  is_directory <- function(x) {
+    unname(file.info(x)[, "isdir"])
+  }
+  prefix_file <- "|--="
+  prefix_dir  <- "|-+="
+
+  files <- dir(path)
+  files_full <- file.path(path, files)
+  isdir <- is_directory(files_full)
+
+  ret <- as.list(c(paste1(prefix_dir, files[isdir]),
+                   paste1(prefix_file, files[!isdir])))
+  files_full <- c(files_full[isdir], files_full[!isdir])
+  isdir <- c(isdir[isdir], isdir[!isdir])
+
+  n <- length(ret)
+  ret[[n]] <- sub("|", "\\", ret[[n]], fixed=TRUE)
+  tmp <- lapply(which(isdir), function(i)
+    c(ret[[i]], indent(tree(files_full[[i]], NULL), !all(isdir))))
+  ret[isdir] <- tmp
+
+  c(header, unlist(ret))
+}
+plain_output(tree(path, "README"))
+
+## (note that the *package* here is called README, as this is the
+## package used in generating the README for RcppR6 - OK that's
+## probably confusing).
+
+## A file `<package_name>.h` is required within `inst/include`; this
+## file must include *all* class definitions that RcppR6 is to wrap.
+## So for this package `README`, the above definition is included
+## there.
+
+## The main work is in the file `inst/RcppR6_classes.yml` this is a
+## [yaml](http:/yaml.org) file containing key/value pairs indicating
+## how to export the class.
+##+ echo=FALSE, results="asis"
+yaml <- readLines(file.path(path, "inst/RcppR6_classes.yml"))
+yaml_output(yaml)
+
+## This is the main file that needs editing to organise export of the
+## class.  Compared with Rcpp modules it contains a lot of type
+## information that could have been lifted from the class definition,
+## but future versions may remove this limitation.
+
+## The yaml is hopefully fairly self-explanatory, and illustrates
+## *almost* all of the features needed features.  Below, I'll walk
+## through each section in turn: the constructor, the method, and then
+## the "active" fields.
+
+## First, a **constructor**; this is the function that creates the
+## object.
+
+##+ echo=FALSE, results="asis"
+i_constructor <- grep("\\s+constructor:", yaml)[[1]]
+i_methods <- grep("\\s+methods:", yaml)[[1]]
+i_active <- grep("\\s+active:", yaml)[[1]]
+yaml_output(yaml[i_constructor:(i_methods - 1)])
+
+## The `args` element is a yaml ordered map (by definition a map in
+## yaml is not ordered, but ordering is critical here).  Each pair in
+## the args is of the form: `<name>: <type>`, so this just says that
+## there is one argument, `radius`, which has type `double`.  Note
+## that the name need not match up with the name in the C++ class (and
+## does not here) but the name must be valid in *both* R and C++.
+## That means no dots are allowed.
+
+## If the type contains colons (e.g., `std::string`) it will probably
+## be required to enclose the type in double quotes or the yaml parser
+## will throw an error.
+
+## An alternative way of writing the arguments using an ordered map in
+## yaml is:
+##
+## ```yaml
+##     args:
+##       - {radius: double}
+## ```
+##
+## with additional arguments as additional list elements (`-`).
+
+## By default (and above) this will use the constructor of the C++
+## class, but it is possible to specify a free function that returns
+## an object of class `circle`.  So if you had:
+##
+## ```c++
+## circle make_circle(double radius) {
+##   return circle(radius);
+## }
+## ```
+##
+## you could use that by writing:
+##
+## ```yaml
+##   constructor:
+##     name_cpp: make_circle
+##     args: ... # as above
+## ```
+
+## In the generated object, a function with the name of the class will
+## be generated (so `circle`) taking the one argument `radius`.  (Note
+## that this differs from the usual way that R6 objects are
+## generated).
+
+## ```r
+## circle(1.0) # would create a circle with radius 1.0
+## ```
+
+## Next, one **method** is defined in the yaml:
+##+ echo=FALSE, results="asis"
+yaml_output(yaml[i_methods:(i_active - 1)])
+
+## The `methods` field contains any number of methods; here, only the
+## method `area` is defined.
+##
+## Each method may contain an `args` element (as the constructor did)
+## but here it is omitted because the function has no arguments.
+##
+## The field `return_type` is required; here the method is going to
+## return a `double`.
+##
+## If `x` is a circle object, created by the constructor `circle`
+## above, then the method would be used by writing:
+##
+## ```r
+## r$area()
+## ```
+##
+## Instead of using class methods, RcppR6 can also use functions that
+## take references to objects and turn these into methods in the
+## generated object.  So if we had a function:
+##
+## ```c++
+## double circle_area(const circle& x) {
+##   return x.area();
+## }
+## ```
+##
+## that could be specified above by writing:
+##
+## ```yaml
+##   area:
+##     return_type: double
+##     access: function
+##     name_cpp: circle_area
+## ```
+##
+## The field `access` takes values "member" (the default, indicating a
+## member function) or `function`, indicating a free function.  The
+## field `name_cpp` is the name of the function (or member) in C++.
+## The actual name `area` will be used in the generated object.
+
+## Finally, two **active fields** are specified; `circumference` and
+## `radius`:
+##+ echo=FALSE, results="asis"
+yaml_output(yaml[i_active:length(yaml)])
+
+## The first, `circumference` provides both setters and getters
+## (`name_cpp` and `name_cpp_set`, respectively).  The getter could be
+## ommited here because it shares the same name as the R name for the
+## field.
+##
+## Getters must be a function that takes no arguments and return a
+## thing that they get, while setters must take a single thing and
+## return void.  It's probably a good idea for a getter to be a const
+## method (see the C++ definition of `circumference` above), but
+## that's not enforced.  A setter can do whatever argument checking it
+## wants.
+
+## "active" members also require a `type` entry: this is the return
+## type for the getter and the argument type for the setter.
+
+## The `circumference` field has access "member"; this means it is
+## accessed by member functions).  The other alternatives are
+## "function" (as for the "methods" section above) and `field`.
+
+## The `radius` active member has access `field`: it means that the
+## field is accesed directly, with no argument checking.  By default
+## this is a read-write binding, but by specifying `readonly: true`,
+## this can be made read-only.  Note here that a shorthand `{...}`
+## notation is used - this is equivalent yaml to:
+##+ echo=FALSE, results="asis"
+dat <- RcppR6:::yaml_load(paste(yaml, collapse="\n"))
+yaml_output(yaml::as.yaml(dat$circle$active["radius"]))
+
+## That's almost all the bits: there are a few other required bits for
+## the package header:
+### Here I'm stripping the comments and bits of excessive whitespace:
+##+ echo=FALSE, results="asis"
+tmp <- grep("^//", cls, value=TRUE, invert=TRUE)
+cpp_output(gsub("\n\n+", "\n\n", paste(tmp, collapse="\n")))
+
+## In addition to the class defnition above, there are a few extra
+## bits:
+## * header guards (optional, but probably going to be needed)
+## * including the file `<README/RcppR6_pre.hpp>`
+##   - this will be added to the `inst/include/README` directory when
+##     running RcppR6; it contains prototypes for the `as` and `wrap`
+##     functions required to export types from C++ to R (see the
+##     "extending Rcpp" vignette).
+##   - this needs to be included after your classes have been
+##     *declared*, but may be included before your classes have been
+##     *defined*.  It must be included *after* `<RcppCommon.h>` and
+##     *before* `<Rcpp.h>`.
+## * including the file <README/RcppR6_post.hpp>`
+##   - this will include the definition of the `as` and `wrap`
+##     functions, as well as `<Rcpp.h>` (if it hasn't already been
+##     included) and some support code needed by RcppR6.
+
+## The `DESCRIPTION` file contains nothing special:
+##+ echo=FALSE, results="asis"
+plain_output(readLines(file.path(path, "DESCRIPTION")))
+
+## and the NAMESPACE file is empty.
+
+## With everything in place, let's go:
+RcppR6::install(path)
+
+## Quite a few files have been added, and some of the existing files
+## have been updated
+##+ echo=FALSE, results="asis"
+plain_output(tree(path, "README"))
+
+## RcppR6 reads the DESCRIPTION and adds the required packages: the
+## package must import Rcpp and R6, and must include Rcpp in
+## `LinkingTo:`.  Note that RcppR6 *does not appear anywhere* in the
+## description: once RcppR6 has generated code, it is done and is not
+## a dependency.
+##+ echo=FALSE, results="asis"
+plain_output(readLines(file.path(path, "DESCRIPTION")))
+
+## Because `src/Makevars` was missing originally, it has been creted
+## with contents:
+##+ echo=FALSE, results="asis"
+plain_output(readLines(file.path(path, "src/Makevars")))
+
+## (if it already existed it would have been left alone and you would
+## have to add this yourself).
+
+## The other files: `inst/include/README/RcppR6_pre.hpp`,
+## `inst/include/README/RcppR6_post.hpp`,
+## `inst/include/README/RcppR6_support.hpp`, `R/RcppR6.R` and
+## `src/RcppR6.R` contain boilerplate glue code, and the files
+## `R/RcppExports.R` and `src/RcppExports.cpp` contain the usual Rcpp
+## attributes generated code to support them.  See the bottom of this
+## file for what is generated, if you are curious.
+
+## The package can now be compiled.  I'm using `devtools::document`
+## here because the generated code includes enough roxygen hints to
+## generate a minimal `NAMESPACE` file:
+devtools::document(path)
+
+## The package can now be loaded:
+devtools::load_all(path)
+
+## and a circle object can be created:
+obj <- circle(1.0)
+obj
+
+## This object has class `r class(obj)[[1]]`:
+class(obj)
+
+## There's a data member `.ptr`
+obj$.ptr
+
+## This is the actual external pointer object that holds a reference
+## to the underlying C++ class instance.  It is not designed to be
+## interacted with directly.  The `initialize` method is also not
+## meant to be used directly:
+obj$initialize
+
+## (this is used by the support code and why the objects are not
+## created with the usual R6 `circle$new()` syntax).
+
+## The one method and two active binding members are present in the
+## class: `area`, `circumference` and `radius`.
+
+## The area of a circle of radius 1 is of course pi
+obj$area()
+obj$area() - pi
+
+## Because the radius is an active member, parentheses are not needed
+## to access it:
+obj$radius
+
+## and it can be set as if it were a field:
+obj$radius <- 2
+obj$radius
+obj$area()
+
+## Similarly, the circumference can be set, routing through the
+## `set_circumference` function that converts to a radius:
+obj$circumference <- 1.0
+obj$circumference
+obj$radius
+
+## and because that function has error checking in it, you can't set
+## negative values:
+##+ error=TRUE
+obj$circumference <- -1
+
+## Once set up, RcppR6 should be relatively cheap to run as it detects
+## that nothing has changed:
+system.time(RcppR6::RcppR6(path))
+
+## # Contents of generated files:
+
+## `inst/include/README/RcppR6_pre.hpp`:
+##+ echo=FALSE, results="asis"
+cpp_output(readLines(file.path(path, "inst/include/README/RcppR6_pre.hpp")))
+
+## `inst/include/README/RcppR6_post.hpp`:
+##+ echo=FALSE, results="asis"
+cpp_output(readLines(file.path(path, "inst/include/README/RcppR6_post.hpp")))
+
+## `inst/include/README/RcppR6_support.hpp`:
+##+ echo=FALSE, results="asis"
+cpp_output(readLines(file.path(path, "inst/include/README/RcppR6_support.hpp")))
+
+## `R/RcppR6.R`:
+##+ echo=FALSE, results="asis"
+r_output(readLines(file.path(path, "R/RcppR6.R")))
+
+## `R/RcppR6.R`:
+##+ echo=FALSE, results="asis"
+cpp_output(readLines(file.path(path, "src/RcppR6.cpp")))
