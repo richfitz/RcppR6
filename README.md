@@ -101,7 +101,7 @@ RcppR6 assumes you are building a package.  There is currently no support for in
 
 # Requirements
 
-Class definitions are written in [YAML](http://en.wikipedia.org/wiki/YAML), and parsed using the [yaml package](cran.r-project.org/web/packages/yaml), from CRAN.
+Class definitions are written in [YAML](http://en.wikipedia.org/wiki/YAML), and parsed using the [yaml package](http://cran.r-project.org/web/packages/yaml/), from CRAN.
 
 The [Rcpp](http://rcpp.org) R package is of course needed.  Interfaces this way build a set of code that is then run through Rcpp's "[attributes](http://dirk.eddelbuettel.com/code/rcpp/Rcpp-attributes.pdf)" facilities to build the actual R/C++ glue.
 
