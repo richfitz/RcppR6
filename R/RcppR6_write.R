@@ -3,9 +3,9 @@ RcppR6_write <- function(dat, verbose=TRUE) {
   ## There should be five things here; probably move dat around to
   ## make this less fragile (TODO)
   files <- names(dat$contents)
-  ## TODO: Here, strip down to the root of the filename...
   for (file in files) {
-    update_file(dat$contents[[file]], dat$package$files[[file]], verbose)
+    update_file(dat$contents[[file]], dat$package$files[[file]],
+                dat$package$paths$root, verbose)
   }
 }
 
@@ -13,7 +13,7 @@ RcppR6_install_files <- function(info, verbose=TRUE) {
   create_directories(info$paths)
 
   update_DESCRIPTION(info$paths$root, verbose)
-  install_file("Makevars", info$paths$src, verbose)
+  install_file("Makevars", info$paths$src, info$paths$root, verbose)
   if (!file.exists(info$files$package_include)) {
     template <-
       read_file(RcppR6_file("templates/package_include.h.whisker"))
@@ -73,7 +73,7 @@ update_DESCRIPTION <- function(path, verbose=TRUE) {
     }
   } else {
     s <- paste(capture.output(write.dcf(d)), collapse="\n")
-    update_file(s, filename, verbose)
+    update_file(s, filename, path, verbose)
   }
 }
 
