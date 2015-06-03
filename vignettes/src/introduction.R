@@ -265,20 +265,21 @@ cpp_output(gsub("\n\n+", "\n\n", paste(tmp, collapse="\n")))
 
 ## In addition to the class defnition above, there are a few extra
 ## bits:
+##
 ## * header guards (optional, but probably going to be needed)
 ## * including the file `<README/RcppR6_pre.hpp>`
-##   - this will be added to the `inst/include/README` directory when
-##     running RcppR6; it contains prototypes for the `as` and `wrap`
-##     functions required to export types from C++ to R (see the
-##     "extending Rcpp" vignette).
-##   - this needs to be included after your classes have been
-##     *declared*, but may be included before your classes have been
-##     *defined*.  It must be included *after* `<RcppCommon.h>` and
-##     *before* `<Rcpp.h>`.
+##     - this will be added to the `inst/include/README` directory when
+##       running RcppR6; it contains prototypes for the `as` and `wrap`
+##       functions required to export types from C++ to R (see the
+##       "extending Rcpp" vignette).
+##     - this needs to be included after your classes have been
+##       *declared*, but may be included before your classes have been
+##       *defined*.  It must be included *after* `<RcppCommon.h>` and
+##       *before* `<Rcpp.h>`.
 ## * including the file <README/RcppR6_post.hpp>`
-##   - this will include the definition of the `as` and `wrap`
-##     functions, as well as `<Rcpp.h>` (if it hasn't already been
-##     included) and some support code needed by RcppR6.
+##     - this will include the definition of the `as` and `wrap`
+##       functions, as well as `<Rcpp.h>` (if it hasn't already been
+##       included) and some support code needed by RcppR6.
 
 ## The `DESCRIPTION` file contains nothing special:
 ##+ echo=FALSE, results="asis"

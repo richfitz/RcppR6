@@ -10,7 +10,7 @@
 
 <meta name="author" content="Rich FitzJohn" />
 
-<meta name="date" content="2015-06-03" />
+<meta name="date" content="2015-06-04" />
 
 <title>Introduction to RcppR6</title>
 
@@ -54,7 +54,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <div id="header">
 <h1 class="title">Introduction to RcppR6</h1>
 <h4 class="author"><em>Rich FitzJohn</em></h4>
-<h4 class="date"><em>2015-06-03</em></h4>
+<h4 class="date"><em>2015-06-04</em></h4>
 </div>
 
 
@@ -192,7 +192,16 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <span class="ot">#include &lt;README/RcppR6_post.hpp&gt;</span>
 
 <span class="ot">#endif</span></code></pre>
-<p>In addition to the class defnition above, there are a few extra bits: * header guards (optional, but probably going to be needed) * including the file <code>&lt;README/RcppR6_pre.hpp&gt;</code> - this will be added to the <code>inst/include/README</code> directory when running RcppR6; it contains prototypes for the <code>as</code> and <code>wrap</code> functions required to export types from C++ to R (see the “extending Rcpp” vignette). - this needs to be included after your classes have been <em>declared</em>, but may be included before your classes have been <em>defined</em>. It must be included <em>after</em> <code>&lt;RcppCommon.h&gt;</code> and <em>before</em> <code>&lt;Rcpp.h&gt;</code>. * including the file <README RcppR6_post.hpp><code>- this will include the definition of the</code>as<code>and</code>wrap<code>functions, as well as</code><Rcpp.h>` (if it hasn’t already been included) and some support code needed by RcppR6.</p>
+<p>In addition to the class defnition above, there are a few extra bits:</p>
+<ul>
+<li>header guards (optional, but probably going to be needed)</li>
+<li>including the file <code>&lt;README/RcppR6_pre.hpp&gt;</code>
+<ul>
+<li>this will be added to the <code>inst/include/README</code> directory when running RcppR6; it contains prototypes for the <code>as</code> and <code>wrap</code> functions required to export types from C++ to R (see the “extending Rcpp” vignette).</li>
+<li>this needs to be included after your classes have been <em>declared</em>, but may be included before your classes have been <em>defined</em>. It must be included <em>after</em> <code>&lt;RcppCommon.h&gt;</code> and <em>before</em> <code>&lt;Rcpp.h&gt;</code>.</li>
+</ul></li>
+<li>including the file <README RcppR6_post.hpp><code>- this will include the definition of the</code>as<code>and</code>wrap<code>functions, as well as</code><Rcpp.h>` (if it hasn’t already been included) and some support code needed by RcppR6.</li>
+</ul>
 <p>The <code>DESCRIPTION</code> file contains nothing special:</p>
 <pre class="plain"><code>Package: README
 Title: Code from the package README
@@ -204,17 +213,17 @@ License: CC0</code></pre>
 <p>and the NAMESPACE file is empty.</p>
 <p>With everything in place, let’s go:</p>
 <pre class="sourceCode r"><code class="sourceCode r">RcppR6::<span class="kw">install</span>(path)</code></pre>
-<pre><code>## Reading classes from /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/RcppR6_classes.yml
+<pre><code>## Reading classes from /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//RtmpXK1w3X/file229a5f08b65a/README/inst/RcppR6_classes.yml
 ## DESCRIPTION: Adding dependency Rcpp in field LinkingTo
 ## DESCRIPTION: Adding dependency Rcpp in field Imports
 ## DESCRIPTION: Adding dependency R6 in field Imports
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/DESCRIPTION: writing (changed)
-## Installing file /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/src/Makevars (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/R/RcppR6.R: writing (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/src/RcppR6.cpp: writing (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/include/README/RcppR6_pre.hpp: writing (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/include/README/RcppR6_post.hpp: writing (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/include/README/RcppR6_support.hpp: writing (new file)
+## DESCRIPTION: writing (changed)
+## Installing file /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpXK1w3X/file229a5f08b65a/README/src/Makevars (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpXK1w3X/file229a5f08b65a/README/R/RcppR6.R: writing (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpXK1w3X/file229a5f08b65a/README/src/RcppR6.cpp: writing (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpXK1w3X/file229a5f08b65a/README/inst/include/README/RcppR6_pre.hpp: writing (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpXK1w3X/file229a5f08b65a/README/inst/include/README/RcppR6_post.hpp: writing (new file)
+## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpXK1w3X/file229a5f08b65a/README/inst/include/README/RcppR6_support.hpp: writing (new file)
 ## Compiling Rcpp attributes</code></pre>
 <p>Quite a few files have been added, and some of the existing files have been updated</p>
 <pre class="plain"><code>README
@@ -257,8 +266,8 @@ PKG_CPPFLAGS += -I../inst/include/</code></pre>
 ## Re-compiling README
 ## '/Library/Frameworks/R.framework/Resources/bin/R' --no-site-file  \
 ##   --no-environ --no-save --no-restore CMD INSTALL  \
-##   '/private/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/Rtmp3uAaZn/file1fbe262ed35/README'  \
-##   --library='/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/devtools_install_1fbed3f694f'  \
+##   '/private/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpXK1w3X/file229a5f08b65a/README'  \
+##   --library='/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//RtmpXK1w3X/devtools_install_229a70c4b007'  \
 ##   --no-R --no-data --no-help --no-demo --no-inst --no-docs --no-exec  \
 ##   --no-multiarch --no-test-load --preclean 
 ## 
@@ -282,13 +291,13 @@ obj</code></pre>
 <pre><code>## [1] &quot;circle&quot; &quot;R6&quot;</code></pre>
 <p>There’s a data member <code>.ptr</code></p>
 <pre class="sourceCode r"><code class="sourceCode r">obj$.ptr</code></pre>
-<pre><code>## &lt;pointer: 0x7fb36b605580&gt;</code></pre>
+<pre><code>## &lt;pointer: 0x7fcbfb580fe0&gt;</code></pre>
 <p>This is the actual external pointer object that holds a reference to the underlying C++ class instance. It is not designed to be interacted with directly. The <code>initialize</code> method is also not meant to be used directly:</p>
 <pre class="sourceCode r"><code class="sourceCode r">obj$initialize</code></pre>
 <pre><code>## function(ptr) {
 ##         self$.ptr &lt;- ptr
 ##       }
-## &lt;environment: 0x7fb3688c66e8&gt;</code></pre>
+## &lt;environment: 0x7fcbe8ae0f58&gt;</code></pre>
 <p>(this is used by the support code and why the objects are not created with the usual R6 <code>circle$new()</code> syntax).</p>
 <p>The one method and two active binding members are present in the class: <code>area</code>, <code>circumference</code> and <code>radius</code>.</p>
 <p>The area of a circle of radius 1 is of course pi</p>
@@ -316,11 +325,11 @@ obj$circumference</code></pre>
 <pre><code>## Error in eval(expr, envir, enclos): Circumference must be positive</code></pre>
 <p>Once set up, RcppR6 should be relatively cheap to run as it detects that nothing has changed:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(RcppR6::<span class="kw">RcppR6</span>(path))</code></pre>
-<pre><code>## Reading classes from /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmp3uAaZn/file1fbe262ed35/README/inst/RcppR6_classes.yml
+<pre><code>## Reading classes from /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//RtmpXK1w3X/file229a5f08b65a/README/inst/RcppR6_classes.yml
 ## RcppR6 up to date
 ## Compiling Rcpp attributes</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.005   0.001   0.006</code></pre>
+##   0.005   0.001   0.008</code></pre>
 <div id="contents-of-generated-files" class="section level1">
 <h1>Contents of generated files:</h1>
 <p><code>inst/include/README/RcppR6_pre.hpp</code>:</p>
