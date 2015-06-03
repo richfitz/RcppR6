@@ -20,7 +20,7 @@
 ## package.
 
 ##+ echo=FALSE
-path <- system.file("examples/README", package="RcppR6")
+path <- system.file("examples/introduction", package="RcppR6")
 path <- RcppR6:::prepare_temporary(path, tempfile())
 unlink(file.path(path, "tests"), recursive=TRUE)
 descr <- readLines(file.path(path, "DESCRIPTION"))
@@ -38,7 +38,7 @@ yaml_load <- RcppR6:::yaml_load
 ### Here, I only want to include the core of the class definition, and
 ### don't want the distracting Emacs bits or the header guard:
 ##+ echo=FALSE, results="asis"
-cls <- readLines(file.path(path, "inst/include/README.h"))
+cls <- readLines(file.path(path, "inst/include/introduction.h"))
 i1 <- grep("^#include", cls)[[1]]
 i2 <- grep("^};", cls)[[1]]
 cpp_output(cls[i1:i2])
@@ -61,6 +61,12 @@ cpp_output(cls[i1:i2])
 ## RcppR6 also requires a particular structure to a package (this
 ## might change!) because it needs to be able to `#include` all the
 ## class definitions in ways that plain Rcpp attributes don't need.
+
+## The code used here is a demo package called `introduction`, available
+## within RcppR6 (`system.file("examples/introduction", package="RcppR6")`)
+## It's a purposely minimal (and frankly, silly) package that includes
+## only a few files to start; this is the minimal set of files to use
+## RcppR6:
 
 ##+ echo=FALSE, results="asis"
 tree <- function(path, header=path) {
@@ -93,16 +99,12 @@ tree <- function(path, header=path) {
 
   c(header, unlist(ret))
 }
-plain_output(tree(path, "README"))
-
-## (note that the *package* here is called README, as this is the
-## package used in generating the README for RcppR6 - OK that's
-## probably confusing).
+plain_output(tree(path, "introduction"))
 
 ## A file `<package_name>.h` is required within `inst/include`; this
 ## file must include *all* class definitions that RcppR6 is to wrap.
-## So for this package `README`, the above definition is included
-## there.
+## So for this package `introduction`, the above definition is included
+## within the file `inst/include/introduction.h`
 
 ## The main work is in the file `inst/RcppR6_classes.yml` this is a
 ## [yaml](http:/yaml.org) file containing key/value pairs indicating
@@ -267,8 +269,8 @@ cpp_output(gsub("\n\n+", "\n\n", paste(tmp, collapse="\n")))
 ## bits:
 ##
 ## * header guards (optional, but probably going to be needed)
-## * including the file `<README/RcppR6_pre.hpp>`
-##     - this will be added to the `inst/include/README` directory when
+## * including the file `<introduction/RcppR6_pre.hpp>`
+##     - this will be added to the `inst/include/introduction` directory when
 ##       running RcppR6; it contains prototypes for the `as` and `wrap`
 ##       functions required to export types from C++ to R (see the
 ##       "extending Rcpp" vignette).
@@ -276,7 +278,7 @@ cpp_output(gsub("\n\n+", "\n\n", paste(tmp, collapse="\n")))
 ##       *declared*, but may be included before your classes have been
 ##       *defined*.  It must be included *after* `<RcppCommon.h>` and
 ##       *before* `<Rcpp.h>`.
-## * including the file <README/RcppR6_post.hpp>`
+## * including the file <introduction/RcppR6_post.hpp>`
 ##     - this will include the definition of the `as` and `wrap`
 ##       functions, as well as `<Rcpp.h>` (if it hasn't already been
 ##       included) and some support code needed by RcppR6.
@@ -293,7 +295,7 @@ RcppR6::install(path)
 ## Quite a few files have been added, and some of the existing files
 ## have been updated
 ##+ echo=FALSE, results="asis"
-plain_output(tree(path, "README"))
+plain_output(tree(path, "introduction"))
 
 ## RcppR6 reads the DESCRIPTION and adds the required packages: the
 ## package must import Rcpp and R6, and must include Rcpp in
@@ -311,9 +313,9 @@ plain_output(readLines(file.path(path, "src/Makevars")))
 ## (if it already existed it would have been left alone and you would
 ## have to add this yourself).
 
-## The other files: `inst/include/README/RcppR6_pre.hpp`,
-## `inst/include/README/RcppR6_post.hpp`,
-## `inst/include/README/RcppR6_support.hpp`, `R/RcppR6.R` and
+## The other files: `inst/include/introduction/RcppR6_pre.hpp`,
+## `inst/include/introduction/RcppR6_post.hpp`,
+## `inst/include/introduction/RcppR6_support.hpp`, `R/RcppR6.R` and
 ## `src/RcppR6.R` contain boilerplate glue code, and the files
 ## `R/RcppExports.R` and `src/RcppExports.cpp` contain the usual Rcpp
 ## attributes generated code to support them.  See the bottom of this
@@ -379,17 +381,17 @@ system.time(RcppR6::RcppR6(path))
 
 ## # Contents of generated files:
 
-## `inst/include/README/RcppR6_pre.hpp`:
+## `inst/include/introduction/RcppR6_pre.hpp`:
 ##+ echo=FALSE, results="asis"
-cpp_output(readLines(file.path(path, "inst/include/README/RcppR6_pre.hpp")))
+cpp_output(readLines(file.path(path, "inst/include/introduction/RcppR6_pre.hpp")))
 
-## `inst/include/README/RcppR6_post.hpp`:
+## `inst/include/introduction/RcppR6_post.hpp`:
 ##+ echo=FALSE, results="asis"
-cpp_output(readLines(file.path(path, "inst/include/README/RcppR6_post.hpp")))
+cpp_output(readLines(file.path(path, "inst/include/introduction/RcppR6_post.hpp")))
 
-## `inst/include/README/RcppR6_support.hpp`:
+## `inst/include/introduction/RcppR6_support.hpp`:
 ##+ echo=FALSE, results="asis"
-cpp_output(readLines(file.path(path, "inst/include/README/RcppR6_support.hpp")))
+cpp_output(readLines(file.path(path, "inst/include/introduction/RcppR6_support.hpp")))
 
 ## `R/RcppR6.R`:
 ##+ echo=FALSE, results="asis"

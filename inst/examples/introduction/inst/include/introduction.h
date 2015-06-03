@@ -1,6 +1,6 @@
 // -*-c++-*-
-#ifndef _README_H_
-#define _README_H_
+#ifndef _INTRODUCTION_H_
+#define _INTRODUCTION_H_
 
 #include <RcppCommon.h>
 
@@ -26,7 +26,7 @@ public:
 // define (but before Rcpp has been loaded) or first.  This file will
 // attempt to provide declarations for the classes and namespaces that
 // you use, but this might be fragile.
-#include <README/RcppR6_pre.hpp>
+#include <introduction/RcppR6_pre.hpp>
 
 // Anything after this point is OK to include Rcpp.h.  This is
 // probably where the meat of the included material goes if your
@@ -35,6 +35,6 @@ public:
 
 // This line can safely be the last line in the file, but may go any
 // point after RcppR6_pre.hpp is included.
-#include <README/RcppR6_post.hpp>
+#include <introduction/RcppR6_post.hpp>
 
 #endif

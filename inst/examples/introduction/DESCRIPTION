@@ -1,5 +1,5 @@
-Package: README
-Title: Code from the package README
+Package: introduction
+Title: Code from the RcppR6 README
 Version: 0.1
 Authors.R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
 Description: Code from the RcppR6 README.md file
