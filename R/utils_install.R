@@ -86,8 +86,10 @@ create_directories <- function(paths) {
 }
 
 drop_leading_path <- function(file, base) {
-  base <- gsub("/+", "/", suppressWarnings(normalizePath(base)))
-  file <- gsub("/+", "/", suppressWarnings(normalizePath(file)))
+  ## These might want normalising but that doesn't work if the file
+  ## doesn't exist.  We could normalise on the dirname though?
+  base <- gsub("/+", "/", base)
+  file <- gsub("/+", "/", file)
   n <- nchar(base)
   if (identical(substr(base, 1, n),
                 substr(file, 1, n))) {

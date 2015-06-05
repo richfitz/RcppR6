@@ -6,7 +6,7 @@ RcppR6_read <- function(path, verbose=TRUE) {
   config <- RcppR6_read_config(path)
   filename_classes <- file.path(path, config$classes)
   classes <- join_lists(lapply(filename_classes, RcppR6_read_classes,
-                               verbose))
+                               path, verbose))
   list(path=path,
        classes=classes,
        hash=digest::digest(classes))
@@ -27,9 +27,9 @@ RcppR6_read_config <- function(path) {
   dat
 }
 
-RcppR6_read_classes <- function(filename, verbose) {
+RcppR6_read_classes <- function(filename, base, verbose) {
   if (verbose) {
-    message("Reading classes from ", filename)
+    message("Reading classes from ", drop_leading_path(filename, base))
   }
   assert_file_exists(filename)
   yaml_read(filename)
