@@ -19,6 +19,8 @@ uniform:
       name_cpp: examples::uniform_range
       access: function
   active:
+    min: {type: double, access: field, readonly: true}
+    max: {type: double, access: field, readonly: true}
     the_min:
       name_cpp: get_min
       name_cpp_set: set_min
@@ -33,5 +35,3 @@ uniform:
       name_cpp: examples::draw1 # read-only: only 1 element...
       type: Rcpp::NumericVector
       access: function
-    min: {type: double, access: field}
-    max: {type: double, access: field}

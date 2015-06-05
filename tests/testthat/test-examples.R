@@ -3,7 +3,8 @@ context("examples")
 test_that("examples", {
   ## Because of the devtools issue (hadley/devtools#531) we need to use
   ## a non-standard temporary file location for the tests.
-  pkg <- RcppR6:::prepare_temporary("testExamples")
+  path <- system.file("examples/examples", package="RcppR6")
+  pkg <- RcppR6:::prepare_temporary(path)
 
   RcppR6::install(pkg)
   devtools::document(pkg)

@@ -7,7 +7,7 @@ stack:
     pop:
       return_type: void
       access: function
-      name_cpp: "examples::stack_internals::pop"
+      name_cpp: "examples::pop"
     push:
       args: [x: "int"]
       return_type: void
@@ -25,4 +25,4 @@ stack:
     empty: {type: bool, access: member}
     size: {type: size_t, access: member}
     top: {type: int, access: function,
-      name_cpp: "examples::stack_internals::top"}
+      name_cpp: "examples::top"}
