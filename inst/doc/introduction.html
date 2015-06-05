@@ -266,8 +266,8 @@ PKG_CPPFLAGS += -I../inst/include/</code></pre>
 ## Re-compiling introduction
 ## '/Library/Frameworks/R.framework/Resources/bin/R' --no-site-file  \
 ##   --no-environ --no-save --no-restore CMD INSTALL  \
-##   '/private/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/Rtmpdf3Y2V/file30ad64ee939c/introduction'  \
-##   --library='/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmpdf3Y2V/devtools_install_30ad4a77c573'  \
+##   '/private/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpxsDY2K/file33233627b785/introduction'  \
+##   --library='/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//RtmpxsDY2K/devtools_install_3323357a34d'  \
 ##   --no-R --no-data --no-help --no-demo --no-inst --no-docs --no-exec  \
 ##   --no-multiarch --no-test-load --preclean 
 ## 
@@ -291,13 +291,13 @@ obj</code></pre>
 <pre><code>## [1] &quot;circle&quot; &quot;R6&quot;</code></pre>
 <p>There’s a data member <code>.ptr</code></p>
 <pre class="sourceCode r"><code class="sourceCode r">obj$.ptr</code></pre>
-<pre><code>## &lt;pointer: 0x7fbafbd03570&gt;</code></pre>
+<pre><code>## &lt;pointer: 0x7f8c1370ac50&gt;</code></pre>
 <p>This is the actual external pointer object that holds a reference to the underlying C++ class instance. It is not designed to be interacted with directly. The <code>initialize</code> method is also not meant to be used directly:</p>
 <pre class="sourceCode r"><code class="sourceCode r">obj$initialize</code></pre>
 <pre><code>## function(ptr) {
 ##         self$.ptr &lt;- ptr
 ##       }
-## &lt;environment: 0x7fbaf9a78bf8&gt;</code></pre>
+## &lt;environment: 0x7f8c10a98200&gt;</code></pre>
 <p>(this is used by the support code and why the objects are not created with the usual R6 <code>circle$new()</code> syntax).</p>
 <p>The one method and two active binding members are present in the class: <code>area</code>, <code>circumference</code> and <code>radius</code>.</p>
 <p>The area of a circle of radius 1 is of course pi</p>
@@ -329,7 +329,7 @@ obj$circumference</code></pre>
 ## RcppR6 up to date
 ## Compiling Rcpp attributes</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.005   0.000   0.005</code></pre>
+##   0.006   0.001   0.007</code></pre>
 <div id="contents-of-generated-files" class="section level1">
 <h1>Contents of generated files:</h1>
 <p><code>inst/include/introduction/RcppR6_pre.hpp</code>:</p>

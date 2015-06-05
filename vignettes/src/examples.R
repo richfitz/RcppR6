@@ -287,6 +287,7 @@ cpp_output(readLines(file.path(path, "inst/include/examples/empty.hpp")))
 
 ## This class defines no methods, no constructors, no fields.  It is
 ## totally useless.  But we can still wrap it up.
+##+ echo=FALSE, results="asis"
 yaml_output(readLines(file.path(path, "inst/empty.yml")))
 
 ## This probably serves no benefit at all.
