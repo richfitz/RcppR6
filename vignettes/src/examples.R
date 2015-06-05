@@ -1,0 +1,294 @@
+## ---
+## title: "RcppR6 examples"
+## author: "Rich FitzJohn"
+## date: "`r Sys.Date()`"
+## output: rmarkdown::html_vignette
+## vignette: >
+##   %\VignetteIndexEntry{RcppR6 examples}
+##   %\VignetteEngine{knitr::rmarkdown}
+##   %\VignetteEncoding{UTF-8}
+## ---
+
+## This vignette builds on the introduction one to provide a
+## marginally more useful example, and demonstrate a few more features
+## of RcppR6.
+
+## The code used here is a demo package called `examples`, available
+## within RcppR6 (`system.file("examples/examples",
+## package="RcppR6")`), and like the `introduction` package doesn't
+## really do anything that you'd really want to do, or need RcppR6 to
+## do.
+
+##+ echo=FALSE, results="asis"
+set.seed(1)
+source(system.file("vignette_common.R", package="RcppR6"))
+path <- vignette_prepare("examples")
+plain_output(tree(path, "introduction"))
+
+## This package defines three classes, of varying complexity.  It uses
+## a different way of structuring sources to `introduction`;
+
+##+ echo=FALSE, results="asis"
+yaml_output(readLines(file.path(path, "inst/RcppR6.yml")))
+
+## Rather than a single file `inst/RcppR6_classes.yml`, there is a
+## file `inst/RcppR6.yml` that lists files to include, relative to the
+## package root.  This isn't necessary, but might help with
+## organisation.  Each file can define one or more classes -- here
+## they define a single class each.
+
+## Similarly, the definitions are spread over three files:
+## `inst/include/examples/uniform.hpp`,
+## `inst/include/examples/stack.hpp` and
+## `inst/include/examples/empty.hpp`.
+
+## ## `uniform`
+
+## This is a similar example to the Rcpp modules example of a uniform
+## distribution object.  It's not identical to the modules version.
+##+ echo=FALSE, results="asis"
+cpp_output(readLines(file.path(path, "inst/include/examples/uniform.hpp")))
+
+## The `Rcpp::RNGScope` bit is probably not needed, actually as Rcpp
+## attributes will sort that out for us.
+
+## The example is declared with a namespace `examples`; unlike
+## attributes, RcppR6 does not have a problem exporting things that
+## are not in the global namespace.  This comes in useful for wrapping
+## library code.
+
+## In addition to the class definition, there are also some free
+## functions defined; `uniform_get_max` and `uniform_set_max`; these
+## are going to be used to set up active members in the R6 class for
+## getting and setting the `max` field of the class.  This pattern
+## (free functions) is useful if you want to do additional error
+## checking on inputs when calling from R than when calling from C++
+## (e.g., passing an `int` into a function that expects an unsigned
+## integer).
+
+## Note that the getter takes first argument of type `const Uniform&`;
+## a const reference to a `Uniform` object.  A non-const reference
+## would be fine here, as would a *copy* of the object.  The setter
+## takes first argument `Uniform&`; this needs to be a reference (and
+## not a pointer).  Passing in a copy here will *appear* to work (as
+## in; will compile and run) but will not change the value.
+
+## The `yaml` for this:
+##+ echo=FALSE, results="asis"
+yaml_output(readLines(file.path(path, "inst/uniform.yml")))
+
+## In order:
+##
+## ```yaml
+## uniform:
+##   name_cpp: examples::Uniform
+## ```
+##
+## This means that the name of the class on the R side will be
+## *different* to the name on the C++ side.  We'll export the class as
+## `uniform` (so that `uniform(...)` will be the constructor in R) but
+## that the actuall class we are wrapping is called
+## `examples::Uniform`.  This is how RcppR6 deals with namespaces --
+## just provide the fully qualified name any time you refer to a
+## class, function or type.
+
+## The next line:
+##
+## ```yaml
+##   forward_declare: true
+## ```
+##
+## will arrange to declare (but not define) the class for you.  This
+## means that we can take less care in writing the package include
+## file (`inst/include/examples.h`).  In particular, all RcppR6 code
+## (both `examples/RcppR6_pre.hpp` and `examples/RcppR6_post.hpp`,
+## along with `Rcpp.h`) can be included before you include
+## `inst/examples/uniform.hpp` because the class will have been
+## forward declared.  That's in contrast with the introduction where
+## we defined the entire class before including
+## `inst/include/RcppR6_pre.h` so that the `as`/`wrap` templates would
+## work correctly (see "Extending Rcpp").
+
+
+## Next, up, the constructor:
+##+ echo=FALSE, results="asis"
+yaml <- yaml <- readLines(file.path(path, "inst/uniform.yml"))
+i_constructor <- grep("\\s+constructor:", yaml)[[1]]
+i_methods <- grep("\\s+methods:", yaml)[[1]]
+i_active <- grep("\\s+active:", yaml)[[1]]
+yaml_output(yaml[i_constructor:(i_methods - 1)])
+
+## The first argument here, `roxygen` defines some roxygen content to
+## include in the generated `R/RcppR6.R` file, but without the leading
+## `#'`.  This will generate a very minimal set of documentation with
+## the title, parameters (`min` and `max`) and arrange to `@export`
+## the object so it appears in the package `NAMESPACE`.  Use of this
+## field is optional, and will generally require yaml's pipe syntax to
+## indicate whitespace should be retained in the multiline string.
+
+## The `args` field is a yaml ordered map of two arguments.  Both are
+## `double`s, and both have default values that will be added to the
+## generated R code:
+##
+## ```r
+## uniform <- function(min=0.0, max=1.0) { ... }
+## ```
+
+## There are two methods `draw` and `range`:
+##+ echo=FALSE, results="asis"
+yaml_output(yaml[i_methods:(i_active - 1)])
+
+## The `draw` method takes a single integer and returns a
+## `Rcpp::NumericVector`.  Because no `name_cpp` is given, RcppR6 will
+## assume that there is a method `draw` within the class that can be
+## used.  And because no `access` is given RcppR6 assumes that `draw`
+## is a method and not a free function.
+
+## The `range` method calls the free function
+## `examples::uniform_range()`.  The C++ function takes the argument
+## `const Uniform& w` but this argument is *not* referred to in the
+## yaml (the first argument of a free function must take a reference
+## to the object).  We have to tell RcppR6 that the function is free
+## (rather than a member) with `access: function` and the name of the
+## function `name_cpp: examples::uniform_range`.
+
+
+## There are a bunch of active methods, because they're a bit more
+## varied in the options that they can take
+##+ echo=FALSE, results="asis"
+yaml_output(yaml[i_active:length(yaml)])
+
+## First, `min` and `max` are direct field accessors.  I've made them
+## read-only by adding `readonly: true`.  Without this (by default)
+## they would be read-write.  You can also use `name_cpp` here to
+## access a different named field within the C++ class than the name
+## of the R field that will be generated.
+
+## The field `the_min` *also* accesses the min field, but does so
+## through the member function `get_min`.  The `name_cpp_set` field
+## indicates the name of the setter (`set_min`).  Without providing
+## this, the field would be read-only.
+
+## The field `the_max` does the same thing as `the_min`, but for the
+## `max` field and uses a pair of free functions
+## (`examples::uniform_get_max` and `examples::uniform_set_max`) to
+## achive this.
+
+## The active field `u` will return a single random number by calling
+## the function `examples::draw1()`.
+
+## Running RcppR6 (this will create other two classes not yet
+## discussed)
+RcppR6::install(path)
+
+## Run `devtools::document` to create the `NAMESPACE` file
+devtools::document(path)
+
+## And load the package:
+devtools::load_all(path)
+
+## We can create a `uniform` object:
+u <- uniform()
+u
+
+## Draw 10 random numbers:
+u$draw(10)
+
+## Or just one:
+u$u
+
+## The minimum was set to zero and max as one by default:
+u$min
+u$max
+args(uniform)
+
+## These are read-only:
+##+ error=TRUE
+u$min <- 100
+u$max <- 200
+
+## These can be set through the `the_min` and `the_max` fields (which
+## are totally redundant here and included only for demonstration)
+u$the_min <- 10
+u$the_max <- 20
+
+## new values set:
+u$the_min
+u$the_max
+
+## Random number in new range:
+u$u
+
+## ## `stack`
+
+## This example shows how to wrap a class that is defined elsewhere --
+## `std::stack` in this case.  It provides an alternative
+## implementation to the version in the R6 vignette.
+##+ echo=FALSE, results="asis"
+cpp_output(readLines(file.path(path, "inst/include/examples/stack.hpp")))
+
+## The comments in the C++ code explain largely what is going on;
+## there are safe wrappers around `pop` and `top` that prevent
+## crashes.  Better behavour for `top` on an empty stack might be to
+## throw an error (though that will cause problems as an active member
+## with R6 < 2.0.0.9000, which includes the current version on CRAN -
+## 2.0.0 at the time of writing).
+
+## Then yaml that goes along with this:
+##+ echo=FALSE, results="asis"
+yaml_output(readLines(file.path(path, "inst/stack.yml")))
+
+## There's not that much more here than for `uniform`:
+##
+## * `differs` shows how to wrap an operator (though turning this into
+##    something that dispatches nicely on the R side will take [more
+##    work](https://github.com/wch/s3ops)
+## * the class was defined elsewhere as a templated library function
+##   but we can still wrap it easily enough.
+
+s <- stack()
+
+## Empty stack has a missing top:
+s$top
+
+## and throws an error when popped (and does not crash!)
+##+ error=TRUE
+s$pop()
+
+## Push some numbers on the stack:
+s$push(1)
+s$push(10)
+s$push(100)
+
+## Three things on the stack:
+s$size
+
+## First one is:
+s$top
+
+## `std::stack` does not return on `pop`, unlike Python's stack
+s$pop()
+
+s$top
+
+## empty out the stack by popping repeatedly:
+while (!s$empty) {
+  s$pop()
+}
+s$size
+
+## ## `empty`
+
+## `empty` is the *simplest posssible* RcppR6 class, defined within
+## the `simple.hpp` header file:
+
+##+ echo=FALSE, results="asis"
+cpp_output(readLines(file.path(path, "inst/include/examples/empty.hpp")))
+
+## This class defines no methods, no constructors, no fields.  It is
+## totally useless.  But we can still wrap it up.
+yaml_output(readLines(file.path(path, "inst/empty.yml")))
+
+## This probably serves no benefit at all.
+e <- empty()
+e

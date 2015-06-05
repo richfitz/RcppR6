@@ -10,7 +10,7 @@
 
 <meta name="author" content="Rich FitzJohn" />
 
-<meta name="date" content="2015-06-04" />
+<meta name="date" content="2015-06-05" />
 
 <title>Introduction to RcppR6</title>
 
@@ -54,7 +54,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <div id="header">
 <h1 class="title">Introduction to RcppR6</h1>
 <h4 class="author"><em>Rich FitzJohn</em></h4>
-<h4 class="date"><em>2015-06-04</em></h4>
+<h4 class="date"><em>2015-06-05</em></h4>
 </div>
 
 
@@ -213,17 +213,17 @@ License: CC0</code></pre>
 <p>and the NAMESPACE file is empty.</p>
 <p>With everything in place, let’s go:</p>
 <pre class="sourceCode r"><code class="sourceCode r">RcppR6::<span class="kw">install</span>(path)</code></pre>
-<pre><code>## Reading classes from /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//RtmpAhqNKg/file252a35a00553/introduction/inst/RcppR6_classes.yml
+<pre><code>## Reading classes from inst/RcppR6_classes.yml
 ## DESCRIPTION: Adding dependency Rcpp in field LinkingTo
 ## DESCRIPTION: Adding dependency Rcpp in field Imports
 ## DESCRIPTION: Adding dependency R6 in field Imports
 ## DESCRIPTION: writing (changed)
-## Installing file /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpAhqNKg/file252a35a00553/introduction/src/Makevars (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpAhqNKg/file252a35a00553/introduction/R/RcppR6.R: writing (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpAhqNKg/file252a35a00553/introduction/src/RcppR6.cpp: writing (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpAhqNKg/file252a35a00553/introduction/inst/include/introduction/RcppR6_pre.hpp: writing (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpAhqNKg/file252a35a00553/introduction/inst/include/introduction/RcppR6_post.hpp: writing (new file)
-## /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpAhqNKg/file252a35a00553/introduction/inst/include/introduction/RcppR6_support.hpp: writing (new file)
+## Installing file src/Makevars (new file)
+## R/RcppR6.R: writing (new file)
+## src/RcppR6.cpp: writing (new file)
+## inst/include/introduction/RcppR6_pre.hpp: writing (new file)
+## inst/include/introduction/RcppR6_post.hpp: writing (new file)
+## inst/include/introduction/RcppR6_support.hpp: writing (new file)
 ## Compiling Rcpp attributes</code></pre>
 <p>Quite a few files have been added, and some of the existing files have been updated</p>
 <pre class="plain"><code>introduction
@@ -266,8 +266,8 @@ PKG_CPPFLAGS += -I../inst/include/</code></pre>
 ## Re-compiling introduction
 ## '/Library/Frameworks/R.framework/Resources/bin/R' --no-site-file  \
 ##   --no-environ --no-save --no-restore CMD INSTALL  \
-##   '/private/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpAhqNKg/file252a35a00553/introduction'  \
-##   --library='/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//RtmpAhqNKg/devtools_install_252a70df612d'  \
+##   '/private/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/Rtmpdf3Y2V/file30ad64ee939c/introduction'  \
+##   --library='/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//Rtmpdf3Y2V/devtools_install_30ad4a77c573'  \
 ##   --no-R --no-data --no-help --no-demo --no-inst --no-docs --no-exec  \
 ##   --no-multiarch --no-test-load --preclean 
 ## 
@@ -291,13 +291,13 @@ obj</code></pre>
 <pre><code>## [1] &quot;circle&quot; &quot;R6&quot;</code></pre>
 <p>There’s a data member <code>.ptr</code></p>
 <pre class="sourceCode r"><code class="sourceCode r">obj$.ptr</code></pre>
-<pre><code>## &lt;pointer: 0x7ffe6173e470&gt;</code></pre>
+<pre><code>## &lt;pointer: 0x7fbafbd03570&gt;</code></pre>
 <p>This is the actual external pointer object that holds a reference to the underlying C++ class instance. It is not designed to be interacted with directly. The <code>initialize</code> method is also not meant to be used directly:</p>
 <pre class="sourceCode r"><code class="sourceCode r">obj$initialize</code></pre>
 <pre><code>## function(ptr) {
 ##         self$.ptr &lt;- ptr
 ##       }
-## &lt;environment: 0x7ffe5d3ce8e8&gt;</code></pre>
+## &lt;environment: 0x7fbaf9a78bf8&gt;</code></pre>
 <p>(this is used by the support code and why the objects are not created with the usual R6 <code>circle$new()</code> syntax).</p>
 <p>The one method and two active binding members are present in the class: <code>area</code>, <code>circumference</code> and <code>radius</code>.</p>
 <p>The area of a circle of radius 1 is of course pi</p>
@@ -325,11 +325,11 @@ obj$circumference</code></pre>
 <pre><code>## Error in eval(expr, envir, enclos): Circumference must be positive</code></pre>
 <p>Once set up, RcppR6 should be relatively cheap to run as it detects that nothing has changed:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(RcppR6::<span class="kw">RcppR6</span>(path))</code></pre>
-<pre><code>## Reading classes from /var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//RtmpAhqNKg/file252a35a00553/introduction/inst/RcppR6_classes.yml
+<pre><code>## Reading classes from inst/RcppR6_classes.yml
 ## RcppR6 up to date
 ## Compiling Rcpp attributes</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.006   0.001   0.008</code></pre>
+##   0.005   0.000   0.005</code></pre>
 <div id="contents-of-generated-files" class="section level1">
 <h1>Contents of generated files:</h1>
 <p><code>inst/include/introduction/RcppR6_pre.hpp</code>:</p>

@@ -78,7 +78,11 @@ A full working version of this is available [here](tests/testthat/testREADME); s
 
 # Documentation
 
-A vignette showing how the above example works is included in the package (`vignette("introduction", package="RcppR6")` and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/richfitz/RcppR6/master/inst/doc/introduction.html)
+A vignette showing how the above example works is included in the package (`vignette("introduction", package="RcppR6")`) and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/richfitz/RcppR6/master/inst/doc/introduction.html)
+
+Slightly more useful examples are included in the examples vignette (`vignette("examples", package="RcppR6")`) and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/richfitz/RcppR6/master/inst/doc/examples.html)
+
+Still to come: handling templated classes and generating big ugly parameters lists.
 
 # How is this run?
 

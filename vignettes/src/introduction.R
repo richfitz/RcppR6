@@ -20,20 +20,9 @@
 ## package.
 
 ##+ echo=FALSE
-path <- system.file("examples/introduction", package="RcppR6")
-path <- RcppR6:::prepare_temporary(path, tempfile())
-unlink(file.path(path, "tests"), recursive=TRUE)
-descr <- readLines(file.path(path, "DESCRIPTION"))
-descr <- descr[!grepl("Suggests: testthat", descr, fixed=TRUE)]
-writeLines(descr, file.path(path, "DESCRIPTION"))
-lang_output <- function(x, lang) {
-  cat(c(sprintf("```%s", lang), x, "```"), sep="\n")
-}
-cpp_output <- function(x) lang_output(x, "c++")
-r_output <- function(x) lang_output(x, "r")
-yaml_output <- function(x) lang_output(x, "yaml")
-plain_output <- function(x) lang_output(x, "plain")
-yaml_load <- RcppR6:::yaml_load
+set.seed(1)
+source(system.file("vignette_common.R", package="RcppR6"))
+path <- vignette_prepare("introduction")
 
 ### Here, I only want to include the core of the class definition, and
 ### don't want the distracting Emacs bits or the header guard:
