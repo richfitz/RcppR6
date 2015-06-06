@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Rich FitzJohn" />
+
+<meta name="date" content="2015-06-05" />
+
+<title>RcppR6 examples</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%7D%0Apre%20%7B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title">RcppR6 examples</h1>
+<h4 class="author"><em>Rich FitzJohn</em></h4>
+<h4 class="date"><em>2015-06-05</em></h4>
+</div>
+
+
+<p>This vignette builds on the introduction one to provide a marginally more useful example, and demonstrate a few more features of RcppR6.</p>
+<p>The code used here is a demo package called <code>examples</code>, available within RcppR6 (<code>system.file(&quot;examples/examples&quot;, package=&quot;RcppR6&quot;)</code>), and like the <code>introduction</code> package doesn’t really do anything that you’d really want to do, or need RcppR6 to do.</p>
+<pre class="plain"><code>introduction
+|-+= inst
+| |-+= include
+| | |-+= examples
+| | | |--= empty.hpp
+| | | |--= stack.hpp
+| | | \--= uniform.hpp
+| | \--= examples.h
+| |--= empty.yml
+| |--= RcppR6.yml
+| |--= stack.yml
+| \--= uniform.yml
+|--= DESCRIPTION
+\--= NAMESPACE</code></pre>
+<p>This package defines three classes, of varying complexity. It uses a different way of structuring sources to <code>introduction</code>;</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">classes:</span>
+  <span class="kw">-</span> inst/uniform.yml
+  <span class="kw">-</span> inst/stack.yml
+  <span class="kw">-</span> inst/empty.yml</code></pre>
+<p>Rather than a single file <code>inst/RcppR6_classes.yml</code>, there is a file <code>inst/RcppR6.yml</code> that lists files to include, relative to the package root. This isn’t necessary, but might help with organisation. Each file can define one or more classes – here they define a single class each.</p>
+<p>Similarly, the definitions are spread over three files: <code>inst/include/examples/uniform.hpp</code>, <code>inst/include/examples/stack.hpp</code> and <code>inst/include/examples/empty.hpp</code>.</p>
+<div id="uniform" class="section level2">
+<h2><code>uniform</code></h2>
+<p>This is a similar example to the Rcpp modules example of a uniform distribution object. It’s not identical to the modules version.</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#ifndef _EXAMPLES_UNIFORM_HPP_</span>
+<span class="ot">#define _EXAMPLES_UNIFORM_HPP_</span>
+
+<span class="ot">#include &lt;Rcpp.h&gt;</span>
+
+<span class="kw">namespace</span> examples {
+
+<span class="kw">class</span> Uniform {
+<span class="kw">public</span>:
+  Uniform(<span class="dt">double</span> min_, <span class="dt">double</span> max_) : min(min_), max(max_) {}
+  Rcpp::NumericVector draw(<span class="dt">int</span> n) <span class="dt">const</span> {
+    Rcpp::RNGScope scope;
+    <span class="kw">return</span> Rcpp::runif(n, min, max);
+  }
+  <span class="co">// This is additional to the Rcpp stuff, and is to exercise the</span>
+  <span class="co">// active bindings.</span>
+  <span class="dt">double</span> get_min() <span class="dt">const</span> {
+    <span class="kw">return</span> min;
+  }
+  <span class="dt">void</span> set_min(<span class="dt">double</span> value) {
+    min = value;
+  }
+  <span class="dt">double</span> min, max;
+};
+
+<span class="co">// Because this is defined within the header, we need to declare it</span>
+<span class="co">// inline (or it will be emmited in every compilation unit).</span>
+<span class="co">// Alternatively just declare it:</span>
+<span class="co">//   double uniform_range(const Uniform&amp;);</span>
+<span class="co">// and then define the function within a cpp file within src/</span>
+<span class="co">//</span>
+<span class="co">// Note that we're not using pointers (as Rcpp modules does), but</span>
+<span class="co">// using references/const references.</span>
+<span class="kw">inline</span> <span class="dt">double</span> uniform_range(<span class="dt">const</span> Uniform&amp; w) {
+  <span class="kw">return</span> w.max - w.min;
+}
+
+<span class="co">// This is new, compared with the modules example.  Draws a single</span>
+<span class="co">// random number.  This is used to exercise the active bindings.</span>
+<span class="kw">inline</span> Rcpp::NumericVector draw1(Uniform&amp; x) {
+  <span class="kw">return</span> x.draw(<span class="dv">1</span>);
+}
+
+<span class="co">// These are also new, and act as active bindings for the 'max'</span>
+<span class="co">// element.  You'd not usually use this, because that's what field is</span>
+<span class="co">// for.</span>
+<span class="kw">inline</span> <span class="dt">double</span> uniform_get_max(<span class="dt">const</span> Uniform&amp; x) {
+  <span class="kw">return</span> x.max;
+}
+<span class="kw">inline</span> <span class="dt">void</span> uniform_set_max(Uniform&amp; x, <span class="dt">double</span> value) {
+  x.max = value;
+}
+
+}
+
+<span class="ot">#endif</span></code></pre>
+<p>The <code>Rcpp::RNGScope</code> bit is probably not needed, actually as Rcpp attributes will sort that out for us.</p>
+<p>The example is declared with a namespace <code>examples</code>; unlike attributes, RcppR6 does not have a problem exporting things that are not in the global namespace. This comes in useful for wrapping library code.</p>
+<p>In addition to the class definition, there are also some free functions defined; <code>uniform_get_max</code> and <code>uniform_set_max</code>; these are going to be used to set up active members in the R6 class for getting and setting the <code>max</code> field of the class. This pattern (free functions) is useful if you want to do additional error checking on inputs when calling from R than when calling from C++ (e.g., passing an <code>int</code> into a function that expects an unsigned integer).</p>
+<p>Note that the getter takes first argument of type <code>const Uniform&amp;</code>; a const reference to a <code>Uniform</code> object. A non-const reference would be fine here, as would a <em>copy</em> of the object. The setter takes first argument <code>Uniform&amp;</code>; this needs to be a reference (and not a pointer). Passing in a copy here will <em>appear</em> to work (as in; will compile and run) but will not change the value.</p>
+<p>The <code>yaml</code> for this:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">uniform:</span>
+  <span class="fu">name_cpp:</span> examples::Uniform
+  <span class="fu">forward_declare:</span> true
+  <span class="fu">constructor:</span>
+    <span class="fu">roxygen:</span> |
+      Uniform distribution
+      @param min Lower bound of the distribution (default is zero)
+      @param max Upper bound of the distribution (default is one)
+      @export
+    <span class="fu">args:</span>
+      <span class="kw">-</span> <span class="fu">min:</span> double = 0.0
+      <span class="kw">-</span> <span class="fu">max:</span> double = 1.0
+  <span class="fu">methods:</span>
+    <span class="fu">draw:</span>
+      <span class="fu">args:</span> <span class="kw">[</span><span class="fu">n:</span> int]
+      <span class="fu">return_type:</span> Rcpp::NumericVector
+    <span class="fu">range:</span>
+      <span class="fu">return_type:</span> double
+      <span class="fu">name_cpp:</span> examples::uniform_range
+      <span class="fu">access:</span> function
+  <span class="fu">active:</span>
+    <span class="fu">min:</span> <span class="kw">{</span><span class="fu">type:</span> double<span class="kw">,</span> <span class="fu">access:</span> field<span class="kw">,</span> <span class="fu">readonly:</span> true<span class="kw">}</span>
+    <span class="fu">max:</span> <span class="kw">{</span><span class="fu">type:</span> double<span class="kw">,</span> <span class="fu">access:</span> field<span class="kw">,</span> <span class="fu">readonly:</span> true<span class="kw">}</span>
+    <span class="fu">the_min:</span>
+      <span class="fu">name_cpp:</span> get_min
+      <span class="fu">name_cpp_set:</span> set_min
+      <span class="fu">type:</span> double
+      <span class="fu">access:</span> member
+    <span class="fu">the_max:</span>
+      <span class="fu">name_cpp:</span> examples::uniform_get_max
+      <span class="fu">name_cpp_set:</span> examples::uniform_set_max
+      <span class="fu">type:</span> double
+      <span class="fu">access:</span> function
+    <span class="fu">u:</span>
+      <span class="fu">name_cpp:</span> examples::draw1 <span class="co"># read-only: only 1 element...</span>
+      <span class="fu">type:</span> Rcpp::NumericVector
+      <span class="fu">access:</span> function</code></pre>
+<p>In order:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">uniform:</span>
+  <span class="fu">name_cpp:</span> examples::Uniform</code></pre>
+<p>This means that the name of the class on the R side will be <em>different</em> to the name on the C++ side. We’ll export the class as <code>uniform</code> (so that <code>uniform(...)</code> will be the constructor in R) but that the actuall class we are wrapping is called <code>examples::Uniform</code>. This is how RcppR6 deals with namespaces – just provide the fully qualified name any time you refer to a class, function or type.</p>
+<p>The next line:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">forward_declare:</span> true</code></pre>
+<p>will arrange to declare (but not define) the class for you. This means that we can take less care in writing the package include file (<code>inst/include/examples.h</code>). In particular, all RcppR6 code (both <code>examples/RcppR6_pre.hpp</code> and <code>examples/RcppR6_post.hpp</code>, along with <code>Rcpp.h</code>) can be included before you include <code>inst/examples/uniform.hpp</code> because the class will have been forward declared. That’s in contrast with the introduction where we defined the entire class before including <code>inst/include/RcppR6_pre.h</code> so that the <code>as</code>/<code>wrap</code> templates would work correctly (see “Extending Rcpp”).</p>
+<p>Next, up, the constructor:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">constructor:</span>
+    <span class="fu">roxygen:</span> |
+      Uniform distribution
+      @param min Lower bound of the distribution (default is zero)
+      @param max Upper bound of the distribution (default is one)
+      @export
+    <span class="fu">args:</span>
+      <span class="kw">-</span> <span class="fu">min:</span> double = 0.0
+      <span class="kw">-</span> <span class="fu">max:</span> double = 1.0</code></pre>
+<p>The first argument here, <code>roxygen</code> defines some roxygen content to include in the generated <code>R/RcppR6.R</code> file, but without the leading <code>#'</code>. This will generate a very minimal set of documentation with the title, parameters (<code>min</code> and <code>max</code>) and arrange to <code>@export</code> the object so it appears in the package <code>NAMESPACE</code>. Use of this field is optional, and will generally require yaml’s pipe syntax to indicate whitespace should be retained in the multiline string.</p>
+<p>The <code>args</code> field is a yaml ordered map of two arguments. Both are <code>double</code>s, and both have default values that will be added to the generated R code:</p>
+<pre class="sourceCode r"><code class="sourceCode r">uniform &lt;-<span class="st"> </span>function(<span class="dt">min=</span><span class="fl">0.0</span>, <span class="dt">max=</span><span class="fl">1.0</span>) { ... }</code></pre>
+<p>There are two methods <code>draw</code> and <code>range</code>:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">methods:</span>
+    <span class="fu">draw:</span>
+      <span class="fu">args:</span> <span class="kw">[</span><span class="fu">n:</span> int]
+      <span class="fu">return_type:</span> Rcpp::NumericVector
+    <span class="fu">range:</span>
+      <span class="fu">return_type:</span> double
+      <span class="fu">name_cpp:</span> examples::uniform_range
+      <span class="fu">access:</span> function</code></pre>
+<p>The <code>draw</code> method takes a single integer and returns a <code>Rcpp::NumericVector</code>. Because no <code>name_cpp</code> is given, RcppR6 will assume that there is a method <code>draw</code> within the class that can be used. And because no <code>access</code> is given RcppR6 assumes that <code>draw</code> is a method and not a free function.</p>
+<p>The <code>range</code> method calls the free function <code>examples::uniform_range()</code>. The C++ function takes the argument <code>const Uniform&amp; w</code> but this argument is <em>not</em> referred to in the yaml (the first argument of a free function must take a reference to the object). We have to tell RcppR6 that the function is free (rather than a member) with <code>access: function</code> and the name of the function <code>name_cpp: examples::uniform_range</code>.</p>
+<p>There are a bunch of active methods, because they’re a bit more varied in the options that they can take</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">active:</span>
+    <span class="fu">min:</span> <span class="kw">{</span><span class="fu">type:</span> double<span class="kw">,</span> <span class="fu">access:</span> field<span class="kw">,</span> <span class="fu">readonly:</span> true<span class="kw">}</span>
+    <span class="fu">max:</span> <span class="kw">{</span><span class="fu">type:</span> double<span class="kw">,</span> <span class="fu">access:</span> field<span class="kw">,</span> <span class="fu">readonly:</span> true<span class="kw">}</span>
+    <span class="fu">the_min:</span>
+      <span class="fu">name_cpp:</span> get_min
+      <span class="fu">name_cpp_set:</span> set_min
+      <span class="fu">type:</span> double
+      <span class="fu">access:</span> member
+    <span class="fu">the_max:</span>
+      <span class="fu">name_cpp:</span> examples::uniform_get_max
+      <span class="fu">name_cpp_set:</span> examples::uniform_set_max
+      <span class="fu">type:</span> double
+      <span class="fu">access:</span> function
+    <span class="fu">u:</span>
+      <span class="fu">name_cpp:</span> examples::draw1 <span class="co"># read-only: only 1 element...</span>
+      <span class="fu">type:</span> Rcpp::NumericVector
+      <span class="fu">access:</span> function</code></pre>
+<p>First, <code>min</code> and <code>max</code> are direct field accessors. I’ve made them read-only by adding <code>readonly: true</code>. Without this (by default) they would be read-write. You can also use <code>name_cpp</code> here to access a different named field within the C++ class than the name of the R field that will be generated.</p>
+<p>The field <code>the_min</code> <em>also</em> accesses the min field, but does so through the member function <code>get_min</code>. The <code>name_cpp_set</code> field indicates the name of the setter (<code>set_min</code>). Without providing this, the field would be read-only.</p>
+<p>The field <code>the_max</code> does the same thing as <code>the_min</code>, but for the <code>max</code> field and uses a pair of free functions (<code>examples::uniform_get_max</code> and <code>examples::uniform_set_max</code>) to achive this.</p>
+<p>The active field <code>u</code> will return a single random number by calling the function <code>examples::draw1()</code>.</p>
+<p>Running RcppR6 (this will create other two classes not yet discussed)</p>
+<pre class="sourceCode r"><code class="sourceCode r">RcppR6::<span class="kw">install</span>(path)</code></pre>
+<pre><code>## Reading classes from inst/uniform.yml
+## Reading classes from inst/stack.yml
+## Reading classes from inst/empty.yml
+## DESCRIPTION: Adding dependency Rcpp in field LinkingTo
+## DESCRIPTION: Adding dependency Rcpp in field Imports
+## DESCRIPTION: Adding dependency R6 in field Imports
+## DESCRIPTION: writing (changed)
+## Installing file src/Makevars (new file)
+## R/RcppR6.R: writing (new file)
+## src/RcppR6.cpp: writing (new file)
+## inst/include/examples/RcppR6_pre.hpp: writing (new file)
+## inst/include/examples/RcppR6_post.hpp: writing (new file)
+## inst/include/examples/RcppR6_support.hpp: writing (new file)
+## Compiling Rcpp attributes</code></pre>
+<p>Run <code>devtools::document</code> to create the <code>NAMESPACE</code> file</p>
+<pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">document</span>(path)</code></pre>
+<pre><code>## Updating examples documentation
+## Loading examples
+## Re-compiling examples
+## '/Library/Frameworks/R.framework/Resources/bin/R' --no-site-file  \
+##   --no-environ --no-save --no-restore CMD INSTALL  \
+##   '/private/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpxsDY2K/file332368d1c4a4/examples'  \
+##   --library='/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//RtmpxsDY2K/devtools_install_332378e0a7f9'  \
+##   --no-R --no-data --no-help --no-demo --no-inst --no-docs --no-exec  \
+##   --no-multiarch --no-test-load --preclean 
+## 
+## First time using roxygen2 4.0. Upgrading automatically...</code></pre>
+<pre><code>## Writing NAMESPACE
+## Writing uniform.Rd</code></pre>
+<p>And load the package:</p>
+<pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">load_all</span>(path)</code></pre>
+<pre><code>## Loading examples</code></pre>
+<p>We can create a <code>uniform</code> object:</p>
+<pre class="sourceCode r"><code class="sourceCode r">u &lt;-<span class="st"> </span><span class="kw">uniform</span>()
+u</code></pre>
+<pre><code>## &lt;uniform&gt;
+##   Public:
+##     .ptr: externalptr
+##     draw: function
+##     initialize: function
+##     max: active binding
+##     min: active binding
+##     range: function
+##     the_max: active binding
+##     the_min: active binding
+##     u: active binding</code></pre>
+<p>Draw 10 random numbers:</p>
+<pre class="sourceCode r"><code class="sourceCode r">u$<span class="kw">draw</span>(<span class="dv">10</span>)</code></pre>
+<pre><code>##  [1] 0.37212390 0.57285336 0.90820779 0.20168193 0.89838968 0.94467527
+##  [7] 0.66079779 0.62911404 0.06178627 0.20597457</code></pre>
+<p>Or just one:</p>
+<pre class="sourceCode r"><code class="sourceCode r">u$u</code></pre>
+<pre><code>## [1] 0.1765568</code></pre>
+<p>The minimum was set to zero and max as one by default:</p>
+<pre class="sourceCode r"><code class="sourceCode r">u$min</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">u$max</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">args</span>(uniform)</code></pre>
+<pre><code>## function (min = 0, max = 1) 
+## NULL</code></pre>
+<p>These are read-only:</p>
+<pre class="sourceCode r"><code class="sourceCode r">u$min &lt;-<span class="st"> </span><span class="dv">100</span></code></pre>
+<pre><code>## Error in (function (value) : uniform$min is read-only</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">u$max &lt;-<span class="st"> </span><span class="dv">200</span></code></pre>
+<pre><code>## Error in (function (value) : uniform$max is read-only</code></pre>
+<p>These can be set through the <code>the_min</code> and <code>the_max</code> fields (which are totally redundant here and included only for demonstration)</p>
+<pre class="sourceCode r"><code class="sourceCode r">u$the_min &lt;-<span class="st"> </span><span class="dv">10</span>
+u$the_max &lt;-<span class="st"> </span><span class="dv">20</span></code></pre>
+<p>new values set:</p>
+<pre class="sourceCode r"><code class="sourceCode r">u$the_min</code></pre>
+<pre><code>## [1] 10</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">u$the_max</code></pre>
+<pre><code>## [1] 20</code></pre>
+<p>Random number in new range:</p>
+<pre class="sourceCode r"><code class="sourceCode r">u$u</code></pre>
+<pre><code>## [1] 16.87023</code></pre>
+</div>
+<div id="stack" class="section level2">
+<h2><code>stack</code></h2>
+<p>This example shows how to wrap a class that is defined elsewhere – <code>std::stack</code> in this case. It provides an alternative implementation to the version in the R6 vignette.</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#ifndef _EXAMPLES_STACK_HPP_</span>
+<span class="ot">#define _EXAMPLES_STACK_HPP_</span>
+
+<span class="ot">#include &lt;stack&gt;</span>
+<span class="ot">#include &lt;RcppCommon.h&gt; </span><span class="co">// NA_INTEGER</span>
+
+<span class="kw">namespace</span> examples {
+
+<span class="co">//  I'm going to do this via a typedef just to make this easier.</span>
+<span class="co">//  However, that's not strictly needed.</span>
+<span class="kw">typedef</span> std::stack&lt;<span class="dt">int</span>&gt; stack;
+
+<span class="co">// We'll expose methods:</span>
+<span class="co">//   * empty() (boolean)</span>
+<span class="co">//   * size() (size_t)</span>
+<span class="co">//   * top() (int)</span>
+<span class="co">//   * pop() (void)</span>
+<span class="co">//   * push() (void)</span>
+
+<span class="co">// Safer versions of top, pop are desirable though, because otherwise</span>
+<span class="co">// we can easily crash R, which is impolite.</span>
+<span class="kw">inline</span> <span class="dt">void</span> pop(stack&amp; x) {
+  <span class="kw">if</span> (x.empty()) {
+    Rcpp::stop(<span class="st">&quot;empty stack&quot;</span>);
+  } <span class="kw">else</span> {
+    x.pop();
+  }
+}
+<span class="kw">inline</span> <span class="dt">int</span> top(<span class="dt">const</span> stack&amp; x) {
+  <span class="kw">if</span> (x.empty()) {
+    <span class="kw">return</span> NA_INTEGER;
+  } <span class="kw">else</span> {
+    <span class="kw">return</span> x.top();
+  }
+}
+
+<span class="co">// There are also non-member relational operators to map, such as the</span>
+<span class="co">// equality operator.  These have odd syntax, so it might be easiest</span>
+<span class="co">// to implement with a free function (Note that this *must* be</span>
+<span class="co">// declared inline unless the guts of it are moved into a .cpp file).</span>
+<span class="kw">inline</span> <span class="dt">bool</span> stack_eq(<span class="dt">const</span> stack&amp; self, <span class="dt">const</span> stack&amp; other) {
+  <span class="kw">return</span> self == other;
+}
+
+<span class="co">// Alternatively, this can be implemented without a wrapper: see the</span>
+<span class="co">// 'differs' entry.</span>
+
+}
+
+<span class="ot">#endif</span></code></pre>
+<p>The comments in the C++ code explain largely what is going on; there are safe wrappers around <code>pop</code> and <code>top</code> that prevent crashes. Better behavour for <code>top</code> on an empty stack might be to throw an error (though that will cause problems as an active member with R6 &lt; 2.0.0.9000, which includes the current version on CRAN - 2.0.0 at the time of writing).</p>
+<p>Then yaml that goes along with this:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">stack:</span>
+  <span class="fu">name_cpp:</span> examples::stack
+  <span class="fu">constructor:</span>
+    <span class="fu">roxygen:</span> |
+      @export
+  <span class="fu">methods:</span>
+    <span class="fu">pop:</span>
+      <span class="fu">return_type:</span> void
+      <span class="fu">access:</span> function
+      <span class="fu">name_cpp:</span> <span class="st">&quot;examples::pop&quot;</span>
+    <span class="fu">push:</span>
+      <span class="fu">args:</span> <span class="kw">[</span><span class="fu">x:</span> <span class="st">&quot;int&quot;</span><span class="er">]</span>
+      <span class="fu">return_type:</span> void
+    <span class="fu">equals:</span>
+      <span class="fu">args:</span> <span class="kw">[</span><span class="fu">other:</span> <span class="st">&quot;examples::stack&quot;</span><span class="er">]</span>
+      <span class="fu">name_cpp:</span> examples::stack_eq
+      <span class="fu">access:</span> function
+      <span class="fu">return_type:</span> bool
+    <span class="fu">differs:</span>
+      <span class="fu">args:</span> <span class="kw">[</span><span class="fu">other:</span> <span class="st">&quot;examples::stack&quot;</span><span class="er">]</span>
+      <span class="fu">name_cpp:</span> <span class="st">&quot;operator!=&quot;</span>
+      <span class="fu">access:</span> function
+      <span class="fu">return_type:</span> bool
+  <span class="fu">active:</span>
+    <span class="fu">empty:</span> <span class="kw">{</span><span class="fu">type:</span> bool<span class="kw">,</span> <span class="fu">access:</span> member<span class="kw">}</span>
+    <span class="fu">size:</span> <span class="kw">{</span><span class="fu">type:</span> size_t<span class="kw">,</span> <span class="fu">access:</span> member<span class="kw">}</span>
+    <span class="fu">top:</span> <span class="kw">{</span><span class="fu">type:</span> int<span class="kw">,</span> <span class="fu">access:</span> function<span class="kw">,</span>
+      <span class="fu">name_cpp:</span> <span class="st">&quot;examples::top&quot;</span><span class="kw">}</span></code></pre>
+<p>There’s not that much more here than for <code>uniform</code>:</p>
+<ul>
+<li><code>differs</code> shows how to wrap an operator (though turning this into something that dispatches nicely on the R side will take <a href="https://github.com/wch/s3ops">more work</a></li>
+<li>the class was defined elsewhere as a templated library function but we can still wrap it easily enough.</li>
+</ul>
+<pre class="sourceCode r"><code class="sourceCode r">s &lt;-<span class="st"> </span><span class="kw">stack</span>()</code></pre>
+<p>Empty stack has a missing top:</p>
+<pre class="sourceCode r"><code class="sourceCode r">s$top</code></pre>
+<pre><code>## [1] NA</code></pre>
+<p>and throws an error when popped (and does not crash!)</p>
+<pre class="sourceCode r"><code class="sourceCode r">s$<span class="kw">pop</span>()</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): empty stack</code></pre>
+<p>Push some numbers on the stack:</p>
+<pre class="sourceCode r"><code class="sourceCode r">s$<span class="kw">push</span>(<span class="dv">1</span>)
+s$<span class="kw">push</span>(<span class="dv">10</span>)
+s$<span class="kw">push</span>(<span class="dv">100</span>)</code></pre>
+<p>Three things on the stack:</p>
+<pre class="sourceCode r"><code class="sourceCode r">s$size</code></pre>
+<pre><code>## [1] 3</code></pre>
+<p>First one is:</p>
+<pre class="sourceCode r"><code class="sourceCode r">s$top</code></pre>
+<pre><code>## [1] 100</code></pre>
+<p><code>std::stack</code> does not return on <code>pop</code>, unlike Python’s stack</p>
+<pre class="sourceCode r"><code class="sourceCode r">s$<span class="kw">pop</span>()
+
+s$top</code></pre>
+<pre><code>## [1] 10</code></pre>
+<p>empty out the stack by popping repeatedly:</p>
+<pre class="sourceCode r"><code class="sourceCode r">while (!s$empty) {
+  s$<span class="kw">pop</span>()
+}
+s$size</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="empty" class="section level2">
+<h2><code>empty</code></h2>
+<p><code>empty</code> is the <em>simplest posssible</em> RcppR6 class, defined within the <code>simple.hpp</code> header file:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#ifndef _EXAMPLES_EMPTY_HPP_</span>
+<span class="ot">#define _EXAMPLES_EMPTY_HPP_</span>
+
+<span class="kw">namespace</span> examples {
+
+<span class="kw">class</span> empty {
+};
+
+}
+
+<span class="ot">#endif</span></code></pre>
+<p>This class defines no methods, no constructors, no fields. It is totally useless. But we can still wrap it up.</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">empty:</span>
+  <span class="fu">name_cpp:</span> <span class="st">&quot;examples::empty&quot;</span>
+  <span class="fu">forward_declare:</span> true</code></pre>
+<p>This probably serves no benefit at all.</p>
+<pre class="sourceCode r"><code class="sourceCode r">e &lt;-<span class="st"> </span><span class="kw">empty</span>()
+e</code></pre>
+<pre><code>## &lt;empty&gt;
+##   Public:
+##     .ptr: externalptr
+##     initialize: function</code></pre>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
