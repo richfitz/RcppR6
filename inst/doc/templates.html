@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Rich FitzJohn" />
+
+<meta name="date" content="2015-06-09" />
+
+<title>RcppR6 templates</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%7D%0Apre%20%7B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title">RcppR6 templates</h1>
+<h4 class="author"><em>Rich FitzJohn</em></h4>
+<h4 class="date"><em>2015-06-09</em></h4>
+</div>
+
+
+<p>One of the reasons for writing RcppR6 is for exporting templated classes. I think I have the basics working reasonably well here, but this is definitely an area that might get changed.</p>
+<p>The problem is this: if you have some templated type, say <code>std::pair&lt;T,U&gt;</code>, then you need to write wrappers for all the types <code>T</code> and <code>U</code> that you need, and arrange for the correct dispatch on the R side.</p>
+<p>The way that this is done behind the scenes in RcppR6 is not particularly pretty and might change.</p>
+<p>To see how this works, we’ll start wrapping <code>std::pair</code>. This is just a tuple of data of some type. C++ will need to know the <em>actual</em> types. This example is in the <code>templates</code> example package.</p>
+<p>First, consider the simple case of a pair of the same type. To do this, here’s a small class definition (in <code>inst/include/templates/pair1.hpp</code>).</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#ifndef _TEMPLATES_PAIR1_HPP_</span>
+<span class="ot">#define _TEMPLATES_PAIR1_HPP_</span>
+
+<span class="kw">namespace</span> examples {
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">class</span> pair1 {
+<span class="kw">public</span>:
+  <span class="kw">typedef</span> T data_type;
+  pair1(<span class="dt">const</span> T&amp; first_, <span class="dt">const</span> T&amp; second_)
+    : first(first_), second(second_) {}
+  T first;
+  T second;
+};
+
+}
+
+<span class="ot">#endif</span></code></pre>
+<p>There’s not much going on here: this is just a class that stores two things of the same type. It’s fairly compatible with <code>std::pair</code>, having members <code>first</code> and <code>second</code>. Note that this is in the <code>examples</code> namespace (namespaces are optional but supported).</p>
+<p>Suppose we want to generate an interface for this class supporting integers, doubles and strings. We can write yaml:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">pair1:</span>
+  <span class="fu">name_cpp:</span> <span class="st">&quot;examples::pair1&lt;T&gt;&quot;</span>
+  <span class="fu">templates:</span>
+    <span class="fu">parameters:</span> T
+    <span class="fu">concrete:</span>
+      <span class="kw">-</span> int
+      <span class="kw">-</span> double
+      <span class="kw">-</span> <span class="kw">[</span><span class="fu">string:</span> <span class="st">&quot;std::string&quot;</span><span class="er">]</span>
+  <span class="fu">constructor:</span>
+    <span class="fu">args:</span> <span class="kw">[</span><span class="fu">a:</span> T, b: T]
+  <span class="fu">active:</span>
+    <span class="fu">first:</span> <span class="kw">{</span><span class="fu">type:</span> T<span class="kw">,</span> <span class="fu">access:</span> field<span class="kw">}</span>
+    <span class="fu">second:</span> <span class="kw">{</span><span class="fu">type:</span> T<span class="kw">,</span> <span class="fu">access:</span> field<span class="kw">}</span></code></pre>
+<p>There’s a new section here compared with the previous classes: <code>templates:</code>. The presence of this element means that RcppR6 will generate templated classes.</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml">  <span class="fu">templates:</span>
+    <span class="fu">parameters:</span> T
+    <span class="fu">concrete:</span>
+      <span class="kw">-</span> int
+      <span class="kw">-</span> double
+      <span class="kw">-</span> <span class="kw">[</span><span class="fu">string:</span> <span class="st">&quot;std::string&quot;</span><span class="er">]</span></code></pre>
+<p>The <code>parameters:</code> field indicates which bits of the full name <code>name_cpp:</code>, here <code>examples::pair1&lt;T&gt;</code>, are types.</p>
+<p>This is paired with a field <code>concrete</code> which contains a list of substitutions. So this will create interfaces for <code>examples::pair1&lt;int&gt;</code>, <code>examples::pair1&lt;double&gt;</code> and <code>examples::pair1&lt;std::string&gt;</code>. The <code>std::string</code> type contains an <em>alias</em> here to <code>string</code>; this is the name that will be used on the R side (see below).</p>
+<p>After that is <code>constructor:</code> and <code>active:</code> fields the same as before. However, types with a <code>T</code> (or whatever was declared in the <code>parameters:</code> field) can be used and they will be mapped onto a concrete type in the generated object. So <code>first:</code> will return an <code>int</code> from a <code>examples::pair1&lt;int&gt;</code> for example.</p>
+<pre class="sourceCode r"><code class="sourceCode r">RcppR6::<span class="kw">install</span>(path)</code></pre>
+<pre><code>## Reading classes from inst/RcppR6_classes.yml
+## DESCRIPTION: Adding dependency Rcpp in field LinkingTo
+## DESCRIPTION: Adding dependency Rcpp in field Imports
+## DESCRIPTION: Adding dependency R6 in field Imports
+## DESCRIPTION: writing (changed)
+## Installing file src/Makevars (new file)
+## Writing empty NAMESPACE
+## R/RcppR6.R: writing (new file)
+## src/RcppR6.cpp: writing (new file)
+## inst/include/templates/RcppR6_pre.hpp: writing (new file)
+## inst/include/templates/RcppR6_post.hpp: writing (new file)
+## inst/include/templates/RcppR6_support.hpp: writing (new file)
+## Compiling Rcpp attributes</code></pre>
+<p>Run <code>devtools::document</code> to create the <code>NAMESPACE</code> file</p>
+<pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">document</span>(path)</code></pre>
+<pre><code>## Updating templates documentation
+## Loading templates
+## Re-compiling templates
+## '/Library/Frameworks/R.framework/Resources/bin/R' --no-site-file  \
+##   --no-environ --no-save --no-restore CMD INSTALL  \
+##   '/private/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T/RtmpmrN72Y/file4c883251e02d/templates'  \
+##   --library='/var/folders/g3/f648qz616xd2570h55vyvmx40000gn/T//RtmpmrN72Y/devtools_install_4c88c400c6e'  \
+##   --no-R --no-data --no-help --no-demo --no-inst --no-docs --no-exec  \
+##   --no-multiarch --no-test-load --preclean 
+## 
+## First time using roxygen2 4.0. Upgrading automatically...</code></pre>
+<pre><code>## Writing NAMESPACE</code></pre>
+<p>and load the generated code:</p>
+<pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">load_all</span>(path)</code></pre>
+<pre><code>## Loading templates</code></pre>
+<p>RcppR6 has generated a <code>pair</code> function that takes an argument <code>T</code>; this is the <em>name</em> of the type. (In theory, S3 dispatch could be better here, with the the generator as a generic function, but that would require that the templated type was always first)</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">args</span>(pair1)</code></pre>
+<pre><code>## function (T) 
+## NULL</code></pre>
+<p>Specifying a type here, returns a function that takes the arguments <code>a</code> and <code>b</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">args</span>(<span class="kw">pair1</span>(<span class="st">&quot;int&quot;</span>))</code></pre>
+<pre><code>## function (a, b) 
+## NULL</code></pre>
+<p>which we could use like:</p>
+<pre class="sourceCode r"><code class="sourceCode r">p &lt;-<span class="st"> </span><span class="kw">pair1</span>(<span class="st">&quot;int&quot;</span>)(1L, 2L)</code></pre>
+<p>The generated object can be used according to the interface specified above: all it has are read/write fields that type integers:</p>
+<pre class="sourceCode r"><code class="sourceCode r">p$first</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">p$first &lt;-<span class="st"> </span><span class="dv">10</span>
+p$second</code></pre>
+<pre><code>## [1] 2</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">p$second &lt;-<span class="st"> </span><span class="dv">20</span></code></pre>
+<p>and these fields are restricted to being integers:</p>
+<pre class="sourceCode r"><code class="sourceCode r">p$second &lt;-<span class="st"> &quot;second&quot;</span></code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): not compatible with requested type</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">p$second</code></pre>
+<pre><code>## [1] 20</code></pre>
+<p>The object has multiple S3 types:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(p)</code></pre>
+<pre><code>## [1] &quot;pair1&lt;int&gt;&quot; &quot;pair1&quot;      &quot;R6&quot;</code></pre>
+<p>…so generic functions can be written for <code>pair1</code> and they’ll dispatch for all <code>pair</code> types. If special treatment is required for a single type, then use <code>pair</code><int>`.</p>
+<p>Similarly, for <code>pair1&lt;double&gt;</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r">p_double &lt;-<span class="st"> </span><span class="kw">pair1</span>(<span class="st">&quot;double&quot;</span>)(<span class="kw">exp</span>(<span class="dv">1</span>), pi)
+p_double$first</code></pre>
+<pre><code>## [1] 2.718282</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">p_double$second</code></pre>
+<pre><code>## [1] 3.141593</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(p_double)</code></pre>
+<pre><code>## [1] &quot;pair1&lt;double&gt;&quot; &quot;pair1&quot;         &quot;R6&quot;</code></pre>
+<p>…and for <code>pair1&lt;std::string&gt;</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r">p_string &lt;-<span class="st"> </span><span class="kw">pair1</span>(<span class="st">&quot;string&quot;</span>)(<span class="st">&quot;first&quot;</span>, <span class="st">&quot;second&quot;</span>)
+p_string$first</code></pre>
+<pre><code>## [1] &quot;first&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">p_string$second</code></pre>
+<pre><code>## [1] &quot;second&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(p_string)</code></pre>
+<pre><code>## [1] &quot;pair1&lt;string&gt;&quot; &quot;pair1&quot;         &quot;R6&quot;</code></pre>
+<p>Similarly, template types can be generated for types that have more than one template parameter, such as <code>std::pair</code> itself.</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="fu">pair2:</span>
+  <span class="fu">name_cpp:</span> <span class="st">&quot;std::pair&lt;T1, T2&gt;&quot;</span>
+  <span class="fu">templates:</span>
+    <span class="fu">parameters:</span> <span class="kw">[</span>T1<span class="kw">,</span> T2<span class="kw">]</span>
+    <span class="fu">concrete:</span>
+      <span class="kw">-</span> <span class="kw">[</span>int<span class="kw">,</span> double<span class="kw">]</span>
+      <span class="kw">-</span> <span class="kw">[</span><span class="fu">string:</span> <span class="st">&quot;std::string&quot;</span><span class="er">, double]</span>
+  <span class="fu">constructor:</span>
+    <span class="fu">args:</span> <span class="kw">[</span><span class="fu">a:</span> T1, b: T2]
+  <span class="fu">active:</span>
+    <span class="fu">first:</span> <span class="kw">{</span><span class="fu">type:</span> T1<span class="kw">,</span> <span class="fu">access:</span> field<span class="kw">}</span>
+    <span class="fu">second:</span> <span class="kw">{</span><span class="fu">type:</span> T2<span class="kw">,</span> <span class="fu">access:</span> field<span class="kw">}</span></code></pre>
+<p>This is basically the same as above, except that:</p>
+<ul>
+<li>an ordered of type parameters are given for <code>parameters</code></li>
+<li>the concrete types are given as yaml lists or ordered maps (to handle renaming).</li>
+</ul>
+<p>Apart from that, nothing is different.</p>
+<p>This is already compiled in from above. <code>pair</code> takes two arguments:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">args</span>(pair2)</code></pre>
+<pre><code>## function (T1, T2) 
+## NULL</code></pre>
+<p>and is initialised in the same way as above: types go in the first call, arguments in the second. This generates a <code>std::pair&lt;int, double&gt;</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r">p2 &lt;-<span class="st"> </span><span class="kw">pair2</span>(<span class="st">&quot;int&quot;</span>, <span class="st">&quot;double&quot;</span>)(1L, pi)
+p2$first</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">p2$second</code></pre>
+<pre><code>## [1] 3.141593</code></pre>
+<p>and this generates a <code>std::pair&lt;std::string, double&gt;</code></p>
+<pre class="sourceCode r"><code class="sourceCode r">p2 &lt;-<span class="st"> </span><span class="kw">pair2</span>(<span class="st">&quot;string&quot;</span>, <span class="st">&quot;double&quot;</span>)(<span class="st">&quot;first&quot;</span>, pi)
+p2$first</code></pre>
+<pre><code>## [1] &quot;first&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">p2$second</code></pre>
+<pre><code>## [1] 3.141593</code></pre>
+<p>The approach RcppR6 takes is very naive and will just go ahead and generate a lot of boilerplate. That could create large binaries (though probably no larger than <code>boost::variant</code> or <code>boost::any</code>).</p>
+<div id="contents-of-generated-files" class="section level1">
+<h1>Contents of generated files:</h1>
+<p><code>inst/include/templates/RcppR6_pre.hpp</code>:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="co">// Generated by RcppR6 (0.2.2): do not edit by hand</span>
+<span class="ot">#ifndef _TEMPLATES_RCPPR6_PRE_HPP_</span>
+<span class="ot">#define _TEMPLATES_RCPPR6_PRE_HPP_</span>
+
+<span class="ot">#include &lt;RcppCommon.h&gt;</span>
+
+
+<span class="kw">namespace</span> templates {
+<span class="kw">namespace</span> RcppR6 {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt; <span class="kw">class</span> RcppR6;
+}
+}
+
+
+
+<span class="kw">namespace</span> Rcpp {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt; SEXP wrap(<span class="dt">const</span> templates::RcppR6::RcppR6&lt;T&gt;&amp;);
+<span class="kw">namespace</span> traits {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt; <span class="kw">class</span> Exporter&lt;templates::RcppR6::RcppR6&lt;T&gt; &gt;;
+}
+
+<span class="kw">template</span> &lt;&gt; SEXP wrap(<span class="dt">const</span> examples::pair1&lt;<span class="dt">int</span>&gt;&amp;);
+<span class="kw">template</span> &lt;&gt; examples::pair1&lt;<span class="dt">int</span>&gt; as(SEXP);
+
+<span class="kw">template</span> &lt;&gt; SEXP wrap(<span class="dt">const</span> examples::pair1&lt;<span class="dt">double</span>&gt;&amp;);
+<span class="kw">template</span> &lt;&gt; examples::pair1&lt;<span class="dt">double</span>&gt; as(SEXP);
+
+<span class="kw">template</span> &lt;&gt; SEXP wrap(<span class="dt">const</span> examples::pair1&lt;std::string&gt;&amp;);
+<span class="kw">template</span> &lt;&gt; examples::pair1&lt;std::string&gt; as(SEXP);
+<span class="kw">template</span> &lt;&gt; SEXP wrap(<span class="dt">const</span> std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt;&amp;);
+<span class="kw">template</span> &lt;&gt; std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; as(SEXP);
+
+<span class="kw">template</span> &lt;&gt; SEXP wrap(<span class="dt">const</span> std::pair&lt;std::string, <span class="dt">double</span>&gt;&amp;);
+<span class="kw">template</span> &lt;&gt; std::pair&lt;std::string, <span class="dt">double</span>&gt; as(SEXP);
+}
+
+<span class="ot">#endif</span></code></pre>
+<p><code>inst/include/templates/RcppR6_post.hpp</code>:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="co">// Generated by RcppR6 (0.2.2): do not edit by hand</span>
+<span class="ot">#ifndef _TEMPLATES_RCPPR6_POST_HPP_</span>
+<span class="ot">#define _TEMPLATES_RCPPR6_POST_HPP_</span>
+
+<span class="ot">#include &lt;Rcpp.h&gt;</span>
+<span class="ot">#include &lt;templates/RcppR6_support.hpp&gt;</span>
+
+<span class="kw">namespace</span> templates {
+<span class="kw">namespace</span> RcppR6 {
+<span class="kw">namespace</span> traits {
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   class_name_r&lt;examples::pair1&lt;<span class="dt">int</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;pair1&lt;int&gt;&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   package_name&lt;examples::pair1&lt;<span class="dt">int</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;templates&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string generator_name&lt;examples::pair1&lt;<span class="dt">int</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;.R6_pair1___int&quot;</span>;}
+
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   class_name_r&lt;examples::pair1&lt;<span class="dt">double</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;pair1&lt;double&gt;&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   package_name&lt;examples::pair1&lt;<span class="dt">double</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;templates&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string generator_name&lt;examples::pair1&lt;<span class="dt">double</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;.R6_pair1___double&quot;</span>;}
+
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   class_name_r&lt;examples::pair1&lt;std::string&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;pair1&lt;string&gt;&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   package_name&lt;examples::pair1&lt;std::string&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;templates&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string generator_name&lt;examples::pair1&lt;std::string&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;.R6_pair1___string&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   class_name_r&lt;std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;pair2&lt;int,double&gt;&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   package_name&lt;std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;templates&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string generator_name&lt;std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;.R6_pair2___int__double&quot;</span>;}
+
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   class_name_r&lt;std::pair&lt;std::string, <span class="dt">double</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;pair2&lt;string,double&gt;&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string   package_name&lt;std::pair&lt;std::string, <span class="dt">double</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;templates&quot;</span>;}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::string generator_name&lt;std::pair&lt;std::string, <span class="dt">double</span>&gt; &gt;() {<span class="kw">return</span> <span class="st">&quot;.R6_pair2___string__double&quot;</span>;}
+}
+}
+}
+
+<span class="kw">namespace</span> Rcpp {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+SEXP wrap(<span class="dt">const</span> templates::RcppR6::RcppR6&lt;T&gt;&amp; x) {
+  <span class="kw">return</span> x.to_R6();
+}
+
+<span class="kw">namespace</span> traits {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">class</span> Exporter&lt;templates::RcppR6::RcppR6&lt;T&gt; &gt; {
+<span class="kw">public</span>:
+  Exporter(SEXP x) : obj(templates::RcppR6::RcppR6&lt;T&gt;(x)) {}
+  <span class="kw">inline</span> templates::RcppR6::RcppR6&lt;T&gt; get() { <span class="kw">return</span> obj; }
+<span class="kw">private</span>:
+  templates::RcppR6::RcppR6&lt;T&gt; obj;
+};
+}
+
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> SEXP wrap(<span class="dt">const</span> examples::pair1&lt;<span class="dt">int</span>&gt;&amp; x) {
+  <span class="kw">return</span> wrap(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">int</span>&gt; &gt;(x));
+}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> examples::pair1&lt;<span class="dt">int</span>&gt; as(SEXP x) {
+  <span class="kw">return</span> *(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">int</span>&gt; &gt;(x));
+}
+
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> SEXP wrap(<span class="dt">const</span> examples::pair1&lt;<span class="dt">double</span>&gt;&amp; x) {
+  <span class="kw">return</span> wrap(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">double</span>&gt; &gt;(x));
+}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> examples::pair1&lt;<span class="dt">double</span>&gt; as(SEXP x) {
+  <span class="kw">return</span> *(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">double</span>&gt; &gt;(x));
+}
+
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> SEXP wrap(<span class="dt">const</span> examples::pair1&lt;std::string&gt;&amp; x) {
+  <span class="kw">return</span> wrap(templates::RcppR6::RcppR6&lt;examples::pair1&lt;std::string&gt; &gt;(x));
+}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> examples::pair1&lt;std::string&gt; as(SEXP x) {
+  <span class="kw">return</span> *(templates::RcppR6::RcppR6&lt;examples::pair1&lt;std::string&gt; &gt;(x));
+}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> SEXP wrap(<span class="dt">const</span> std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt;&amp; x) {
+  <span class="kw">return</span> wrap(templates::RcppR6::RcppR6&lt;std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; &gt;(x));
+}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; as(SEXP x) {
+  <span class="kw">return</span> *(templates::RcppR6::RcppR6&lt;std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; &gt;(x));
+}
+
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> SEXP wrap(<span class="dt">const</span> std::pair&lt;std::string, <span class="dt">double</span>&gt;&amp; x) {
+  <span class="kw">return</span> wrap(templates::RcppR6::RcppR6&lt;std::pair&lt;std::string, <span class="dt">double</span>&gt; &gt;(x));
+}
+<span class="kw">template</span> &lt;&gt; <span class="kw">inline</span> std::pair&lt;std::string, <span class="dt">double</span>&gt; as(SEXP x) {
+  <span class="kw">return</span> *(templates::RcppR6::RcppR6&lt;std::pair&lt;std::string, <span class="dt">double</span>&gt; &gt;(x));
+}
+}
+
+<span class="ot">#endif</span></code></pre>
+<p><code>inst/include/templates/RcppR6_support.hpp</code>:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="co">// Generated by RcppR6 (0.2.2): do not edit by hand -*-c++-*-</span>
+<span class="ot">#ifndef _TEMPLATES_RCPPR6_SUPPORT_HPP_</span>
+<span class="ot">#define _TEMPLATES_RCPPR6_SUPPORT_HPP_</span>
+
+<span class="co">// These functions are all used in RcppR6_post.hpp, and require Rcpp</span>
+<span class="co">// to be loaded.</span>
+<span class="co">//</span>
+<span class="co">// It's possible that this will move into the RcppR6_post.hpp file</span>
+<span class="co">// itself at some point.</span>
+<span class="ot">#include &lt;Rcpp.h&gt;</span>
+
+<span class="kw">namespace</span> templates {
+<span class="kw">namespace</span> RcppR6 {
+
+<span class="co">// Not quite traits, but should be close enough.  This is non-API!</span>
+<span class="kw">namespace</span> traits {
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string class_name_r() {
+  Rcpp::stop(<span class="st">&quot;Unknown class&quot;</span>);
+  <span class="kw">return</span> <span class="st">&quot;&quot;</span>; <span class="co">// never get here.</span>
+}
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string package_name() {
+  Rcpp::stop(<span class="st">&quot;Unknown class&quot;</span>);
+  <span class="kw">return</span> <span class="st">&quot;&quot;</span>; <span class="co">// never get here.</span>
+}
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string generator_name() {
+  Rcpp::stop(<span class="st">&quot;Unknown class&quot;</span>);
+  <span class="kw">return</span> <span class="st">&quot;&quot;</span>; <span class="co">// never get here.</span>
+}
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string class_name_r(<span class="dt">const</span> T&amp;) {
+  <span class="kw">return</span> class_name_r&lt;T&gt;();
+}
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string package_name(<span class="dt">const</span> T&amp;) {
+  <span class="kw">return</span> package_name&lt;T&gt;();
+}
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+std::string generator_name(<span class="dt">const</span> T&amp;) {
+  <span class="kw">return</span> generator_name&lt;T&gt;();
+}
+}
+
+<span class="co">// In parallel/contrast with Rcpp::is :)</span>
+<span class="co">//</span>
+<span class="co">// This will throw a *compile time* error if T is not a type known to</span>
+<span class="co">// RcppR6.  It will return false at runtime if x is not the required</span>
+<span class="co">// type.</span>
+<span class="co">//</span>
+<span class="co">// Note that this does not actually check that we inherit from R6.</span>
+<span class="co">// Strictly we should look for the classname, then from that position</span>
+<span class="co">// check that we hit R6.  But omelettes and eggs and all that.</span>
+<span class="co">//</span>
+<span class="co">// It would be nice to roll this into Rcpp::is, but I don't really see</span>
+<span class="co">// how to do that -- Rcpp::is mostly seems to use things in</span>
+<span class="co">// Rcpp::internal and I don't see any examples of extending things.</span>
+<span class="co">//</span>
+<span class="co">// Use this by doing:</span>
+<span class="co">//    templates::RcppR6::is&lt;mytype&gt;(x)</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="dt">bool</span> is(Rcpp::RObject x) {
+  <span class="kw">return</span> x.inherits(traits::class_name_r&lt;T&gt;().c_str());
+}
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="dt">void</span> check_ptr_valid(Rcpp::XPtr&lt;T&gt; p) {
+  T* test = p;
+  <span class="kw">if</span> (test == NULL) {
+    Rcpp::stop(<span class="st">&quot;Pointer is NULL&quot;</span>);
+  }
+}
+
+<span class="co">// This is absolutely basic, and does not do much more than XPtr.</span>
+<span class="co">// Differences are:</span>
+<span class="co">//   - pointer validity checking when an externalptr is recieved.</span>
+<span class="co">//   - knows what &quot;type&quot; of pointer it contains and checks this when</span>
+<span class="co">//     recieved</span>
+<span class="co">//   - can generate a special R6 object on return</span>
+<span class="co">//</span>
+<span class="co">// Possible improvements:</span>
+<span class="co">//   - the appropriate generator should really be a static member of</span>
+<span class="co">//     the class, which we generate only when it's not been</span>
+<span class="co">//     initialised yet.  That will save a few calls, but will take</span>
+<span class="co">//     care through a load/unload cycle.</span>
+<span class="co">//   - first-class access to *general* R6 classes would be preferable</span>
+<span class="co">//     to the dodgy 'find' call.</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">class</span> RcppR6 {
+<span class="kw">public</span>:
+  RcppR6(SEXP x) : ptr(ptr_from_R6(x)) {}
+  RcppR6(<span class="dt">const</span> T&amp; x) : ptr(<span class="kw">new</span> T(x), <span class="kw">true</span>) {}
+  T&amp; <span class="kw">operator</span>*() <span class="dt">const</span> {
+    <span class="kw">return</span> *ptr;
+  }
+  <span class="kw">inline</span> <span class="kw">operator</span> T*(){ <span class="kw">return</span> (T*)(ptr); }
+  T* <span class="kw">operator</span>-&gt;() <span class="dt">const</span> {
+    <span class="kw">return</span> &amp;(*ptr);
+  }
+  Rcpp::XPtr&lt;T&gt; ptr;
+  <span class="co">// Convert from an R6 object from R:</span>
+  <span class="dt">static</span> Rcpp::XPtr&lt;T&gt; ptr_from_R6(Rcpp::RObject x) {
+    <span class="kw">if</span> (is&lt;T&gt;(x)) {
+      Rcpp::Environment xe = Rcpp::as&lt;Rcpp::Environment&gt;(x);
+      Rcpp::XPtr&lt;T&gt; ptr = Rcpp::as&lt;Rcpp::XPtr&lt;T&gt; &gt;(xe[<span class="st">&quot;.ptr&quot;</span>]);
+      check_ptr_valid&lt;T&gt;(ptr);
+      <span class="kw">return</span> ptr;
+    } <span class="kw">else</span> {
+      Rcpp::stop(<span class="st">&quot;Expected an object of type R6 / &quot;</span> +
+                 traits::class_name_r&lt;T&gt;());
+      <span class="kw">return</span> Rcpp::as&lt;Rcpp::XPtr&lt;T&gt; &gt;(x); <span class="co">// Won't get here</span>
+    }
+  }
+  SEXP to_R6() <span class="dt">const</span> {
+    <span class="dt">const</span> std::string packagename(traits::package_name&lt;T&gt;());
+    <span class="dt">const</span> std::string generatorname(traits::generator_name&lt;T&gt;());
+    Rcpp::Environment base(<span class="st">&quot;package:base&quot;</span>);
+    Rcpp::Function getNamespace = base[<span class="st">&quot;getNamespace&quot;</span>];
+    Rcpp::Environment pkg = getNamespace(packagename);
+    <span class="co">// TODO: need to deal with failure here (i.e. R_NilValue), or we</span>
+    <span class="co">// get a really hard to diagnose error message.</span>
+    Rcpp::Environment Generator = pkg[generatorname];
+    Rcpp::Function Generator_new = Generator[<span class="st">&quot;new&quot;</span>];
+    <span class="kw">return</span> Generator_new(ptr);
+  }
+};
+
+}
+}
+
+<span class="ot">#endif</span></code></pre>
+<p><code>R/RcppR6.R</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r">## Generated by RcppR6: do not edit by hand
+## Version: 0.2.2
+## Hash: 1e24f1a0fe2329e04db1fa69057df5ab
+
+##' @importFrom Rcpp evalCpp
+##' @importFrom R6 R6Class
+##' @useDynLib templates
+<span class="ot">NULL</span>
+
+## This section of code is only included where templated classes are
+## included.  Don't rely on the approach taken here, as it may change
+## soon.
+check_type &lt;-<span class="st"> </span>function(type, valid) {
+  i &lt;-<span class="st"> </span><span class="kw">match</span>(<span class="kw">list</span>(type), valid, <span class="dt">nomatch=</span><span class="ot">NA</span>)
+  if (<span class="kw">is.na</span>(i)) {
+    choices &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="kw">sprintf</span>(<span class="st">&quot;</span><span class="ch">\t</span><span class="st">%s&quot;</span>, <span class="kw">sapply</span>(valid, paste, <span class="dt">collapse=</span><span class="st">&quot;, &quot;</span>)),
+                     <span class="dt">collapse=</span><span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    <span class="kw">stop</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Invalid type '%s'; expected one of:</span><span class="ch">\n</span><span class="st">%s&quot;</span>,
+                 <span class="kw">paste</span>(type, <span class="dt">collapse=</span><span class="st">&quot;, &quot;</span>), choices))
+  }
+  <span class="kw">names</span>(valid)[[i]]
+}
+
+
+pair1 &lt;-<span class="st"> </span>function(T) {
+  type &lt;-<span class="st"> </span><span class="kw">c</span>(T)
+  valid &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;pair1&lt;int&gt;&quot;</span>=<span class="st">&quot;int&quot;</span>, <span class="st">&quot;pair1&lt;double&gt;&quot;</span>=<span class="st">&quot;double&quot;</span>, <span class="st">&quot;pair1&lt;string&gt;&quot;</span>=<span class="st">&quot;string&quot;</span>)
+  constructors &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;pair1&lt;int&gt;&quot;</span>=<span class="st">`</span><span class="dt">pair1&lt;int&gt;</span><span class="st">`</span>, <span class="st">&quot;pair1&lt;double&gt;&quot;</span>=<span class="st">`</span><span class="dt">pair1&lt;double&gt;</span><span class="st">`</span>, <span class="st">&quot;pair1&lt;string&gt;&quot;</span>=<span class="st">`</span><span class="dt">pair1&lt;string&gt;</span><span class="st">`</span>)
+  constructors[[<span class="kw">check_type</span>(type, valid)]]
+}
+.R6_pair1 &lt;-<span class="st"> </span>R6::<span class="kw">R6Class</span>(<span class="st">&quot;pair1&quot;</span>)
+
+
+<span class="st">`</span><span class="dt">pair1&lt;int&gt;</span><span class="st">`</span> &lt;-<span class="st"> </span>function(a, b) {
+  <span class="kw">pair1___int__ctor</span>(a, b)
+}
+.R6_pair1___int &lt;-
+<span class="st">  </span>R6::<span class="kw">R6Class</span>(
+    <span class="st">&quot;pair1&lt;int&gt;&quot;</span>,
+    <span class="dt">inherit=</span>.R6_pair1,
+    <span class="dt">portable=</span><span class="ot">TRUE</span>,
+    <span class="dt">public=</span><span class="kw">list</span>(
+      <span class="dt">.ptr=</span><span class="ot">NULL</span>,
+      <span class="dt">initialize =</span> function(ptr) {
+        self$.ptr &lt;-<span class="st"> </span>ptr
+      }),
+    <span class="dt">active=</span><span class="kw">list</span>(
+      <span class="dt">first =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair1___int__first__get</span>(self)
+        } else {
+          <span class="kw">pair1___int__first__set</span>(self, value)
+        }
+      },
+      <span class="dt">second =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair1___int__second__get</span>(self)
+        } else {
+          <span class="kw">pair1___int__second__set</span>(self, value)
+        }
+      }))
+
+
+<span class="st">`</span><span class="dt">pair1&lt;double&gt;</span><span class="st">`</span> &lt;-<span class="st"> </span>function(a, b) {
+  <span class="kw">pair1___double__ctor</span>(a, b)
+}
+.R6_pair1___double &lt;-
+<span class="st">  </span>R6::<span class="kw">R6Class</span>(
+    <span class="st">&quot;pair1&lt;double&gt;&quot;</span>,
+    <span class="dt">inherit=</span>.R6_pair1,
+    <span class="dt">portable=</span><span class="ot">TRUE</span>,
+    <span class="dt">public=</span><span class="kw">list</span>(
+      <span class="dt">.ptr=</span><span class="ot">NULL</span>,
+      <span class="dt">initialize =</span> function(ptr) {
+        self$.ptr &lt;-<span class="st"> </span>ptr
+      }),
+    <span class="dt">active=</span><span class="kw">list</span>(
+      <span class="dt">first =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair1___double__first__get</span>(self)
+        } else {
+          <span class="kw">pair1___double__first__set</span>(self, value)
+        }
+      },
+      <span class="dt">second =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair1___double__second__get</span>(self)
+        } else {
+          <span class="kw">pair1___double__second__set</span>(self, value)
+        }
+      }))
+
+
+<span class="st">`</span><span class="dt">pair1&lt;string&gt;</span><span class="st">`</span> &lt;-<span class="st"> </span>function(a, b) {
+  <span class="kw">pair1___string__ctor</span>(a, b)
+}
+.R6_pair1___string &lt;-
+<span class="st">  </span>R6::<span class="kw">R6Class</span>(
+    <span class="st">&quot;pair1&lt;string&gt;&quot;</span>,
+    <span class="dt">inherit=</span>.R6_pair1,
+    <span class="dt">portable=</span><span class="ot">TRUE</span>,
+    <span class="dt">public=</span><span class="kw">list</span>(
+      <span class="dt">.ptr=</span><span class="ot">NULL</span>,
+      <span class="dt">initialize =</span> function(ptr) {
+        self$.ptr &lt;-<span class="st"> </span>ptr
+      }),
+    <span class="dt">active=</span><span class="kw">list</span>(
+      <span class="dt">first =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair1___string__first__get</span>(self)
+        } else {
+          <span class="kw">pair1___string__first__set</span>(self, value)
+        }
+      },
+      <span class="dt">second =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair1___string__second__get</span>(self)
+        } else {
+          <span class="kw">pair1___string__second__set</span>(self, value)
+        }
+      }))
+
+
+pair2 &lt;-<span class="st"> </span>function(T1, T2) {
+  type &lt;-<span class="st"> </span><span class="kw">c</span>(T1, T2)
+  valid &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;pair2&lt;int,double&gt;&quot;</span>=<span class="kw">c</span>(<span class="st">&quot;int&quot;</span>, <span class="st">&quot;double&quot;</span>), <span class="st">&quot;pair2&lt;string,double&gt;&quot;</span>=<span class="kw">c</span>(<span class="st">&quot;string&quot;</span>, <span class="st">&quot;double&quot;</span>))
+  constructors &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;pair2&lt;int,double&gt;&quot;</span>=<span class="st">`</span><span class="dt">pair2&lt;int,double&gt;</span><span class="st">`</span>, <span class="st">&quot;pair2&lt;string,double&gt;&quot;</span>=<span class="st">`</span><span class="dt">pair2&lt;string,double&gt;</span><span class="st">`</span>)
+  constructors[[<span class="kw">check_type</span>(type, valid)]]
+}
+.R6_pair2 &lt;-<span class="st"> </span>R6::<span class="kw">R6Class</span>(<span class="st">&quot;pair2&quot;</span>)
+
+
+<span class="st">`</span><span class="dt">pair2&lt;int,double&gt;</span><span class="st">`</span> &lt;-<span class="st"> </span>function(a, b) {
+  <span class="kw">pair2___int__double__ctor</span>(a, b)
+}
+.R6_pair2___int__double &lt;-
+<span class="st">  </span>R6::<span class="kw">R6Class</span>(
+    <span class="st">&quot;pair2&lt;int,double&gt;&quot;</span>,
+    <span class="dt">inherit=</span>.R6_pair2,
+    <span class="dt">portable=</span><span class="ot">TRUE</span>,
+    <span class="dt">public=</span><span class="kw">list</span>(
+      <span class="dt">.ptr=</span><span class="ot">NULL</span>,
+      <span class="dt">initialize =</span> function(ptr) {
+        self$.ptr &lt;-<span class="st"> </span>ptr
+      }),
+    <span class="dt">active=</span><span class="kw">list</span>(
+      <span class="dt">first =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair2___int__double__first__get</span>(self)
+        } else {
+          <span class="kw">pair2___int__double__first__set</span>(self, value)
+        }
+      },
+      <span class="dt">second =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair2___int__double__second__get</span>(self)
+        } else {
+          <span class="kw">pair2___int__double__second__set</span>(self, value)
+        }
+      }))
+
+
+<span class="st">`</span><span class="dt">pair2&lt;string,double&gt;</span><span class="st">`</span> &lt;-<span class="st"> </span>function(a, b) {
+  <span class="kw">pair2___string__double__ctor</span>(a, b)
+}
+.R6_pair2___string__double &lt;-
+<span class="st">  </span>R6::<span class="kw">R6Class</span>(
+    <span class="st">&quot;pair2&lt;string,double&gt;&quot;</span>,
+    <span class="dt">inherit=</span>.R6_pair2,
+    <span class="dt">portable=</span><span class="ot">TRUE</span>,
+    <span class="dt">public=</span><span class="kw">list</span>(
+      <span class="dt">.ptr=</span><span class="ot">NULL</span>,
+      <span class="dt">initialize =</span> function(ptr) {
+        self$.ptr &lt;-<span class="st"> </span>ptr
+      }),
+    <span class="dt">active=</span><span class="kw">list</span>(
+      <span class="dt">first =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair2___string__double__first__get</span>(self)
+        } else {
+          <span class="kw">pair2___string__double__first__set</span>(self, value)
+        }
+      },
+      <span class="dt">second =</span> function(value) {
+        if (<span class="kw">missing</span>(value)) {
+          <span class="kw">pair2___string__double__second__get</span>(self)
+        } else {
+          <span class="kw">pair2___string__double__second__set</span>(self, value)
+        }
+      }))</code></pre>
+<p><code>R/RcppR6.R</code>:</p>
+<pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="co">// Generated by RcppR6 (0.2.2): do not edit by hand</span>
+<span class="ot">#include &lt;templates.h&gt;</span>
+
+<span class="co">// [[Rcpp::export]]</span>
+examples::pair1&lt;<span class="dt">int</span>&gt; pair1___int__ctor(<span class="dt">int</span> a, <span class="dt">int</span> b) {
+  <span class="kw">return</span> examples::pair1&lt;<span class="dt">int</span>&gt;(a, b);
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">int</span> pair1___int__first__get(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">int</span>&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;first;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair1___int__first__set(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">int</span>&gt; &gt; obj_, <span class="dt">int</span> value) {
+  obj_-&gt;first = value;
+}
+
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">int</span> pair1___int__second__get(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">int</span>&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;second;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair1___int__second__set(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">int</span>&gt; &gt; obj_, <span class="dt">int</span> value) {
+  obj_-&gt;second = value;
+}
+
+
+<span class="co">// [[Rcpp::export]]</span>
+examples::pair1&lt;<span class="dt">double</span>&gt; pair1___double__ctor(<span class="dt">double</span> a, <span class="dt">double</span> b) {
+  <span class="kw">return</span> examples::pair1&lt;<span class="dt">double</span>&gt;(a, b);
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">double</span> pair1___double__first__get(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">double</span>&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;first;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair1___double__first__set(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">double</span>&gt; &gt; obj_, <span class="dt">double</span> value) {
+  obj_-&gt;first = value;
+}
+
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">double</span> pair1___double__second__get(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">double</span>&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;second;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair1___double__second__set(templates::RcppR6::RcppR6&lt;examples::pair1&lt;<span class="dt">double</span>&gt; &gt; obj_, <span class="dt">double</span> value) {
+  obj_-&gt;second = value;
+}
+
+
+<span class="co">// [[Rcpp::export]]</span>
+examples::pair1&lt;std::string&gt; pair1___string__ctor(std::string a, std::string b) {
+  <span class="kw">return</span> examples::pair1&lt;std::string&gt;(a, b);
+}
+<span class="co">// [[Rcpp::export]]</span>
+std::string pair1___string__first__get(templates::RcppR6::RcppR6&lt;examples::pair1&lt;std::string&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;first;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair1___string__first__set(templates::RcppR6::RcppR6&lt;examples::pair1&lt;std::string&gt; &gt; obj_, std::string value) {
+  obj_-&gt;first = value;
+}
+
+<span class="co">// [[Rcpp::export]]</span>
+std::string pair1___string__second__get(templates::RcppR6::RcppR6&lt;examples::pair1&lt;std::string&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;second;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair1___string__second__set(templates::RcppR6::RcppR6&lt;examples::pair1&lt;std::string&gt; &gt; obj_, std::string value) {
+  obj_-&gt;second = value;
+}
+
+
+<span class="co">// [[Rcpp::export]]</span>
+std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; pair2___int__double__ctor(<span class="dt">int</span> a, <span class="dt">double</span> b) {
+  <span class="kw">return</span> std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt;(a, b);
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">int</span> pair2___int__double__first__get(templates::RcppR6::RcppR6&lt;std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;first;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair2___int__double__first__set(templates::RcppR6::RcppR6&lt;std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; &gt; obj_, <span class="dt">int</span> value) {
+  obj_-&gt;first = value;
+}
+
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">double</span> pair2___int__double__second__get(templates::RcppR6::RcppR6&lt;std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;second;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair2___int__double__second__set(templates::RcppR6::RcppR6&lt;std::pair&lt;<span class="dt">int</span>, <span class="dt">double</span>&gt; &gt; obj_, <span class="dt">double</span> value) {
+  obj_-&gt;second = value;
+}
+
+
+<span class="co">// [[Rcpp::export]]</span>
+std::pair&lt;std::string, <span class="dt">double</span>&gt; pair2___string__double__ctor(std::string a, <span class="dt">double</span> b) {
+  <span class="kw">return</span> std::pair&lt;std::string, <span class="dt">double</span>&gt;(a, b);
+}
+<span class="co">// [[Rcpp::export]]</span>
+std::string pair2___string__double__first__get(templates::RcppR6::RcppR6&lt;std::pair&lt;std::string, <span class="dt">double</span>&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;first;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair2___string__double__first__set(templates::RcppR6::RcppR6&lt;std::pair&lt;std::string, <span class="dt">double</span>&gt; &gt; obj_, std::string value) {
+  obj_-&gt;first = value;
+}
+
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">double</span> pair2___string__double__second__get(templates::RcppR6::RcppR6&lt;std::pair&lt;std::string, <span class="dt">double</span>&gt; &gt; obj_) {
+  <span class="kw">return</span> obj_-&gt;second;
+}
+<span class="co">// [[Rcpp::export]]</span>
+<span class="dt">void</span> pair2___string__double__second__set(templates::RcppR6::RcppR6&lt;std::pair&lt;std::string, <span class="dt">double</span>&gt; &gt; obj_, <span class="dt">double</span> value) {
+  obj_-&gt;second = value;
+}</code></pre>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

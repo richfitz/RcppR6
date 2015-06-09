@@ -6,7 +6,7 @@
 
 This package aims to provide a simple way of generating boilerplate code for exposing C++ classes to R.  It is similar in many ways to Rcpp "modules".
 
-There will be vignettes explaining the idea more fully, but here is the basic idea.  Suppose we have a class like this
+There are [#Documentation](vignettes) explaining the idea more fully, but here is the basic idea.  Suppose we have a class like this
 
 ```c++
 class circle {
@@ -82,7 +82,9 @@ A vignette showing how the above example works is included in the package (`vign
 
 Slightly more useful examples are included in the examples vignette (`vignette("examples", package="RcppR6")`) and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/richfitz/RcppR6/master/inst/doc/examples.html)
 
-Still to come: handling templated classes and generating big ugly parameters lists.
+See how to generate interfaces to [templated types](http://htmlpreview.github.io/?https://raw.githubusercontent.com/richfitz/RcppR6/master/inst/doc/templates.html) (`vignette("templates", package="RcppR6")`)
+
+Still to come: generating big ugly parameters lists.
 
 # How is this run?
 

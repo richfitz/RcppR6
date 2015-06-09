@@ -31,8 +31,10 @@ vignettes/introduction.Rmd: vignettes/src/introduction.R
 	${RSCRIPT} -e 'library(sowsear); sowsear("$<", output="$@")'
 vignettes/examples.Rmd: vignettes/src/examples.R
 	${RSCRIPT} -e 'library(sowsear); sowsear("$<", output="$@")'
+vignettes/templates.Rmd: vignettes/src/templates.R
+	${RSCRIPT} -e 'library(sowsear); sowsear("$<", output="$@")'
 
-vignettes: vignettes/introduction.Rmd vignettes/examples.Rmd
+vignettes: vignettes/introduction.Rmd vignettes/examples.Rmd vignettes/templates.Rmd
 	${RSCRIPT} -e 'library(methods); devtools::build_vignettes()'
 
 .PHONY: all install clean build check roxygen test vignettes
