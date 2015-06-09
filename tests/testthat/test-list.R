@@ -9,7 +9,7 @@ test_that("list", {
   devtools::document(pkg)
   expect_that(RcppR6::check(pkg), not(throws_error()))
   ## fresh=TRUE here would be nice, but can't happen.
-  devtools::test(pkg)
+  expect_that(pkg, passes_tests())
   ## Should always clean up here, really.  Will go away when the
   ## tempdir issue does.
   unlink(pkg, recursive=TRUE)

@@ -10,7 +10,7 @@ test_that("examples", {
   devtools::document(pkg)
   expect_that(RcppR6::check(pkg), not(throws_error()))
   ## fresh=TRUE here would be nice, but can't happen.
-  devtools::test(pkg)
+  expect_that(pkg, passes_tests())
 
   expect_that(RcppR6::install(pkg), shows_message("RcppR6 up to date"))
 
