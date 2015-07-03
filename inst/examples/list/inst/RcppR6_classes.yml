@@ -19,3 +19,16 @@ validated:
     - n_elements: int
     - list: "std::vector<double>"
   validator_cpp: validate
+
+triple1:
+  name_cpp: "examples::triple1<T>"
+  templates:
+    parameters: T
+    concrete:
+      - int
+      - double
+      - [string: "std::string"]
+  list:
+    - first: T
+    - second: T
+    - third: T

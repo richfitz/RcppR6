@@ -24,16 +24,3 @@ pair2:
   active:
     first: {type: T1, access: field}
     second: {type: T2, access: field}
-
-triple1:
-  name_cpp: "examples::triple1<T>"
-  templates:
-    parameters: T
-    concrete:
-      - int
-      - double
-      - [string: "std::string"]
-  list:
-    - first: T
-    - second: T
-    - third: T

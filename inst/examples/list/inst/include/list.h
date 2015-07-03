@@ -4,6 +4,7 @@
 
 #include <list/mystruct.hpp>
 #include <list/validated.hpp>
+#include <list/triple1.hpp>
 
 // Include this early on.  It can be either after classes have been
 // defined (but before Rcpp has been loaded) or first.  This file will
