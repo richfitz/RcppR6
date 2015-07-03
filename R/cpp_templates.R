@@ -53,8 +53,21 @@ cpp_template_rewrite_class <- function(defn, parent, parent_class) {
 
   ## Bunch of type rewriting:
   ret$constructor <- cpp_template_rewrite_constructor(ret$constructor, defn)
-  ret$methods <- lapply(ret$methods, cpp_template_rewrite_method, defn)
-  ret$active  <- lapply(ret$active,  cpp_template_rewrite_active, defn)
+  if (!is.null(ret$methods)) {
+    ret$methods <- lapply(ret$methods, cpp_template_rewrite_method, defn)
+  }
+  if (!is.null(ret$active)) {
+    ret$active  <- lapply(ret$active,  cpp_template_rewrite_active, defn)
+  }
+  if (!is.null(ret$list)) {
+    ret$list    <- lapply(ret$list, cpp_template_rewrite_types, defn)
+  }
+  ## This still needs doing, but should be pretty easy really?
+  if (!is.null(ret$validator)) {
+    message("Templated validator needed")
+    browser()
+    .NotYetImplemented()
+  }
 
   ret
 }

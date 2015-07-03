@@ -5,4 +5,6 @@
   constructors <- {{{constructor.constructors_r_repr}}}
   constructors[[check_type(type, valid)]]
 }
+{{{#class.R6_generator}}}
 {{{class.R6_generator}}} <- R6::R6Class("{{{class.name_safe}}}")
+{{{/class.R6_generator}}}

@@ -99,7 +99,7 @@ parse_ns_file <- function(path) {
 ## Drop blank lines from a string.  Used to work around some
 ## whisker/mustache inconsistencies.
 drop_blank <- function(x) {
-  gsub("\n[[:space:]]*\n", "\n", x)
+  sub("^\n", "", gsub("\n[[:space:]]*\n", "\n", x))
 }
 
 ## Warn if keys are found in an object that are not in a known set.

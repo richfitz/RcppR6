@@ -8,8 +8,6 @@ RcppR6_validate <- function(dat) {
       RcppR6_validate_class(dat$classes[i]))
   }
 
-  ## RcppR6_class_list(self$defn$classes, self)
-  ## templates <- self$get_templates()
   dat
 }
 
@@ -21,8 +19,6 @@ RcppR6_validate_class <- function(x) {
   }
 }
 
-## TODO: Do we need to get 'parent' passed through here to get the
-## package information?  Probably.
 RcppR6_validate_class_ref <- function(defn) {
   valid <- c("name_cpp", "forward_declare",
              "constructor", "methods", "active",
@@ -240,13 +236,10 @@ RcppR6_validate_concrete <- function(defn, parent, parent_class) {
 
 RcppR6_validate_class_list <- function(defn) {
   valid <- c("name_cpp", "forward_declare", "list",
-             "roxygen", "validator_cpp")
+             "templates", "roxygen", "validator_cpp")
   ret <- RcppR6_validate_common(defn, valid)
   defn <- ret$defn
   ret$defn <- NULL
-
-  ret <- modifyList(ret,
-                    RcppR6_validate_forward_declare(defn$forward_declare))
 
   ## Check the actual list here, in self$list; basically all we need
   ## is a named list with no duplicate names, and every element of
@@ -267,7 +260,12 @@ RcppR6_validate_class_list <- function(defn) {
     assert_scalar_character(ret$validator_cpp)
   }
 
-  ret$is_templated <- FALSE
+  ret <- modifyList(ret,
+                    RcppR6_validate_forward_declare(defn$forward_declare))
+
+  ret$templates <- RcppR6_validate_templates(defn$templates, ret)
+  ret$is_templated <- !is.null(ret$templates)
+
   ret$type <- "class_list"
 
   ret

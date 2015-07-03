@@ -3,7 +3,12 @@ template <> inline SEXP wrap(const {{{class.name_cpp}}}& x) {
 {{{#class.fields}}}
   ret["{{{field_name}}}"] = Rcpp::wrap(x.{{{field_name}}});
 {{{/class.fields}}}
+{{{#class.inherits}}}
+  ret.attr("class") = Rcpp::CharacterVector::create("{{{class.name_r}}}", "{{{class.inherits}}}");
+{{{/class.inherits}}}
+{{{^class.inherits}}}
   ret.attr("class") = "{{{class.name_r}}}";
+{{{/class.inherits}}}
   return ret;
 }
 template <> inline {{{class.name_cpp}}} as(SEXP x) {

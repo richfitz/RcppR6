@@ -46,11 +46,11 @@ RcppR6_generate <- function(dat) {
   ## The package info bits are also required as they have the filename
   ## locations; they could be easily regenerated, alternatively.
   contents <- list(
-    RcppR6.R           = str_RcppR6.R,
-    RcppR6.cpp         = str_RcppR6.cpp,
-    RcppR6_pre.hpp     = wr(info$templates$RcppR6_pre.hpp, wr_data),
-    RcppR6_post.hpp    = wr(info$templates$RcppR6_post.hpp, wr_data),
-    RcppR6_support.hpp = wr(info$templates$RcppR6_support.hpp, wr_data))
+                RcppR6.R           = str_RcppR6.R,
+                RcppR6.cpp         = str_RcppR6.cpp,
+                RcppR6_pre.hpp     = wr(info$templates$RcppR6_pre.hpp, wr_data),
+                RcppR6_post.hpp    = wr(info$templates$RcppR6_post.hpp, wr_data),
+                RcppR6_support.hpp = wr(info$templates$RcppR6_support.hpp, wr_data))
   list(package=info, contents=contents)
 }
 
@@ -71,12 +71,12 @@ RcppR6_package_info <- function(path) {
          r           = file.path(path, "R"),
          src         = file.path(path, "src"))
   files <- list(
-    RcppR6.R           = file.path(paths$r,           "RcppR6.R"),
-    RcppR6.cpp         = file.path(paths$src,         "RcppR6.cpp"),
-    RcppR6_pre.hpp     = file.path(paths$include_pkg, "RcppR6_pre.hpp"),
-    RcppR6_post.hpp    = file.path(paths$include_pkg, "RcppR6_post.hpp"),
-    RcppR6_support.hpp = file.path(paths$include_pkg, "RcppR6_support.hpp"),
-    package_include = file.path(paths$include, sprintf("%s.h", package_name)))
+             RcppR6.R           = file.path(paths$r,           "RcppR6.R"),
+             RcppR6.cpp         = file.path(paths$src,         "RcppR6.cpp"),
+             RcppR6_pre.hpp     = file.path(paths$include_pkg, "RcppR6_pre.hpp"),
+             RcppR6_post.hpp    = file.path(paths$include_pkg, "RcppR6_post.hpp"),
+             RcppR6_support.hpp = file.path(paths$include_pkg, "RcppR6_support.hpp"),
+             package_include = file.path(paths$include, sprintf("%s.h", package_name)))
 
   ret <- list()
   ret$name      <- package_name
@@ -188,23 +188,7 @@ RcppR6_generate_constructor <- function(dat, info, parent) {
   ret$args <- RcppR6_generate_args(dat$args, info)
 
   if (parent$is_templated) {
-    ret$types <- collapse(parent$templates$parameters)
-
-    ## Valid template types:
-    valid <- sapply(parent$templates$concrete, function(x)
-                    dput_to_character(unname(x$parameters_r)))
-    names(valid) <- vcapply(parent$templates$concrete, "[[", "name_r")
-    ret$valid_r_repr <-
-      sprintf("list(%s)", collapse(sprintf('"%s"=%s', names(valid), valid)))
-
-    ## Don't use the strings here: we want the actual functions:
-    ## TODO: Do this with switch() perhaps?
-    ret$constructors_r_repr <-
-      sprintf("list(%s)", collapse(sprintf('"%s"=`%s`',
-                                           names(valid), names(valid))))
-    wr_data <- list(constructor=ret, class=parent)
-    ret$r <- wr(info$templates$R6_generator_generic,
-                wr_data)
+    ret$r <- RcppR6_generate_constructor_template_switch(info, parent)
   } else {
     ret$name_cpp    <- dat$name_cpp
     ret$name_safe   <- mangle_constructor(parent$name_safe)
@@ -342,39 +326,71 @@ RcppR6_generate_class_list <- function(dat, info) {
   ret$input_type   <- mangle_input(info$name, dat$name_cpp)
   ret$forward_declaration <- RcppR6_generate_forward_declaration(dat)
 
-  ## Something like this will be needed if templating is allowed:
-  ## ret$is_templated <- FALSE
-  ## if (!is.null(dat$inherits)) {
-  ##   ret$inherits   <- mangle_R6_generator(dat$inherits)
-  ## }
-
-  ## Copy along with generate_class_ref here.
-  ## res_constructor <- RcppR6_generate_constructor(dat$constructor, info, ret)
-  ## res_methods <- lapply(dat$methods, RcppR6_generate_method,  info, ret)
-  ## res_active  <- lapply(dat$active,  RcppR6_generate_active,  info, ret)
-
-  ret$validator_cpp <- dat$validator_cpp
-  ret$constructor <- list(name_cpp=mangle_constructor(dat$name_safe),
-                          name_r=dat$name_r,
-                          roxygen=RcppR6_generate_roxygen(dat$roxygen))
-  if (!is.null(ret$validator_cpp)) {
-    ret$constructor$validator_cpp <- mangle_validator(dat$name_safe)
+  ret$is_templated <- dat$is_templated
+  ## This is only non-NULL for templated classes
+  if (!is.null(dat$inherits)) {
+    ret$inherits   <- dat$inherits
   }
 
-  ret$fields <- whisker::iteratelist(dat$list,
-                                     name="field_name",
-                                     value="field_type")
+  if (ret$is_templated) {
+    ret$templates <- dat$templates
 
-  wr_data <- list(class=ret, package=info, RcppR6=info$RcppR6)
+    concrete <- lapply(ret$templates$concrete, function(x)
+      RcppR6_generate_class_list(x$class, info))
 
-  ## NOTE: 'r' does not use wr_data
-  ret$r <- drop_blank(wr(info$templates$list_generator, ret))
-  ret$cpp <- drop_blank(wr(info$templates$constructor_list_cpp, wr_data))
+    keep <- c("r", "cpp",
+              "RcppR6_traits",
+              "rcpp_prototype",
+              "rcpp_definition")
+    ret[keep] <- lapply(keep, function(x)
+      paste(vcapply(concrete, "[[", x), collapse="\n\n"))
 
-  ret$rcpp_prototype  <- wr(info$templates$rcpp_prototypes, wr_data)
-  ret$rcpp_definition <-
-    drop_blank(wr(info$templates$rcpp_list_definitions, wr_data))
-  ret$RcppR6_traits   <- wr(info$templates$RcppR6_traits, wr_data)
+    ret$r <- paste(RcppR6_generate_constructor_template_switch(info, dat),
+                   ret$r, sep="\n\n")
+  } else {
+    ret$validator_cpp <- dat$validator_cpp
+    ret$constructor <- list(name_cpp=mangle_constructor(dat$name_safe),
+                            name_r=dat$name_r,
+                            roxygen=RcppR6_generate_roxygen(dat$roxygen))
+    if (!is.null(ret$validator_cpp)) {
+      ret$constructor$validator_cpp <- mangle_validator(dat$name_safe)
+    }
+
+    ret$fields <- whisker::iteratelist(dat$list,
+                                       name="field_name",
+                                       value="field_type")
+
+    wr_data <- list(class=ret, package=info, RcppR6=info$RcppR6)
+
+    ## NOTE: 'r' does not use wr_data
+    ret$r <- drop_blank(wr(info$templates$list_generator, ret))
+    ret$cpp <- drop_blank(wr(info$templates$constructor_list_cpp, wr_data))
+
+    ret$rcpp_prototype  <- wr(info$templates$rcpp_prototypes, wr_data)
+    ret$rcpp_definition <-
+      drop_blank(wr(info$templates$rcpp_list_definitions, wr_data))
+    ret$RcppR6_traits   <- wr(info$templates$RcppR6_traits, wr_data)
+  }
 
   ret
+}
+
+RcppR6_generate_constructor_template_switch <- function(info, parent) {
+  ret <- list()
+  ret$types <- collapse(parent$templates$parameters)
+
+  ## Valid template types:
+  valid <- sapply(parent$templates$concrete, function(x)
+    dput_to_character(unname(x$parameters_r)))
+  names(valid) <- vcapply(parent$templates$concrete, "[[", "name_r")
+  ret$valid_r_repr <-
+    sprintf("list(%s)", collapse(sprintf('"%s"=%s', names(valid), valid)))
+
+  ## Don't use the strings here: we want the actual functions:
+  ## TODO: Do this with switch() perhaps?
+  ret$constructors_r_repr <-
+    sprintf("list(%s)", collapse(sprintf('"%s"=`%s`',
+                                         names(valid), names(valid))))
+  wr_data <- list(constructor=ret, class=parent)
+  drop_blank(wr(info$templates$R6_generator_generic, wr_data))
 }
