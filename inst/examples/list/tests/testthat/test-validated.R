@@ -19,5 +19,3 @@ test_that("Creation", {
   expect_that(x <- validated(n_elements=-1, list=numeric(0)),
               throws_error("Negative lengths are not allowed"))
 })
-
-

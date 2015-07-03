@@ -1,4 +1,4 @@
-Package: testList
+Package: list
 Title: RcppR6 list examples
 Version: 0.1
 Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
