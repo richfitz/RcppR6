@@ -203,6 +203,9 @@ RcppR6_validate_templates <- function(defn, parent) {
 
 RcppR6_validate_concrete_list <- function(defn, parent, parent_class) {
   if (length(defn) > 0) {
+    if (is.character(defn)) {
+      defn <- as.list(defn)
+    }
     assert_list(defn)
     lapply(seq_along(defn),
            function(i) RcppR6_validate_concrete(defn[i], parent, parent_class))
