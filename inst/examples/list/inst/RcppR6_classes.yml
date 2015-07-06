@@ -34,3 +34,15 @@ triple1:
     - first: T
     - second: T
     - third: T
+
+positive:
+  name_cpp: "examples::positive<T>"
+  templates:
+    parameters: T
+    concrete:
+      - int
+      - double
+  list:
+    - value: T
+  validator:
+    name_cpp: validate

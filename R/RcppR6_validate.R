@@ -259,8 +259,7 @@ RcppR6_validate_class_list <- function(defn) {
   }
 
   if (!is.null(defn$validator)) {
-    ## check for validator_cpp, everywhere
-    ret$validator <- RcppR6_validate_validator(defn$validator)
+    ret$validator <- RcppR6_validate_validator(defn$validator, ret)
   }
 
   ret <- modifyList(ret,
@@ -304,10 +303,10 @@ RcppR6_validate_name <- function(x) {
   x
 }
 
-RcppR6_validate_validator <- function(defn) {
+RcppR6_validate_validator <- function(defn, parent) {
   ret <- list()
   ret$name_cpp  <- defn$name_cpp
-  ret$name_safe <- mangle_validator(defn$name_cpp)
+  ret$name_safe <- mangle_validator(parent$name_safe)
   assert_scalar_character(ret$name_cpp)
   access <- with_default(defn$access, "member")
   ret$access <- match_value(access, c("member", "function"))

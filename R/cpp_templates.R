@@ -57,16 +57,14 @@ cpp_template_rewrite_class <- function(defn, parent, parent_class) {
     ret$methods <- lapply(ret$methods, cpp_template_rewrite_method, defn)
   }
   if (!is.null(ret$active)) {
-    ret$active  <- lapply(ret$active,  cpp_template_rewrite_active, defn)
+    ret$active <- lapply(ret$active,  cpp_template_rewrite_active, defn)
   }
   if (!is.null(ret$list)) {
-    ret$list    <- lapply(ret$list, cpp_template_rewrite_types, defn)
+    ret$list <- lapply(ret$list, cpp_template_rewrite_types, defn)
   }
   ## This still needs doing, but should be pretty easy really?
   if (!is.null(ret$validator)) {
-    message("Templated validator needed")
-    browser()
-    .NotYetImplemented()
+    ret$validator <- cpp_template_rewrite_validator(ret$validator, defn)
   }
 
   ret
@@ -97,6 +95,11 @@ cpp_template_rewrite_active <- function(defn, concrete) {
     }
   }
   defn$type <- cpp_template_rewrite_types(defn$type, concrete)
+  defn
+}
+
+cpp_template_rewrite_validator <- function(defn, concrete) {
+  defn$name_safe <- mangle_validator(concrete$name_safe)
   defn
 }
 
