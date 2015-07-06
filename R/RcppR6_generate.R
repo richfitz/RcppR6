@@ -348,7 +348,7 @@ RcppR6_generate_class_list <- function(dat, info) {
     ret$r <- paste(RcppR6_generate_constructor_template_switch(info, dat),
                    ret$r, sep="\n\n")
   } else {
-    ret$validator <- dat$validator
+    ret$validator <- RcppR6_generate_validator(dat$validator, dat)
     ret$constructor <- list(name_cpp=mangle_constructor(dat$name_safe),
                             name_r=dat$name_r,
                             roxygen=RcppR6_generate_roxygen(dat$roxygen))
@@ -388,4 +388,13 @@ RcppR6_generate_constructor_template_switch <- function(info, parent) {
                                          names(valid), names(valid))))
   wr_data <- list(constructor=ret, class=parent)
   drop_blank(wr(info$templates$R6_generator_generic, wr_data))
+}
+
+RcppR6_generate_validator <- function(dat, parent) {
+  ret <- dat
+  if (!is.null(dat)) {
+    ret$is_member   <- dat$access == "member"
+    ret$is_function <- dat$access == "function"
+  }
+  ret
 }
