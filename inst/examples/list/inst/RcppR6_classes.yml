@@ -18,7 +18,9 @@ validated:
   list:
     - n_elements: int
     - list: "std::vector<double>"
-  validator_cpp: validate
+  validator:
+    name_cpp: validate
+    type: member
 
 triple1:
   name_cpp: "examples::triple1<T>"

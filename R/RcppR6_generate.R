@@ -348,22 +348,17 @@ RcppR6_generate_class_list <- function(dat, info) {
     ret$r <- paste(RcppR6_generate_constructor_template_switch(info, dat),
                    ret$r, sep="\n\n")
   } else {
-    ret$validator_cpp <- dat$validator_cpp
+    ret$validator <- dat$validator
     ret$constructor <- list(name_cpp=mangle_constructor(dat$name_safe),
                             name_r=dat$name_r,
                             roxygen=RcppR6_generate_roxygen(dat$roxygen))
-    if (!is.null(ret$validator_cpp)) {
-      ret$constructor$validator_cpp <- mangle_validator(dat$name_safe)
-    }
-
     ret$fields <- whisker::iteratelist(dat$list,
                                        name="field_name",
                                        value="field_type")
 
     wr_data <- list(class=ret, package=info, RcppR6=info$RcppR6)
 
-    ## NOTE: 'r' does not use wr_data
-    ret$r <- drop_blank(wr(info$templates$list_generator, ret))
+    ret$r <- drop_blank(wr(info$templates$list_generator, wr_data))
     ret$cpp <- drop_blank(wr(info$templates$constructor_list_cpp, wr_data))
 
     ret$rcpp_prototype  <- wr(info$templates$rcpp_prototypes, wr_data)

@@ -1,6 +1,6 @@
-{{{constructor.roxygen}}}
-`{{{constructor.name_r}}}` <- function(..., values=list(...)) {
-  ret <- {{{constructor.name_cpp}}}()
+{{{class.constructor.roxygen}}}
+`{{{class.constructor.name_r}}}` <- function(..., values=list(...)) {
+  ret <- {{{class.constructor.name_cpp}}}()
   if (length(values) > 0L) {
     if (is.null(names(values)) || any(names(values) == "")) {
       stop("All values must be named")
@@ -11,10 +11,10 @@
     to_set <- intersect(names(values), names(ret))
     ret[to_set] <- values[to_set]
   }
-{{{#constructor.validator_cpp}}}
-  {{{constructor.validator_cpp}}}(ret)
-{{{/constructor.validator_cpp}}}
-{{{^constructor.validator_cpp}}}
+{{{#class.validator}}}
+  {{{class.validator.name_safe}}}(ret)
+{{{/class.validator}}}
+{{{^class.validator}}}
   ret
-{{{/constructor.validator_cpp}}}
+{{{/class.validator}}}
 }

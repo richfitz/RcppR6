@@ -236,7 +236,7 @@ RcppR6_validate_concrete <- function(defn, parent, parent_class) {
 
 RcppR6_validate_class_list <- function(defn) {
   valid <- c("name_cpp", "forward_declare", "list",
-             "templates", "roxygen", "validator_cpp")
+             "templates", "roxygen", "validator")
   ret <- RcppR6_validate_common(defn, valid)
   defn <- ret$defn
   ret$defn <- NULL
@@ -255,9 +255,9 @@ RcppR6_validate_class_list <- function(defn) {
     assert_scalar_character(ret$roxygen)
   }
 
-  if (!is.null(defn$validator_cpp)) {
-    ret$validator_cpp <- defn$validator_cpp
-    assert_scalar_character(ret$validator_cpp)
+  if (!is.null(defn$validator)) {
+    ## check for validator_cpp, everywhere
+    ret$validator <- RcppR6_validate_validator(defn$validator)
   }
 
   ret <- modifyList(ret,
@@ -299,4 +299,29 @@ RcppR6_validate_name <- function(x) {
     stop("Name ", collapse(dQuote(x[i])), " does not look valid in R & C")
   }
   x
+}
+
+RcppR6_validate_validator <- function(defn) {
+  ret <- list()
+  ret$name_cpp  <- defn$name_cpp
+  ret$name_safe <- mangle_validator(defn$name_cpp)
+  assert_scalar_character(ret$name_cpp)
+  access <- with_default(defn$access, "member")
+  ret$access <- match_value(access, c("member", "function"))
+  if (ret$access != "member") {
+    ## TODO: To support free functions we need to generalise the template
+    ## rcpp_list_definitions.whisker; specificially:
+    ##
+    ##   {{{#class.validator}}}
+    ##     ret.{{{class.validator.name_cpp}}}();
+    ##   {{{/class.validator}}}
+    ##
+    ## See method_cpp.whisker for how to do this; it's not that hard.
+    ## I'll hold off implementing it until this basically works
+    ## though.  I also need to get the template rewriting done and
+    ## that'll be easier to do if there's only one moving part (free
+    ## functions and members have different rewriting rules).
+    stop("Not yet supported")
+  }
+  ret
 }

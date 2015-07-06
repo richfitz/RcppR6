@@ -24,8 +24,8 @@ template <> inline {{{class.name_cpp}}} as(SEXP x) {
   // ret.{{{field_name}}} = Rcpp::as<decltype(ret{{{field_name}}}) >(xl["{{{field_name}}}"]);
   ret.{{{field_name}}} = Rcpp::as<{{{field_type}}} >(xl["{{{field_name}}}"]);
 {{{/class.fields}}}
-{{{#class.validator_cpp}}}
-  ret.{{{class.validator_cpp}}}();
-{{{/class.validator_cpp}}}
+{{{#class.validator}}}
+  ret.{{{class.validator.name_cpp}}}();
+{{{/class.validator}}}
   return ret;
 }
