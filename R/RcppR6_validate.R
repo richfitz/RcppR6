@@ -207,8 +207,16 @@ RcppR6_validate_concrete_list <- function(defn, parent, parent_class) {
       defn <- as.list(defn)
     }
     assert_list(defn)
-    lapply(seq_along(defn),
-           function(i) RcppR6_validate_concrete(defn[i], parent, parent_class))
+    ret <- lapply(seq_along(defn), function(i)
+      RcppR6_validate_concrete(defn[i], parent, parent_class))
+
+    parameters_r <- lapply(ret, "[[", "parameters_r")
+    if (any(duplicated(parameters_r))) {
+      dups <- parameters_r[duplicated(parameters_r)]
+      stop(sprintf("Duplicated parameter names in class %s: %s",
+                   parent_class$name_r, paste(dups, collapse=", ")))
+    }
+    ret
   }
 }
 
