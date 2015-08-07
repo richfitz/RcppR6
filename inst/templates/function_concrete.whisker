@@ -1,0 +1,4 @@
+// [[Rcpp::export]]
+{{{function.return_type}}} {{{function.name_safe}}}({{{function.args.defn_cpp}}}) {
+   {{{function.return_statement}}}{{{function.name_cpp}}}({{{function.args.body_cpp}}});
+}

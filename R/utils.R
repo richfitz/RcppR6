@@ -206,3 +206,14 @@ guess_namespace <- function(name) {
   }
   list(namespace=ns, name=cl)
 }
+
+rename <- function(x, from, to) {
+  assert_length(to, length(from), "to (arguments to rename)")
+  i <- match(from, names(x))
+  if (any(is.na(i))) {
+    stop(sprintf("Did not find name %s in object",
+                 paste(from[i], collapse=", ")))
+  }
+  names(x)[i] <- to
+  x
+}

@@ -4,6 +4,7 @@
 
 #include <templates/pair1.hpp>
 #include <utility> // for std::pair
+#include <templates/pair1_functions.hpp>
 #include <templates/RcppR6_pre.hpp>
 #include <templates/RcppR6_post.hpp>
 

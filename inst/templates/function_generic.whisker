@@ -1,0 +1,6 @@
+{{{function.name_r}}} <- function({{{function.types}}}) {
+  type <- c({{{function.types}}})
+  valid <- {{{function.valid_r_repr}}}
+  functions <- {{{function.functions_r_repr}}}
+  functions[[check_type(type, valid)]]
+}

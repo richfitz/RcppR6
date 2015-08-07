@@ -6,7 +6,8 @@ RcppR6_generate <- function(dat) {
   info <- RcppR6_package_info(dat$path)
   info$hash <- dat$hash
 
-  tmp <- lapply(dat$classes, RcppR6_generate_class, info)
+  dat_c <- lapply(dat$classes,   RcppR6_generate_class,    info)
+  dat_f <- lapply(dat$functions, RcppR6_generate_function, info)
 
   collect <- function(name, dat, required=TRUE, collapse="\n") {
     if (required) {
@@ -17,10 +18,10 @@ RcppR6_generate <- function(dat) {
     paste(str, collapse=collapse)
   }
 
-  info$forward_declaration <- collect("forward_declaration", tmp, FALSE)
-  info$rcpp_prototypes     <- collect("rcpp_prototype",      tmp)
-  info$rcpp_definitions    <- collect("rcpp_definition",     tmp)
-  info$RcppR6_traits       <- collect("RcppR6_traits",       tmp)
+  info$forward_declaration <- collect("forward_declaration", dat_c, FALSE)
+  info$rcpp_prototypes     <- collect("rcpp_prototype",      dat_c)
+  info$rcpp_definitions    <- collect("rcpp_definition",     dat_c)
+  info$RcppR6_traits       <- collect("RcppR6_traits",       dat_c)
 
   wr_data <- list(RcppR6=info$RcppR6, package=info)
 
@@ -30,12 +31,17 @@ RcppR6_generate <- function(dat) {
                           info$templates$RcppR6_support.R,
                           sep="\n\n")
   }
+
   str_cpp_header <- wr(info$templates$RcppR6.cpp_header, wr_data)
   str_RcppR6.R   <- paste(str_r_header,
-                          collect("r", tmp, collapse="\n\n"),
+                          collect("r", dat_c, collapse="\n\n"),
+                          if (length(dat_f) > 0)
+                            collect("r", dat_f, collapse="\n\n"),
                           sep="\n\n")
   str_RcppR6.cpp <- paste(str_cpp_header,
-                          collect("cpp", tmp, collapse="\n\n"),
+                          collect("cpp", dat_c, collapse="\n\n"),
+                          if (length(dat_f) > 0)
+                            collect("cpp", dat_f, collapse="\n\n"),
                           sep="\n\n")
 
   ## Coming out, *all* we want is the generated code I think, rather
@@ -257,6 +263,7 @@ RcppR6_generate_args <- function(dat, info) {
   RcppR6 <- info$RcppR6
   is_constructor <- dat$parent_type == "constructor"
   is_member      <- dat$parent_type == "member"
+  is_function    <- dat$parent_type == "function"
 
   ret <- list()
   ## R:
@@ -269,10 +276,10 @@ RcppR6_generate_args <- function(dat, info) {
     ret$defn_r <- collapse(defn_r)
   }
 
-  ret$body_r <- collapse(c(if (!is_constructor) RcppR6$r_self_name, dat$names))
+  ret$body_r <- collapse(c(if (is_member) RcppR6$r_self_name, dat$names))
 
   ## C++ details are harder:
-  if (is_constructor) {
+  if (is_constructor || is_function) {
     types_cpp <- dat$types
     names_cpp <- dat$names
     body_cpp_prefix <- NULL
@@ -280,6 +287,7 @@ RcppR6_generate_args <- function(dat, info) {
     input_cpp <- mangle_input(info$name, dat$parent_class_name_cpp)
     types_cpp <- c(input_cpp,         dat$types)
     names_cpp <- c(RcppR6$input_name, dat$names)
+    ## TODO: is (!is_member) ever triggered here?
     body_cpp_prefix <- if (!is_member) paste0("*", RcppR6$input_name)
   }
   ret$defn_cpp <- paste(types_cpp, names_cpp, collapse=", ")
@@ -397,4 +405,50 @@ RcppR6_generate_validator <- function(dat, parent) {
     ret$is_function <- dat$access == "function"
   }
   ret
+}
+
+RcppR6_generate_function <- function(dat, info) {
+  ret <- list()
+  ret$r <- RcppR6_generate_function_template_switch(info, dat)
+  cpp <- vcapply(dat$concrete, RcppR6_generate_function_concrete, info, dat)
+  ret$cpp <- paste(cpp, collapse="\n")
+  ret
+}
+
+RcppR6_generate_function_template_switch <- function(info, parent) {
+  ret <- list()
+
+  ret$name_r <- parent$name_r
+
+  ret$types <- collapse(parent$templates$parameters)
+
+  ## Valid template types:
+  concrete <- parent$templates$class$templates$concrete
+  valid <- sapply(concrete, function(x)
+    dput_to_character(unname(x$parameters_r)))
+  names(valid) <- vcapply(concrete, "[[", "name_r")
+  ret$valid_r_repr <-
+    sprintf("list(%s)", collapse(sprintf('"%s"=%s', names(valid), valid)))
+
+  ## Don't use the strings here: we want the actual functions:
+  ## TODO: Do this with switch() perhaps? (See also
+  ## RcppR6_generate_constructor_template_switch)
+  name_safe <- vcapply(parent$concrete, "[[", "name_safe")
+  ret$functions_r_repr <-
+    sprintf("list(%s)", collapse(sprintf('"%s"=`%s`',
+                                         names(valid), name_safe)))
+
+  wr_data <- list("function"=ret)
+  drop_blank(wr(info$templates$function_generic, wr_data))
+}
+
+RcppR6_generate_function_concrete <- function(dat, info, parent) {
+  ret <- list()
+  ret$name_safe <- dat$name_safe
+  ret$name_cpp <- dat$name_cpp
+  ret$return_type <- dat$return_type
+  ret$return_statement <- if (dat$return_type == "void") "" else "return "
+  ret$args <- RcppR6_generate_args(dat$args, info)
+  wr_data <- list("function"=ret)
+  wr(info$templates$function_concrete, wr_data)
 }

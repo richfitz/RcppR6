@@ -110,3 +110,28 @@ cpp_template_rewrite_args <- function(defn, concrete) {
     cpp_template_rewrite_types(defn$parent_class_name_cpp, concrete)
   defn
 }
+
+cpp_template_rewrite_function <- function(defn, parent) {
+  ret <- parent
+  ret$templates <- NULL
+
+  ## TODO: name_safe here should actually not be
+  ## <function_name>_<parametrised_class_name>, but probably
+  ## <function_name>_<parameter_name> - that's easy enough to change
+  ## later though.
+  ##
+  ## Actually, that's a really good point; what is going on here?  The
+  ## approach for now might actually be best; that way the same
+  ## approach could work for functions that are templated but not
+  ## against a given class?
+
+  ret$name_r <- mangle_function_template(parent$name_r, defn$name_r)
+  ret$name_safe <- mangle_function_template(parent$name_safe, defn$name_safe)
+
+  ret$name_cpp <- cpp_template_rewrite_types(parent$name_cpp, defn)
+  ret$return_type <- cpp_template_rewrite_types(parent$return_type, defn)
+
+  ret$args <- cpp_template_rewrite_args(parent$args, defn)
+
+  ret
+}

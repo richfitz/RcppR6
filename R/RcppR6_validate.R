@@ -6,16 +6,18 @@ RcppR6_validate <- function(dat) {
     assert_named(dat$classes)
     dat$classes <- lapply(seq_along(dat$classes), function(i)
       RcppR6_validate_class(dat$classes[i]))
+    dat$functions <- lapply(seq_along(dat$functions), function(i)
+      RcppR6_validate_function(dat$functions[i], dat$classes))
   }
 
   dat
 }
 
-RcppR6_validate_class <- function(x) {
-  if ("list" %in% names(x[[1]])) {
-    RcppR6_validate_class_list(x)
+RcppR6_validate_class <- function(defn) {
+  if ("list" %in% names(defn[[1]])) {
+    RcppR6_validate_class_list(defn)
   } else {
-    RcppR6_validate_class_ref(x)
+    RcppR6_validate_class_ref(defn)
   }
 }
 
@@ -103,7 +105,7 @@ RcppR6_validate_args <- function(defn, parent, parent_type, parent_class) {
 
   ## These are both needed later on, in the templating stage.  This
   ## might change.
-  ## TODO: consider "funtion_type" rather than "parent_type"?
+  ## TODO: consider "function_type" rather than "parent_type"?
   ## or even "parent_function_type".  Affects RcppR6_generate_args()
   ret$parent_type <- match_value(parent_type,
                                  c("constructor", "member", "function"))
@@ -334,4 +336,70 @@ RcppR6_validate_validator <- function(defn, parent) {
     stop("Not yet supported")
   }
   ret
+}
+
+RcppR6_validate_function <- function(defn, classes) {
+  valid <- c("name_cpp", "templates", "args", "return_type")
+  ret <- RcppR6_validate_common(defn, valid)
+  defn <- ret$defn
+  ret$defn <- NULL
+
+  ## These are copied over from RcppR6_validate_method:
+  ret$return_type <- defn$return_type
+  assert_scalar_character(ret$return_type)
+
+  ret$args <- RcppR6_validate_args(defn$args, ret, "function", ret)
+  ret$args <- rename(ret$args, "parent_class_name_cpp", "generic_name_cpp")
+
+  ret$type <- "function"
+
+  ## What this does is different to the class approach; this is going
+  ## to look at the class definition and work out what the allowable
+  ## types are.
+  ret$templates <-
+    RcppR6_validate_function_templates(defn$templates, classes, ret)
+
+  ## And this also varies.  Rather than iterating over ret$concrete
+  ## (which does not exist here) we iterate over the same within the
+  ## class, which at this point has been validated for us.
+  tmp <- ret$templates$class$templates$concrete
+  ret$concrete <- RcppR6_validate_function_concrete(tmp, ret)
+
+  ret
+}
+
+RcppR6_validate_function_templates <- function(defn, classes, parent) {
+  assert_list(defn)
+  warn_unknown("templates", defn, c("class", "parameters", "concrete"))
+
+  ret <- list()
+  ret$parameters <- defn$parameters
+  assert_scalar_character(ret$parameters)
+
+  class_names <- vcapply(classes, "[[", "name_r")
+  class_name <- match_value(defn$class, class_names)
+  i <- match(class_name, class_names)
+  ret$class <- classes[[i]]
+
+  concrete <- vcapply(ret$class$templates$concrete, "[[", "parameters_r")
+  if (is.null(defn$concrete)) {
+    defn$concrete <- concrete
+  } else {
+    assert_character(defn$concrete)
+    nok <- setdiff(defn$concrete, concrete)
+    if (length(nok) > 0) {
+      stop(sprintf("Unknown concrete types %s", collapse(nok)))
+    }
+    ret$concrete <- defn$concrete
+  }
+
+  ret
+}
+
+## TODO: These can be merged and simplified considerably...
+RcppR6_validate_function_concrete <- function(defn, parent) {
+  if (length(defn) > 0) {
+    assert_list(defn)
+    lapply(defn, cpp_template_rewrite_function, parent)
+  }
 }

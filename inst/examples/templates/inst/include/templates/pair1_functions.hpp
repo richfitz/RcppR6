@@ -15,7 +15,7 @@ T sum(const pair1<T>& obj) {
 
 // Return a pair as return value
 template <typename T>
-pair1<T> make_pair(const T& a, const T& b) {
+pair1<T> make_pair1(const T& a, const T& b) {
   return pair1<T>(a, b);
 }
 

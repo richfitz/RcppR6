@@ -1,6 +1,6 @@
 Package: RcppR6
 Title: Code-generation Wrapping C++ Classes as R6 Classes
-Version: 0.2.003
+Version: 0.2.004
 Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
 Description: Experiments!  This is all a work in progress.  See the
     README on the github page, at least for now.

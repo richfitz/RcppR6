@@ -41,3 +41,7 @@ mangle_input <- function(package, name_cpp) {
   sprintf("%s::RcppR6::RcppR6<%s>",
           package, cpp_template_parameters(name_cpp))
 }
+
+mangle_function_template <- function(name, type) {
+  sprintf("%s__%s", name, type)
+}

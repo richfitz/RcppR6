@@ -1,23 +1,23 @@
 pair1_sum:
-  name_cpp: "pair::sum<T>"
+  name_cpp: "examples::sum<T>"
   templates:
     parameters: T
-    generic: pair1
-  args: [obj: T]
+    class: pair1
+  args: [obj: "examples::pair1<T>"]
   return_type: T
 
-make_pair:
-  name_cpp: "pair::make_pair<T>"
+make_pair1:
+  name_cpp: "examples::make_pair1<T>"
   templates:
     parameters: T
-    generic: pair1
-  args: [a: "const T&", b: "const T&"]
-  return_type: "pair::pair1<1>"
+    class: pair1
+  args: [a: "T", b: "T"]
+  return_type: "examples::pair1<T>"
 
 combine:
-  name_cpp: "pair::combine<T>"
+  name_cpp: "examples::combine<T>"
   templates:
     parameters: T
-    generic: pair1
-  args: [a: "const pair::pair1<T>&", b: "const pair::pair1<T>&"]
-  return_type: "pair::pair1<T>"
+    class: pair1
+  args: [a: "const examples::pair1<T>&", b: "const examples::pair1<T>&"]
+  return_type: "examples::pair1<T>"

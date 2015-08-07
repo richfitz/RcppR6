@@ -5,11 +5,15 @@
 RcppR6_read <- function(path, verbose=TRUE) {
   config <- RcppR6_read_config(path)
   filename_classes <- file.path(path, config$classes)
+  filename_functions <- file.path(path, config$functions)
   classes <- join_lists(lapply(filename_classes, RcppR6_read_classes,
                                path, verbose))
+  functions <- join_lists(lapply(filename_functions, RcppR6_read_functions,
+                                 path, verbose))
   list(path=path,
        classes=classes,
-       hash=digest::digest(classes))
+       functions=functions,
+       hash=digest::digest(list(classes, functions)))
 }
 
 RcppR6_read_config <- function(path) {
@@ -17,10 +21,11 @@ RcppR6_read_config <- function(path) {
   if (file.exists(filename)) {
     dat <- yaml_read(filename)
   } else {
-    dat <- RcppR6_config_default()
+    dat <- RcppR6_config_default(path)
   }
-  warn_unknown("RcppR6", dat, "classes")
+  warn_unknown("RcppR6", dat, c("classes", "functions"))
   assert_character(dat$classes)
+  assert_character(dat$functions)
   if (length(dat$classes) == 0) {
     stop("Need at least one set of classes")
   }
@@ -35,9 +40,22 @@ RcppR6_read_classes <- function(filename, base, verbose) {
   yaml_read(filename)
 }
 
+RcppR6_read_functions <- function(filename, base, verbose) {
+  if (verbose) {
+    message("Reading functions from ", drop_leading_path(filename, base))
+  }
+  assert_file_exists(filename)
+  yaml_read(filename)
+}
 
-RcppR6_config_default <- function() {
-  list(classes="inst/RcppR6_classes.yml")
+
+RcppR6_config_default <- function(path) {
+  functions <- "inst/RcppR6_functions.yml"
+  if (!file.exists(file.path(path, functions))) {
+    functions <- character(0)
+  }
+  list(classes="inst/RcppR6_classes.yml",
+       functions=functions)
 }
 
 ## Read all templates.  This makes things slightly simpler later.

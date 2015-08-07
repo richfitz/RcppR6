@@ -157,6 +157,34 @@ p2$second
 ## generate a lot of boilerplate.  That could create large binaries
 ## (though probably no larger than `boost::variant` or `boost::any`).
 
+## # Using templated types in functions
+
+## Now we have a problem.  With non-templated types we can use Rcpp to
+## easily write functions that use the generated classes.  You can
+## still do that for fully-specified types:
+
+## ```c++
+## // [[Rcpp::export]]
+## int first(pair<int, double> x) {
+##   return x.first;
+## }
+## ```
+
+## But how to write a function that would return the first of *any*
+## pair?  This *will not work*:
+
+## ```c++
+## // [[Rcpp::export]]
+## template <typename T, typename U>
+## T first(pair<T, U> x) {
+##   return x.first;
+## }
+## ```
+
+## It won't work because Rcpp does not know what combinations of `T`
+## and `U` to generate code for.  RcppR6 can help here by doing some
+## code generation for you.
+
 ## # Contents of generated files:
 
 ## `inst/include/templates/RcppR6_pre.hpp`:
