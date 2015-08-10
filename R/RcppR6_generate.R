@@ -264,6 +264,9 @@ RcppR6_generate_args <- function(dat, info) {
   is_constructor <- dat$parent_type == "constructor"
   is_member      <- dat$parent_type == "member"
   is_function    <- dat$parent_type == "function"
+  is_free_function <- dat$parent_type == "free_function"
+
+  needs_object <- !(is_constructor || is_free_function)
 
   ret <- list()
   ## R:
@@ -276,19 +279,18 @@ RcppR6_generate_args <- function(dat, info) {
     ret$defn_r <- collapse(defn_r)
   }
 
-  ret$body_r <- collapse(c(if (is_member) RcppR6$r_self_name, dat$names))
+  ret$body_r <- collapse(c(if (needs_object) RcppR6$r_self_name, dat$names))
 
   ## C++ details are harder:
-  if (is_constructor || is_function) {
-    types_cpp <- dat$types
-    names_cpp <- dat$names
-    body_cpp_prefix <- NULL
-  } else {
+  if (needs_object) {
     input_cpp <- mangle_input(info$name, dat$parent_class_name_cpp)
     types_cpp <- c(input_cpp,         dat$types)
     names_cpp <- c(RcppR6$input_name, dat$names)
-    ## TODO: is (!is_member) ever triggered here?
     body_cpp_prefix <- if (!is_member) paste0("*", RcppR6$input_name)
+  } else {
+    types_cpp <- dat$types
+    names_cpp <- dat$names
+    body_cpp_prefix <- NULL
   }
   ret$defn_cpp <- paste(types_cpp, names_cpp, collapse=", ")
   ret$body_cpp  <- collapse(c(body_cpp_prefix, dat$names))

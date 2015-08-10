@@ -107,8 +107,14 @@ RcppR6_validate_args <- function(defn, parent, parent_type, parent_class) {
   ## might change.
   ## TODO: consider "function_type" rather than "parent_type"?
   ## or even "parent_function_type".  Affects RcppR6_generate_args()
+  ##
+  ## NOTE: This refers to the C++ origin of the function more than the
+  ## eventual R destination; free_function refers (for now at least)
+  ## to something destined to be a freee function on the R side.  Not
+  ## pretty!
   ret$parent_type <- match_value(parent_type,
-                                 c("constructor", "member", "function"))
+                                 c("constructor", "member",
+                                   "function", "free_function"))
   ret$parent_class_name_cpp <- parent_class$name_cpp
 
   ret
@@ -348,10 +354,10 @@ RcppR6_validate_function <- function(defn, classes) {
   ret$return_type <- defn$return_type
   assert_scalar_character(ret$return_type)
 
-  ret$args <- RcppR6_validate_args(defn$args, ret, "function", ret)
+  ret$args <- RcppR6_validate_args(defn$args, ret, "free_function", ret)
   ret$args <- rename(ret$args, "parent_class_name_cpp", "generic_name_cpp")
 
-  ret$type <- "function"
+  ret$type <- "free_function"
 
   ## What this does is different to the class approach; this is going
   ## to look at the class definition and work out what the allowable
