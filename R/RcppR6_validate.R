@@ -369,8 +369,9 @@ RcppR6_validate_function <- function(defn, classes) {
 }
 
 RcppR6_validate_function_templates <- function(defn, classes, parent) {
+  valid <- c("class", "parameters", "concrete", "infer_type")
   assert_list(defn)
-  warn_unknown("templates", defn, c("class", "parameters", "concrete"))
+  warn_unknown("templates", defn, valid)
 
   ret <- list()
   ret$parameters <- defn$parameters
@@ -391,6 +392,43 @@ RcppR6_validate_function_templates <- function(defn, classes, parent) {
       stop(sprintf("Unknown concrete types %s", collapse(nok)))
     }
     ret$concrete <- defn$concrete
+  }
+
+  ret$infer_type <- with_default(defn$infer_type, "explicit")
+  ret$infer_type <- match_value(ret$infer_type, c("explicit", "implicit"))
+
+  ## This will be different for the class generation dispatch I think,
+  ## but there will be a lot of salvageable code.  Wait until getting
+  ## that working before trying to factor out.
+  if (ret$infer_type == "implicit") {
+    ## Rules here:
+    if (length(ret$parameters) != 1L) {
+      stop("Require exactly one template argument to use implicit dispatch")
+    }
+
+    ## This bit is bad because we use regexp to parse C++ code which
+    ## is in general not possible.
+    arg1_type <- parent$args$types[[1]]
+    arg1_type <- sub("^\\s*const\\s+", "", arg1_type)
+    arg1_type <- sub("\\s*&\\s*$", "", arg1_type)
+
+    if (arg1_type == ret$parameters) {
+      ret$infer_type_arg1_raw_parameter <- TRUE
+      ret$infer_type_arg1_type <- ret$parameters
+    } else {
+      ret$infer_type_arg1_raw_parameter <- FALSE
+      pos <- vcapply(classes, "[[", "name_cpp")
+      i <- match(gsub("\\s", "", arg1_type), gsub("\\s", "", pos))
+      if (is.na(i)) {
+        stop(sprintf("'%s' is not a RcppR6 templated class", arg1_type))
+      }
+      ret$infer_type_arg1_type <- classes[[i]]
+    }
+
+    ## So, coming out of this we've added keys:
+    ##   - infer_type (string)
+    ##   - infer_type_arg1_raw_parameter (T/F)
+    ##   - infer_type_arg1_type (string)
   }
 
   ret

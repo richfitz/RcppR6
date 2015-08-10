@@ -33,23 +33,24 @@ test_that("functions", {
   xs <- make_pair1("string")("one", "two")
   expect_that(xs, is_a("pair1<string>"))
 
+  ## Explicit type interface:
   expect_that(pair1_sum("int")(xi), equals(3))
   expect_that(pair1_sum("double")(xd), equals(3.3))
   expect_that(pair1_sum("string")(xs), equals("onetwo"))
 
-  xi2 <- combine("int")(xi, xi)
+  ## Implicit type interface:
+  xi2 <- combine(xi, xi)
   expect_that(xi2, is_a("pair1<int>"))
   expect_that(xi2$first, equals(2L))
 
-  xi2 <- combine("int")(xi, xi)
-  expect_that(xi2, is_a("pair1<int>"))
-  expect_that(xi2$first, equals(2L))
+  expect_that(combine(xi, xd), throws_error("Expected an object of type"))
+  expect_that(combine(1, 2), throws_error("Unknown type: numeric"))
 
-  xd2 <- combine("double")(xd, xd)
+  xd2 <- combine(xd, xd)
   expect_that(xd2, is_a("pair1<double>"))
   expect_that(xd2$first, equals(2.2))
 
-  xs2 <- combine("string")(xs, xs)
+  xs2 <- combine(xs, xs)
   expect_that(xs2, is_a("pair1<string>"))
   expect_that(xs2$first, equals("oneone"))
 })

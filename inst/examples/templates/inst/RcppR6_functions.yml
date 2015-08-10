@@ -19,5 +19,6 @@ combine:
   templates:
     parameters: T
     class: pair1
+    infer_type: implicit
   args: [a: "const examples::pair1<T>&", b: "const examples::pair1<T>&"]
   return_type: "examples::pair1<T>"

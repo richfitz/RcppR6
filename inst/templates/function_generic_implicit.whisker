@@ -1,0 +1,6 @@
+{{{function.name_r}}} <- function({{{function.args.defn_r}}}) {
+  cl <- class({{{function.arg1_name}}})[[1]]
+  switch(cl,
+{{{function.switch_body}}},
+         stop("Unknown type: ", cl))({{{function.args.body_r}}})
+}

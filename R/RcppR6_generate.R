@@ -415,6 +415,7 @@ RcppR6_generate_function <- function(dat, info) {
   ret
 }
 
+## This is going to share some common code with the class version too.
 RcppR6_generate_function_template_switch <- function(info, parent) {
   ret <- list()
 
@@ -422,24 +423,55 @@ RcppR6_generate_function_template_switch <- function(info, parent) {
 
   ret$types <- collapse(parent$templates$parameters)
 
-  ## Valid template types:
+  infer_type <- parent$templates$infer_type
   concrete <- parent$templates$class$templates$concrete
-  valid <- sapply(concrete, function(x)
-    dput_to_character(unname(x$parameters_r)))
-  names(valid) <- vcapply(concrete, "[[", "name_r")
-  ret$valid_r_repr <-
-    sprintf("list(%s)", collapse(sprintf('"%s"=%s', names(valid), valid)))
 
-  ## Don't use the strings here: we want the actual functions:
-  ## TODO: Do this with switch() perhaps? (See also
-  ## RcppR6_generate_constructor_template_switch)
-  name_safe <- vcapply(parent$concrete, "[[", "name_safe")
-  ret$functions_r_repr <-
-    sprintf("list(%s)", collapse(sprintf('"%s"=`%s`',
-                                         names(valid), name_safe)))
+  if (infer_type == "explicit") {
+    ## Valid template types:
+    valid <- sapply(concrete, function(x)
+      dput_to_character(unname(x$parameters_r)))
+    names(valid) <- vcapply(concrete, "[[", "name_r")
+    ret$valid_r_repr <-
+      sprintf("list(%s)", collapse(sprintf('"%s"=%s', names(valid), valid)))
 
-  wr_data <- list("function"=ret)
-  drop_blank(wr(info$templates$function_generic, wr_data))
+    ## Don't use the strings here: we want the actual functions:
+    ## TODO: Do this with switch() perhaps? (See also
+    ## RcppR6_generate_constructor_template_switch)
+    name_safe <- vcapply(parent$concrete, "[[", "name_safe")
+    ret$functions_r_repr <-
+      sprintf("list(%s)", collapse(sprintf('"%s"=`%s`',
+                                           names(valid), name_safe)))
+
+    wr_data <- list("function"=ret)
+    drop_blank(wr(info$templates$function_generic_explicit, wr_data))
+  } else if (infer_type == "implicit") {
+    ret$args <- RcppR6_generate_args(parent$args, info)
+    ret$arg1_name <- parent$args$names[[1]]
+
+    if (parent$templates$infer_type_arg1_raw_parameter) {
+      ## TODO: This *requires* that the classes that are passed
+      ## through to R are *exactly* as written.  So double/real must
+      ## be numeric, int must be integer, etc.  That might be a bit
+      ## limiting, so it might be useful to allow a mapping function
+      ## here too.
+      types_r <- vcapply(concrete, "[[", "parameters_r")
+    } else {
+      ## TODO: This is not actually good enough; we need to make sure
+      ## that the templating is across the same set of concrete types
+      ## (i.e., that subsituting T in both infer_type_arg1_type and
+      ## the underlying class type are valid).  For now I'll ignore
+      ## this.
+      type <- parent$templates$infer_type_arg1_type
+      types_r <- vcapply(type$templates$concrete, "[[", "name_r")
+    }
+    name_safe <- vcapply(parent$concrete, "[[", "name_safe")
+    ret$switch_body <-
+      indent(collapse(sprintf('"%s"=`%s`', types_r, name_safe), ",\n"), 9)
+    wr_data <- list("function"=ret)
+    drop_blank(wr(info$templates$function_generic_implicit, wr_data))
+  } else {
+    stop("Something is not implemented")
+  }
 }
 
 RcppR6_generate_function_concrete <- function(dat, info, parent) {
