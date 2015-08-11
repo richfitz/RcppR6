@@ -20,6 +20,9 @@ RcppR6_read_config <- function(path) {
   filename <- file.path(path, "inst/RcppR6.yml")
   if (file.exists(filename)) {
     dat <- yaml_read(filename)
+    if (is.null(dat$functions)) {
+      dat$functions <- character(0)
+    }
   } else {
     dat <- RcppR6_config_default(path)
   }
