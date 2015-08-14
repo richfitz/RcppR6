@@ -194,7 +194,7 @@ RcppR6_generate_constructor <- function(dat, info, parent) {
   ret$args <- RcppR6_generate_args(dat$args, info)
 
   if (parent$is_templated) {
-    ret$r <- RcppR6_generate_constructor_template_switch(info, parent)
+    ret$r <- RcppR6_generate_constructor_template_switch(ret, info, parent)
   } else {
     ret$name_cpp    <- dat$name_cpp
     ret$name_safe   <- mangle_constructor(parent$name_safe)
@@ -355,7 +355,7 @@ RcppR6_generate_class_list <- function(dat, info) {
     ret[keep] <- lapply(keep, function(x)
       paste(vcapply(concrete, "[[", x), collapse="\n\n"))
 
-    ret$r <- paste(RcppR6_generate_constructor_template_switch(info, dat),
+    ret$r <- paste(RcppR6_generate_constructor_template_switch(dat, info, dat),
                    ret$r, sep="\n\n")
   } else {
     ret$validator <- RcppR6_generate_validator(dat$validator, dat)
@@ -380,8 +380,9 @@ RcppR6_generate_class_list <- function(dat, info) {
   ret
 }
 
-RcppR6_generate_constructor_template_switch <- function(info, parent) {
+RcppR6_generate_constructor_template_switch <- function(dat, info, parent) {
   ret <- list()
+  ret$roxygen <- dat$roxygen
   ret$types <- collapse(parent$templates$parameters)
 
   ## Valid template types:
